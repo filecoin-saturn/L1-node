@@ -1,0 +1,11 @@
+{
+  "type": "module",
+  "dependencies": {
+    "debug": "^4.3.3",
+    "express": "^4.17.3",
+    "ipfs-core": "^0.14.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
