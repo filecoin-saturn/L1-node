@@ -2,7 +2,10 @@
 
 ## Installation
 
-Run the docker image with `docker run -p 3001:3001 -p 8383:8383 -it gateway`
+1. Have a SSL/TLS certificate and private key ready or generate it now
+2. Save both files into a directory. E.g. `/local/path/to/ssl-config`
+3. Run the docker image with
+  `docker run -rm -v /local/path/to/ssl-config:/etc/nginx/ssl -p 3001:3001 -p 8443:8443 -it gateway`
 
 ## Building
 
@@ -10,8 +13,12 @@ Build the docker image with `docker build -t gateway .`
 
 ## Files
 
-### nginx configuration
+#### nginx configuration
 
 `gateway.conf` contains the nginx configuration of the caching proxy
+
+#### Shim
+
+`shim/` contains the necessary code to fetch CIDs and CAR files for nginx to cache 
 
 ## License

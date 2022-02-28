@@ -15,11 +15,14 @@ RUN npm install
 # copy the generated modules and all other files to the container
 COPY shim ./
 COPY nginx/*.conf /etc/nginx/conf.d/
-# our app is running on port 3001 within the container, so need to expose it
-EXPOSE 3001
-EXPOSE 8383
+COPY nginx/ssl/ /etc/nginx/ssl/
 
-COPY start.sh ./
+# our app is running on port 3001 within the container, we expose it for non-caching debugging
+EXPOSE 3001
+# nginx caching proxy is running on port 8443 within the container, we expose it for production usage
+EXPOSE 8443
+
+COPY scripts/start.sh ./
 
 ENV DEBUG server
 

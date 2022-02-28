@@ -3,7 +3,8 @@
   "dependencies": {
     "debug": "^4.3.3",
     "express": "^4.17.3",
-    "ipfs-core": "^0.14.1"
+    "ipfs-core": "^0.14.1",
+    "node-fetch": "^3.2.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

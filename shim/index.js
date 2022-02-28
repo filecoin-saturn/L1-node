@@ -1,13 +1,12 @@
 import express from 'express'
 import Debug from 'debug'
-import * as IPFS from 'ipfs-core'
+import fetch from 'node-fetch'
 
 const debug = Debug('server')
 
-const ipfs = await IPFS.create()
-
 const app = express()
-const port = process.env.PORT || 3001
+const PORT = process.env.PORT || 3001
+const CACHE_STATION = process.env.CACHE_STATION || 'host.docker.internal'
 
 app.disable('x-powered-by')
 
@@ -15,18 +14,15 @@ app.get('/favicon.ico', (req, res) => {
     res.sendStatus(404)
 })
 
-app.get('/cid/:cid*', async (req, res) => {
+app.get('/cid/:cid*', (req, res) => {
     const cid = req.params.cid + req.params[0]
-    const cidPath = `./${cid}`
     debug(`Req for ${cid}`)
     res.set('Cache-Control', 'public, max-age=31536000, immutable')
-    const result = ipfs.cat(cid)
-    for await (const buf of result) {
-        res.write(buf)
-    }
-    res.end()
+    fetch(`http://${CACHE_STATION}:59501/car/${cid}`).then(response => {
+        console.log(response.body.pipe(res))
+    })
 })
 
-app.listen(port, () => {
-    debug(`Gateway app listening on port ${port}`)
+app.listen(PORT, () => {
+    debug(`Gateway app listening on port ${PORT}`)
 })
