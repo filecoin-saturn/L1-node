@@ -7,9 +7,15 @@
 3. Run the docker image with
   `docker run -rm -v /local/path/to/ssl-config:/etc/nginx/ssl -p 3001:3001 -p 8443:8443 -it gateway`
 
-## Building
+## Developing
 
-Build the docker image with `docker build -t gateway .`
+### Building
+
+Build the docker image with `./scripts/build.sh`
+
+### Running
+
+Build the docker image with `./scripts/run.sh`
 
 ## Files
 
