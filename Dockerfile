@@ -8,21 +8,26 @@ RUN apt-get install -y build-essential nodejs
 # create the directory inside the container
 WORKDIR /usr/src/app
 # copy the package.json files from local machine to the workdir in container
-COPY shim/package*.json ./
+COPY container/shim/package*.json ./
 # run npm install in our local machine
 RUN npm install
 
 # copy the generated modules and all other files to the container
-COPY shim ./
-COPY nginx/*.conf /etc/nginx/conf.d/
-COPY nginx/ssl/ /etc/nginx/ssl/
+COPY container/shim ./
+COPY container/nginx/*.conf /etc/nginx/conf.d/
+COPY container/nginx/ssl/ /etc/nginx/ssl/
 
-# our app is running on port 3001 within the container, we expose it for non-caching debugging
-EXPOSE 3001
-# nginx caching proxy is running on port 8443 within the container, we expose it for production usage
-EXPOSE 8443
+# accept NGINX_PORT and SHIM_PORT, defaulting them to 8443 and 3001 respectively
+ARG NGINX_PORT=8443
+ARG SHIM_PORT=3001
 
-COPY scripts/start.sh ./
+# our shim is running on SHIM_PORT (default=3001) within the container, we expose it for non-caching debugging
+EXPOSE ${SHIM_PORT}
+
+# nginx caching proxy is running on NGINX_PORT (default=8443) within the container, we expose it for production usage
+EXPOSE ${NGINX_PORT}
+
+COPY container/scripts/start.sh ./
 
 ENV DEBUG server
 
