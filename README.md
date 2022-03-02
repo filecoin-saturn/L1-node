@@ -9,13 +9,25 @@
 
 ## Developing
 
-### Building
+### Watch, build & run
+
+Easiest way to get started: `./gateway dev`
+
+### Build
 
 Build the docker image with `./gateway build`
 
-### Running
+### Run
 
-Build the docker image with `./gateway run`
+Run the docker container with `./gateway run`
+
+### Logs
+
+View container logs with `./gateway logs`
+
+### Kill
+
+Kill the docker container `./gateway kill`
 
 ## Files
 
