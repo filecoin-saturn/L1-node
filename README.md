@@ -11,11 +11,11 @@
 
 ### Building
 
-Build the docker image with `./scripts/build.sh`
+Build the docker image with `./gateway build`
 
 ### Running
 
-Build the docker image with `./scripts/run.sh`
+Build the docker image with `./gateway run`
 
 ## Files
 
