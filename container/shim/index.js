@@ -5,7 +5,8 @@ import * as IPFS from 'ipfs-core'
 
 const PORT = process.env.SHIM_PORT || 3001
 const NGINX_PORT = process.env.NGINX_PORT || 8443
-const CACHE_STATION = process.env.CACHE_STATION || 'host.docker.internal'
+const CACHE_STATION = process.env.CACHE_STATION || 'host.docker.internal:59501'
+const ORCHESTRATOR_URL = process.env.ORCHESTRATOR_URL || 'host.docker.internal:12345'
 
 const debug = Debug('server')
 const ipfs = await IPFS.create()
@@ -31,7 +32,7 @@ app.get('/cid/:cid*', async (req, res) => {
         return res.end()
     }
 
-    http.get(`http://${CACHE_STATION}:59501/car/${cid}`, fetchRes => {
+    http.get(`http://${CACHE_STATION}/car/${cid}`, fetchRes => {
         fetchRes.on('data', chunk => {
             res.write(chunk)
         });
@@ -45,4 +46,15 @@ app.get('/cid/:cid*', async (req, res) => {
 app.listen(PORT, () => {
     debug(`shim running on http://localhost:${PORT}. Test at http://localhost:${PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF`)
     debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF`)
+
+    debug('Signing up with orchestrator')
+    // http.request(`http://${ORCHESTRATOR_URL}`, { method: 'POST' }, fetchRes => {
+    //     fetchRes.on('data', chunk => {
+    //         res.write(chunk)
+    //     });
+    //
+    //     fetchRes.on('end', () => {
+    //         res.end()
+    //     });
+    // })
 })

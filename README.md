@@ -40,3 +40,5 @@ Kill the docker container `./gateway kill`
 `shim/` contains the necessary code to fetch CIDs and CAR files for nginx to cache 
 
 ## License
+
+Dual-licensed under [MIT](https://github.com/filecoin-project/gateway-station/blob/master/LICENSE-MIT) + [Apache 2.0](https://github.com/filecoin-project/gateway-station/blob/master/LICENSE-APACHE)
