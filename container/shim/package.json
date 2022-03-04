@@ -3,10 +3,15 @@
   "type": "module",
   "dependencies": {
     "@ipld/car": "^3.2.4",
+    "@ipld/dag-cbor": "^7.0.1",
+    "@ipld/dag-json": "^8.0.8",
+    "@ipld/dag-pb": "^2.1.16",
+    "@multiformats/blake2": "^1.0.9",
     "debug": "^4.3.3",
     "express": "^4.17.3",
     "ipfs-car": "^0.6.2",
-    "ipfs-core": "^0.14.1"
+    "ipfs-core": "^0.14.1",
+    "multiformats": "^9.6.4"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
