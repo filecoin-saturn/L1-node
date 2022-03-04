@@ -1,11 +1,14 @@
 # Gateway Station
 
+The gateway station is the outermost system of Filecoin Saturn. It allows retrieval clients to request CIDs and byte
+ranges of CIDs, returning CAR files. The gateway station returns CAR files from cache or falling back to cache stations.
+
 ## Installation
 
 1. Have a SSL/TLS certificate and private key ready or generate it now
-2. Save both files into a directory. E.g. `/local/path/to/ssl-config`
+2. Save both files as `gateway.crt` and `gateway.key` into a directory such as `/local/path/to/ssl-config`
 3. Run the docker image with
-  `docker run -rm -v /local/path/to/ssl-config:/etc/nginx/ssl -p 3001:3001 -p 8443:8443 -it gateway`
+  `docker run --rm -v /local/path/to/ssl-config:/etc/nginx/ssl -p 3001:3001 -p 8443:8443 -it ghcr.io/filecoin-project/gateway-station:main`
 
 ## Developing
 

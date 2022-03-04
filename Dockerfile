@@ -14,7 +14,8 @@ RUN npm install
 
 # copy the generated modules and all other files to the container
 COPY container/shim ./
-COPY container/nginx/*.conf /etc/nginx/conf.d/
+COPY container/nginx/nginx.conf /etc/nginx/
+COPY container/nginx/gateway.conf /etc/nginx/conf.d/
 COPY container/nginx/ssl/ /etc/nginx/ssl/
 
 # accept NGINX_PORT and SHIM_PORT, defaulting them to 8443 and 3001 respectively
@@ -29,7 +30,7 @@ EXPOSE ${NGINX_PORT}
 
 COPY container/scripts/start.sh ./
 
-ENV DEBUG server
+ENV DEBUG server*
 
 # the command that starts our app
 CMD ./start.sh

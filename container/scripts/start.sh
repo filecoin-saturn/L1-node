@@ -6,7 +6,7 @@ echo "[container] starting shim and nginx"
 node index.js &
 
 # Start the nginx process with no output
-nginx -g "daemon off;" > /dev/null 2>&1 &
+nginx -g "daemon off;" &
 
 # Wait for any process to exit
 wait -n
