@@ -14,7 +14,6 @@ import * as json from 'multiformats/codecs/json'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { from as hasher } from 'multiformats/hashes/hasher'
 import { blake2b256 } from '@multiformats/blake2/blake2b'
-import { asAsyncIterable } from './utils/utils.js'
 
 const { toHex } = bytes
 
@@ -66,16 +65,19 @@ app.get('/cid/:cid*', async (req, res) => {
 
     // Testing CID
     if (cid === 'QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF') {
-        return streamTo(fs.createReadStream('./QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car'), res)
+        return streamCAR(fs.createReadStream('./QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car'), res)
     }
 
     http.get(`http://${CACHE_STATION}/car/${cid}`, async fetchRes => {
-        streamTo(fetchRes, res)
+        streamCAR(fetchRes, res).catch(debug)
     })
 })
 
-async function streamTo (streamIn, streamOut) {
-    asAsyncIterable(streamOut)
+/**
+ * @param {AsyncIterable<Uint8Array> || IncomingMessage} streamIn
+ * @param {Response} streamOut
+ */
+async function streamCAR (streamIn, streamOut) {
     const carBlockIterator = await CarBlockIterator.fromIterable(streamIn)
     const { writer, out } = await CarWriter.create(await carBlockIterator.getRoots())
 
@@ -101,8 +103,6 @@ async function streamTo (streamIn, streamOut) {
             streamOut.status(502)
             break
         }
-
-        debug('Verified block')
 
         await writer.put({ cid, bytes })
     }

@@ -5,7 +5,7 @@ import Debug from 'debug'
 const debug = Debug('server:log-ingestor')
 
 const NGINX_LOG_KEYS_MAP = {
-  r: 'cid',
+  r: 'request',
   b: 'bytes'
 }
 
@@ -13,12 +13,13 @@ let pending = {}
 
 if (fs.existsSync('/var/log/nginx/gateway-access.log')) {
   debug('Reading nginx log file')
-  const fh = await fsPromises.open('/var/log/nginx/gateway-access.log', 'r')
+  const fh = await fsPromises.open('/var/log/nginx/gateway-access.log', 'r+')
 
   setInterval(async () => {
     const read = await fh.read()
     if (read.bytesRead > 0) {
       const lines = read.buffer.slice(0, read.bytesRead).toString().trim().split('\n')
+
       for (const line of lines) {
         const vars = line.split('&&').reduce(((previousValue, currentValue) => {
           const [name, ...value] = currentValue.split('=')
@@ -28,11 +29,18 @@ if (fs.existsSync('/var/log/nginx/gateway-access.log')) {
           return Object.assign(previousValue, { [NGINX_LOG_KEYS_MAP[name] || name]: parsedValue })
         }), {})
         debug('%o', vars)
-        if (!pending[vars.cid]) {
-          pending[vars.cid] = 0
+        if (!vars.request.startsWith('/cid/')) {
+          continue
         }
-        pending[vars.cid] += vars.bytes
+        const cid = vars.request.replace('/cid/', '')
+        if (!pending[cid]) {
+          pending[cid] = 0
+        }
+        pending[cid] += vars.bytes
       }
+
+    } else {
+      fh.truncate().catch(debug)
     }
   }, 5000)
 
