@@ -16,6 +16,7 @@ RUN npm install
 COPY container/shim ./
 COPY container/nginx/nginx.conf /etc/nginx/
 COPY container/nginx/gateway.conf /etc/nginx/conf.d/
+RUN rm /etc/nginx/conf.d/default.conf
 COPY container/nginx/ssl/ /etc/nginx/ssl/
 
 # accept NGINX_PORT and SHIM_PORT, defaulting them to 8443 and 3001 respectively
