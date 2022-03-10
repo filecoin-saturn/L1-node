@@ -49,7 +49,7 @@ app.get('/favicon.ico', (req, res) => {
 // Whenever nginx doesn't have a CAR file in cache, this is called
 app.get('/cid/:cid*', async (req, res) => {
     const cid = req.params.cid + req.params[0]
-    debug.extend('req')(`Req for ${cid}, %o`, req.headers)
+    debug.extend('req')(`Cache miss for %s`, cid)
     res.set('Cache-Control', 'public, max-age=31536000, immutable')
 
     if (req.headers.range) {

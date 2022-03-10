@@ -5,51 +5,83 @@ import Debug from 'debug'
 const debug = Debug('server:log-ingestor')
 
 const NGINX_LOG_KEYS_MAP = {
+  addr: 'address',
+  b: 'bytes',
   r: 'request',
-  b: 'bytes'
+  s: 'status'
 }
 
 let pending = {}
+let fh, hasRead
 
 if (fs.existsSync('/var/log/nginx/gateway-access.log')) {
   debug('Reading nginx log file')
-  const fh = await fsPromises.open('/var/log/nginx/gateway-access.log', 'r+')
+  fh = await openFileHandle()
 
   setInterval(async () => {
-    const read = await fh.read()
-    if (read.bytesRead > 0) {
-      const lines = read.buffer.slice(0, read.bytesRead).toString().trim().split('\n')
+    const read = await fh.readFile()
+
+    if (read.length > 0) {
+      hasRead = true
+      const lines = read.toString().trim().split('\n')
 
       for (const line of lines) {
-        const vars = line.split('&&').reduce(((previousValue, currentValue) => {
+        const vars = line.split('&&').reduce(((varsAgg, currentValue) => {
           const [name, ...value] = currentValue.split('=')
-          const jointValue = value.join('')
-          const numberValue = Number.parseFloat(jointValue)
-          const parsedValue = Number.isNaN(numberValue) ? jointValue : numberValue
-          return Object.assign(previousValue, { [NGINX_LOG_KEYS_MAP[name] || name]: parsedValue })
+          const jointValue = value.join('=')
+
+          let parsedValue
+          switch (name) {
+            case 'args': {
+              parsedValue = jointValue.split('&').reduce((argsAgg, current) => {
+                const [name, ...value] = current.split('=')
+                return Object.assign(argsAgg, { [name]: value.join('=') })
+              }, {})
+              break
+            }
+            case 'addr': {
+              parsedValue = jointValue
+              break
+            }
+            default: {
+              const numberValue = Number.parseFloat(jointValue)
+              parsedValue = Number.isNaN(numberValue) ? jointValue : numberValue
+            }
+          }
+          return Object.assign(varsAgg, { [NGINX_LOG_KEYS_MAP[name] || name]: parsedValue })
         }), {})
         debug('%o', vars)
-        if (!vars.request.startsWith('/cid/')) {
+        if (!vars.request?.startsWith('/cid/')) {
           continue
         }
-        const cid = vars.request.replace('/cid/', '')
+        const { bytes, request, args } = vars
+        const cid = request.replace('/cid/', '')
+        const { rcid } = args
+        debug('%s (%d) from %s', cid, bytes, rcid)
         if (!pending[cid]) {
           pending[cid] = 0
         }
-        pending[cid] += vars.bytes
+        pending[cid] += bytes
       }
 
     } else {
-      fh.truncate().catch(debug)
+      if (hasRead) {
+        await fh.truncate()
+        await fh.close()
+        hasRead = false
+        fh = await openFileHandle()
+      }
     }
-  }, 5000)
+  }, 10_000)
 
   setInterval(() => {
     if (Object.keys(pending).length > 0) {
       debug('Sending pending retrievals %o', pending)
       pending = {}
-    } else {
-      debug('No pending retrievals')
     }
   }, 60_000)
+}
+
+async function openFileHandle() {
+  return await fsPromises.open('/var/log/nginx/gateway-access.log', 'r+')
 }
