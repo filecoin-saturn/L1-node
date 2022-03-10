@@ -5,7 +5,7 @@ ranges of CIDs, returning CAR files. The gateway station returns CAR files from 
 
 ## Requirements
 
-- Linux server with docker
+- Linux server with docker ([Instructions here](https://docs.docker.com/engine/install/#server))
 - 100Mbps upload bandwidth minimum
 - 4GB RAM
 - 128GB Disk (SSD recommended), the great the disk size, the more you can cache and earn
