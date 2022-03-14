@@ -19,25 +19,25 @@ ranges of CIDs, returning CAR files. The gateway station returns CAR files from 
 
 ## Developing
 
-### Watch, build & run
-
-Easiest way to get started: `./gateway dev`
-
 ### Build
 
-Build the docker image with `./gateway build`
+Build the docker image with 
+```shell
+./gateway build
+```
 
 ### Run
 
-Run the docker container with `./gateway run`
+Run the docker container with 
+```shell
+./gateway run
+```
 
-### Logs
+### Build and run
 
-View container logs with `./gateway logs`
-
-### Kill
-
-Kill the docker container `./gateway kill`
+```shell
+./gateway build run
+```
 
 ## Files
 

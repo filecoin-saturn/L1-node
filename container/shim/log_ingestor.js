@@ -51,7 +51,7 @@ if (fs.existsSync('/var/log/nginx/gateway-access.log')) {
           return Object.assign(varsAgg, { [NGINX_LOG_KEYS_MAP[name] || name]: parsedValue })
         }), {})
         debug('%o', vars)
-        if (!vars.request?.startsWith('/cid/')) {
+        if (!vars.request?.startsWith('/cid/') || vars.status !== 200) {
           continue
         }
         const { bytes, request, args } = vars

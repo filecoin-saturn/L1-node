@@ -14,6 +14,7 @@ import * as json from 'multiformats/codecs/json'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { from as hasher } from 'multiformats/hashes/hasher'
 import { blake2b256 } from '@multiformats/blake2/blake2b'
+import { CACHE_STATION, NGINX_PORT, PORT } from './config.js'
 
 const { toHex } = bytes
 
@@ -29,11 +30,6 @@ const hashes = {
     [sha256.code]: sha256,
     [blake2b256.code]: hasher(blake2b256)
 }
-
-const PORT = process.env.SHIM_PORT || 3001
-const NGINX_PORT = process.env.NGINX_PORT || false
-const CACHE_STATION = process.env.CACHE_STATION || 'host.docker.internal:59501'
-const ORCHESTRATOR_URL = process.env.ORCHESTRATOR_URL || 'host.docker.internal:12345'
 
 const debug = Debug('server')
 const app = express()
@@ -110,9 +106,11 @@ async function streamCAR (streamIn, streamOut) {
 }
 
 app.listen(PORT, () => {
-    debug(`shim running on http://localhost:${PORT}. Test at http://localhost:${PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF`)
+    debug(`shim running on http://localhost:${PORT}. Test at http://localhost:${PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev`)
     if (NGINX_PORT) {
-        debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF`)
+        debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev`)
+    } else {
+        debug(`nginx caching proxy no set`)
     }
 
     import('./log_ingestor.js')
