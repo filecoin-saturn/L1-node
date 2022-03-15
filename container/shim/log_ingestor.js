@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import fsPromises from 'node:fs/promises'
 import Debug from 'debug'
+import { FIL_WALLET_ADDRESS } from './config.js'
 
 const debug = Debug('server:log-ingestor')
 
@@ -76,7 +77,7 @@ if (fs.existsSync('/var/log/nginx/gateway-access.log')) {
 
   setInterval(() => {
     if (Object.keys(pending).length > 0) {
-      debug('Sending pending retrievals %o', pending)
+      debug('Submitting pending retrievals %o to Wallet %s', pending, FIL_WALLET_ADDRESS)
       pending = {}
     }
   }, 60_000)

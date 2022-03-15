@@ -14,8 +14,17 @@ ranges of CIDs, returning CAR files. The gateway station returns CAR files from 
 
 1. Have a SSL/TLS certificate and private key ready or generate it now
 2. Save both files as `gateway.crt` and `gateway.key` into a directory such as `/local/path/to/ssl-config`
-3. Run the docker image with the shim running in port 3001 and nginx in port 8443
-  `docker run --rm -v /local/path/to/ssl-config:/etc/nginx/ssl -it -e SHIM_PORT=3001 -e NGINX_PORT=8443 --network host ghcr.io/filecoin-project/gateway-station:main`
+3. Run the docker image with the shim running in port 3001 and nginx in port 8443. **Set `FIL_WALLET_ADDRESS` carefully**
+    ```shell
+    docker run --rm -it \
+      -v /local/path/to/ssl-config:/etc/nginx/ssl \
+      -e FIL_WALLET_ADDRESS=myfilecoinwalletaddress \
+      -e SHIM_PORT=3001 -e NGINX_PORT=8443 \
+      --network host \
+      ghcr.io/filecoin-project/gateway-station:main
+    ```
+4. Wait for the sign up to happen with the orchestrator
+5. check your live stats and earnings at the URL printed
 
 ## Developing
 

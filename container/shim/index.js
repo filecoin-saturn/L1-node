@@ -14,7 +14,7 @@ import * as json from 'multiformats/codecs/json'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { from as hasher } from 'multiformats/hashes/hasher'
 import { blake2b256 } from '@multiformats/blake2/blake2b'
-import { CACHE_STATION, NGINX_PORT, PORT } from './config.js'
+import { CACHE_STATION, FIL_WALLET_ADDRESS, NGINX_PORT, PORT } from './config.js'
 
 const { toHex } = bytes
 
@@ -106,6 +106,9 @@ async function streamCAR (streamIn, streamOut) {
 }
 
 app.listen(PORT, () => {
+    debug(`==== IMPORTANT ====`)
+    debug(`==== Earnings will be sent to Filecoin wallet address: %s`, FIL_WALLET_ADDRESS)
+    debug(`==== IMPORTANT ====`)
     debug(`shim running on http://localhost:${PORT}. Test at http://localhost:${PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev`)
     if (NGINX_PORT) {
         debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev`)
