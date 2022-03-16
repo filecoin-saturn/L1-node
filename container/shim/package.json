@@ -2,7 +2,7 @@
   "name": "shim",
   "type": "module",
   "dependencies": {
-    "@ipld/car": "^3.2.4",
+    "@ipld/car": "^4.0.0",
     "@ipld/dag-cbor": "^7.0.1",
     "@ipld/dag-json": "^8.0.8",
     "@ipld/dag-pb": "^2.1.16",
