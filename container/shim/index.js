@@ -1,131 +1,88 @@
+import * as crypto from 'node:crypto'
 import http from 'node:http'
 import fs from 'node:fs'
-import { Readable } from 'node:stream'
 import fsPromises from 'node:fs/promises'
 import express from 'express'
 import Debug from 'debug'
-import { CarBlockIterator, CarWriter } from '@ipld/car'
-import { bytes } from 'multiformats'
-import * as dagCbor from '@ipld/dag-cbor'
-import * as dagPb from '@ipld/dag-pb'
-import * as dagJson from '@ipld/dag-json'
-import * as raw from 'multiformats/codecs/raw'
-import * as json from 'multiformats/codecs/json'
-import { sha256 } from 'multiformats/hashes/sha2'
-import { from as hasher } from 'multiformats/hashes/hasher'
-import { blake2b256 } from '@multiformats/blake2/blake2b'
-import { CACHE_STATION, FIL_WALLET_ADDRESS, NGINX_PORT, PORT } from './config.js'
-
-const { toHex } = bytes
-
-const codecs = {
-    [dagCbor.code]: dagCbor,
-    [dagPb.code]: dagPb,
-    [dagJson.code]: dagJson,
-    [raw.code]: raw,
-    [json.code]: json
-}
-
-const hashes = {
-    [sha256.code]: sha256,
-    [blake2b256.code]: hasher(blake2b256)
-}
+import fetch from 'node-fetch'
+import { NGINX_PORT, ORCHESTRATOR_URL, PORT } from './config.js'
+import { streamCAR } from './utils.js'
 
 const debug = Debug('server')
 const app = express()
 
 const testCAR = await fsPromises.readFile('./QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car')
 
+let nodeID = crypto.randomBytes(4).toString('hex')
+let nodeSecret
+
 app.disable('x-powered-by')
 
 app.get('/favicon.ico', (req, res) => {
-    res.sendStatus(404)
+  res.sendStatus(404)
 })
 
 // Whenever nginx doesn't have a CAR file in cache, this is called
 app.get('/cid/:cid*', async (req, res) => {
-    const cid = req.params.cid + req.params[0]
-    debug.extend('req')(`Cache miss for %s`, cid)
-    res.set('Cache-Control', 'public, max-age=31536000, immutable')
+  const cid = req.params.cid + req.params[0]
+  debug.extend('req')(`Cache miss for %s`, cid)
+  res.set('Cache-Control', 'public, max-age=31536000, immutable')
 
-    if (req.headers.range) {
-        let [start,end] = req.headers.range.split('=')[1].split('-')
-        start = parseInt(start, 10)
-        end = parseInt(end, 10)
+  if (req.headers.range) {
+    let [start, end] = req.headers.range.split('=')[1].split('-')
+    start = parseInt(start, 10)
+    end = parseInt(end, 10)
 
-        res.setHeader('Accept-Ranges', 'bytes')
-        res.setHeader('Content-Range', `bytes ${start}-${end}/${testCAR.length}`)
-        res.status(206)
-        return res.end(testCAR.slice(start, end + 1))
-    }
+    res.setHeader('Accept-Ranges', 'bytes')
+    res.setHeader('Content-Range', `bytes ${start}-${end}/${testCAR.length}`)
+    res.status(206)
+    return res.end(testCAR.slice(start, end + 1))
+  }
 
-    // Testing CID
-    if (cid === 'QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF') {
-        return streamCAR(fs.createReadStream('./QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car'), res)
-    }
+  // Testing CID
+  if (cid === 'QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF') {
+    return streamCAR(fs.createReadStream('./QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car'), res)
+  }
 
-    http.get(`https://ipfs.io/api/v0/dag/export?arg=${cid}`, async fetchRes => {
-        streamCAR(fetchRes, res).catch(debug)
-    })
+  http.get(`https://ipfs.io/api/v0/dag/export?arg=${cid}`, async fetchRes => {
+    streamCAR(fetchRes, res).catch(debug)
+  })
 })
 
-/**
- * @param {AsyncIterable<Uint8Array> || IncomingMessage} streamIn
- * @param {Response} streamOut
- */
-async function streamCAR (streamIn, streamOut) {
-    const carBlockIterator = await CarBlockIterator.fromIterable(streamIn)
-    const { writer, out } = await CarWriter.create(await carBlockIterator.getRoots())
+app.get('/register-check', (req, res) => {
+  const secret = req.query.secret
+  debug('Register check with secret %s', secret)
+  if (secret !== nodeSecret) {
+    return res.sendStatus(403)
+  }
+  res.sendStatus(200)
+})
 
-    Readable.from(out).pipe(streamOut)
+app.listen(PORT, async () => {
+  // debug(`==== IMPORTANT ====`)
+  // debug(`==== Earnings will be sent to Filecoin wallet address: %s`, FIL_WALLET_ADDRESS)
+  // debug(`==== IMPORTANT ====`)
+  debug(`shim running on http://localhost:${PORT}. Test at http://localhost:${PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev`)
+  if (NGINX_PORT) {
+    debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev`)
+  } else {
+    debug(`nginx caching proxy no set`)
+  }
 
-    for await (const { cid, bytes } of carBlockIterator) {
-        if (!codecs[cid.code]) {
-            debug(`Unexpected codec: 0x${cid.code.toString(16)}`)
-            streamOut.status(502)
-            break
-        }
-        if (!hashes[cid.multihash.code]) {
-            debug(`Unexpected multihash code: 0x${cid.multihash.code.toString(16)}`)
-            streamOut.status(502)
-            break
-        }
+  import('./log_ingestor.js')
 
-        // Verify step 2: if we hash the bytes, do we get the same digest as reported by the CID?
-        // Note that this step is sufficient if you just want to safely verify the CAR's reported CIDs
-        const hash = await hashes[cid.multihash.code].digest(bytes)
-        if (toHex(hash.digest) !== toHex(cid.multihash.digest)) {
-            debug(`\nMismatch: digest of bytes (${toHex(hash)}) does not match digest in CID (${toHex(cid.multihash.digest)})`)
-            streamOut.status(502)
-            break
-        }
+  debug('Registering with orchestrator')
+  try {
+    nodeSecret = crypto.randomBytes(10).toString('hex')
+    const response = await fetch(`http://${ORCHESTRATOR_URL}/register`, {
+      method: 'post',
+      body: JSON.stringify({ id: nodeID, secret: nodeSecret }),
+      headers: {'Content-Type': 'application/json'}
+    }).then(res => res.json())
 
-        await writer.put({ cid, bytes })
-    }
-    await writer.close()
-}
-
-app.listen(PORT, () => {
-    // debug(`==== IMPORTANT ====`)
-    // debug(`==== Earnings will be sent to Filecoin wallet address: %s`, FIL_WALLET_ADDRESS)
-    // debug(`==== IMPORTANT ====`)
-    debug(`shim running on http://localhost:${PORT}. Test at http://localhost:${PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev`)
-    if (NGINX_PORT) {
-        debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev`)
-    } else {
-        debug(`nginx caching proxy no set`)
-    }
-
-    import('./log_ingestor.js')
-
-    debug('Signing up with orchestrator')
-    // http.request(`http://${ORCHESTRATOR_URL}`, { method: 'POST' }, fetchRes => {
-    //     fetchRes.on('data', chunk => {
-    //         res.write(chunk)
-    //     });
-    //
-    //     fetchRes.on('end', () => {
-    //         res.end()
-    //     });
-    // })
+    debug('Successful registration')
+  } catch (e) {
+    debug('Failed registration %o', e)
+    process.exit(1)
+  }
 })

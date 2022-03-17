@@ -11,9 +11,11 @@
     "express": "^4.17.3",
     "ipfs-car": "^0.6.2",
     "ipfs-core": "^0.14.1",
-    "multiformats": "^9.6.4"
+    "multiformats": "^9.6.4",
+    "node-fetch": "^3.2.3"
   },
   "devDependencies": {
+    "@types/node": "^16.11.26",
     "nodemon": "^2.0.15"
   }
 }

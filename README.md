@@ -17,6 +17,7 @@ ranges of CIDs, returning CAR files. The gateway station returns CAR files from 
 3. Run the docker image with the shim running in port 3001 and nginx in port 8443. **Set `FIL_WALLET_ADDRESS` carefully**
     ```shell
     docker run --rm -it \
+      -v /local/path/to/cache:/usr/src/app/cache \
       -v /local/path/to/ssl-config:/etc/nginx/ssl \
       -e FIL_WALLET_ADDRESS=myfilecoinwalletaddress \
       -e SHIM_PORT=3001 -e NGINX_PORT=8443 \
