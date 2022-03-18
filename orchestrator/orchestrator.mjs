@@ -23,8 +23,11 @@ app.post('/register', async (req, res) => {
     const { id, secret } = req.body
     console.log(`${id} at ${ip} with secret ${secret}`)
     await fetch(`http://${ip}:10361/register-check?secret=${secret}`)
-    const { stdout, stderr } = await exec(`openssl req -new -newkey rsa:2048 -nodes -keyout ${id}.key -out ${id}.csr -subj "/C=US/ST=../L=../O=Protocol Labs/OU=Filecoin Saturn/CN=cdn.saturn-test.network"`)
+
+    // TODO: use state field for something
+    const { stdout, stderr } = await exec(`openssl req -new -newkey rsa:2048 -nodes -keyout ${id}.key -out ${id}.csr -subj "/C=US/ST=../L=${id}/O=Protocol Labs/OU=Filecoin Saturn/CN=cdn.saturn-test.network"`)
     const key = (await fsPromises.readFile(`./${id}.key`)).toString()
+
     console.log(stdout)
     console.log(stderr)
     res.send({ success: true, cert: '', key: key })
