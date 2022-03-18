@@ -1,3 +1,7 @@
+import { promisify } from 'node:util'
+import { exec as CpExec } from 'node:child_process'
+import fsPromises from 'node:fs/promises'
+const exec = promisify(CpExec)
 import { Route53Client } from '@aws-sdk/client-route-53'
 import express from 'express'
 import fetch from 'node-fetch'
@@ -18,15 +22,19 @@ app.post('/register', async (req, res) => {
     const ip = req.ip.replace('::ffff:', '')
     const { id, secret } = req.body
     console.log(`${id} at ${ip} with secret ${secret}`)
-    await fetch(`http://${ip}:3001/register-check?secret=${secret}`)
-    res.send({ success: true })
+    await fetch(`http://${ip}:10361/register-check?secret=${secret}`)
+    const { stdout, stderr } = await exec(`openssl req -new -newkey rsa:2048 -nodes -keyout ${id}.key -out ${id}.csr -subj "/C=US/ST=../L=../O=Protocol Labs/OU=Filecoin Saturn/CN=cdn.saturn-test.network"`)
+    const key = (await fsPromises.readFile(`./${id}.key`)).toString()
+    console.log(stdout)
+    console.log(stderr)
+    res.send({ success: true, cert: '', key: key })
   } catch (e) {
     console.error(e)
-    res.sendStatus(400)
+    res.status(400).send({ success: false, error: e.toString() })
   }
 })
 
-app.listen(6443, () => console.log('listening'))
+app.listen(process.env.ORCHESTRATOR_PORT || 10363, () => console.log('listening'))
 
 // const command = new ListResourceRecordSetsCommand({ HostedZoneId: 'Z09029712OH8948J1FFCU' })
 //

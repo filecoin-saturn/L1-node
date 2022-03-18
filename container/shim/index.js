@@ -63,11 +63,7 @@ app.listen(PORT, async () => {
   // debug(`==== Earnings will be sent to Filecoin wallet address: %s`, FIL_WALLET_ADDRESS)
   // debug(`==== IMPORTANT ====`)
   debug(`shim running on http://localhost:${PORT}. Test at http://localhost:${PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev`)
-  if (NGINX_PORT) {
-    debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev`)
-  } else {
-    debug(`nginx caching proxy no set`)
-  }
+  debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev`)
 
   import('./log_ingestor.js')
 
@@ -80,9 +76,9 @@ app.listen(PORT, async () => {
       headers: {'Content-Type': 'application/json'}
     }).then(res => res.json())
 
-    debug('Successful registration')
+    debug('Successful registration %o', response)
   } catch (e) {
     debug('Failed registration %o', e)
-    process.exit(1)
+    // process.exit(1)
   }
 })
