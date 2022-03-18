@@ -1,5 +1,5 @@
 import * as crypto from 'node:crypto'
-import http from 'node:http'
+import https from 'node:https'
 import fs from 'node:fs'
 import fsPromises from 'node:fs/promises'
 import express from 'express'
@@ -44,7 +44,7 @@ app.get('/cid/:cid*', async (req, res) => {
     return streamCAR(fs.createReadStream('./QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car'), res)
   }
 
-  http.get(`https://ipfs.io/api/v0/dag/export?arg=${cid}`, async fetchRes => {
+  https.get(`https://ipfs.io/api/v0/dag/export?arg=${cid}`, async fetchRes => {
     streamCAR(fetchRes, res).catch(debug)
   })
 })
