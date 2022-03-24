@@ -64,37 +64,34 @@ app.listen(PORT, async () => {
   // debug(`==== Earnings will be sent to Filecoin wallet address: %s`, FIL_WALLET_ADDRESS)
   // debug(`==== IMPORTANT ====`)
   debug(`shim running on http://localhost:${PORT}. Test at http://localhost:${PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev-${nodeID}`)
-  debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev-${nodeID}`)
 
-  import('./log_ingestor.js')
+  // If cert is not yet in the volume, register
+  if (!(await fsPromises.stat('/etc/nginx/ssl/gateway.crt').catch(_ => false))) {
+    debug('Registering with orchestrator')
+    try {
+      nodeSecret = crypto.randomBytes(10).toString('hex')
+      const { cert, key } = await fetch(`http://${ORCHESTRATOR_URL}/register`, {
+        method: 'post',
+        body: JSON.stringify({ id: nodeID, secret: nodeSecret }),
+        headers: { 'Content-Type': 'application/json' }
+      }).then(res => res.json())
 
-  debug('Registering with orchestrator')
-  try {
-    nodeSecret = crypto.randomBytes(10).toString('hex')
-    const { cert, key } = await fetch(`http://${ORCHESTRATOR_URL}/register`, {
-      method: 'post',
-      body: JSON.stringify({ id: nodeID, secret: nodeSecret }),
-      headers: {'Content-Type': 'application/json'}
-    }).then(res => res.json())
+      debug('Successful registration')
 
-    debug('Successful registration')
+      await Promise.all([
+        fsPromises.writeFile('/etc/nginx/ssl/gateway.crt', cert),
+        fsPromises.writeFile('/etc/nginx/ssl/gateway.key', key)
+      ])
 
-    await Promise.all([
-      fsPromises.writeFile('/etc/nginx/ssl/gateway.crt', cert),
-      fsPromises.writeFile('/etc/nginx/ssl/gateway.key', key)
-    ])
-
-    const process = spawn('nginx', ['-s reload'])
-
-    process.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`);
-    });
-
-    process.stderr.on('data', (data) => {
-      console.error(`stderr: ${data}`);
-    });
-  } catch (e) {
-    debug('Failed registration %o', e)
-    // process.exit(1)
+      process.exit(1)
+    } catch (e) {
+      debug('Failed registration %o', e)
+      // process.exit(1)
+    }
+  } else {
+    debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev-${nodeID}`)
   }
+
+  // Start log ingestor
+  import('./log_ingestor.js')
 })

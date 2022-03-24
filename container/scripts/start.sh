@@ -6,7 +6,10 @@ echo "[container] starting shim and nginx"
 node index.js &
 
 # Start the nginx process with no output
-nginx -g "daemon off;" &
+if [ -f "/etc/nginx/ssl/gateway.crt" ]; then
+  echo "SSL config available, starting nginx";
+  nginx -g "daemon off;" &
+fi
 
 # Wait for any process to exit
 wait -n
