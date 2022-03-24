@@ -7,7 +7,7 @@ import fetch from 'node-fetch'
 
 const exec = promisify(CpExec)
 
-const { NODE_ENV, ACCESS_KEY_ID, SECRET_ACCESS_KEY, ZEROSSL_ACCESS_KEY }  = process.env
+const { NODE_ENV, ACCESS_KEY_ID, SECRET_ACCESS_KEY, ZEROSSL_ACCESS_KEY, ORCHESTRATOR_PORT }  = process.env
 const cdn_url = 'cdn.saturn-test.network'
 const defaultKey = `-----BEGIN RSA PRIVATE KEY-----
 MIIJKQIBAAKCAgEArQskZEb/zip/BCQI3uox9r53AU6GFV5M+ZEYzFumBbq1Q3Rw
@@ -202,7 +202,7 @@ app.post('/register', async (req, res) => {
   }
 })
 
-app.listen(process.env.ORCHESTRATOR_PORT || 10363, () => console.log('listening'))
+app.listen(ORCHESTRATOR_PORT || 10363, () => console.log('listening', NODE_ENV))
 
 // const command = new ListResourceRecordSetsCommand({ HostedZoneId: 'Z09029712OH8948J1FFCU' })
 //
