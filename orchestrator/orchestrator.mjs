@@ -8,7 +8,14 @@ import { IPinfoWrapper } from 'node-ipinfo'
 
 const exec = promisify(CpExec)
 
-const { NODE_ENV = 'development', ACCESS_KEY_ID, SECRET_ACCESS_KEY, ZEROSSL_ACCESS_KEY, ORCHESTRATOR_PORT, IPINFO_TOKEN } = process.env
+const {
+  NODE_ENV = 'development',
+  ACCESS_KEY_ID,
+  SECRET_ACCESS_KEY,
+  ZEROSSL_ACCESS_KEY,
+  ORCHESTRATOR_PORT,
+  IPINFO_TOKEN
+} = process.env
 const cdn_url = 'cdn.saturn-test.network'
 const defaultKey = `-----BEGIN RSA PRIVATE KEY-----
 MIIJKQIBAAKCAgEArQskZEb/zip/BCQI3uox9r53AU6GFV5M+ZEYzFumBbq1Q3Rw
@@ -118,11 +125,18 @@ app.post('/register', async (req, res) => {
     const response = { success: true }
 
     if (NODE_ENV === 'production') {
-      const dnsChanges = [{
-        Action: 'UPSERT', ResourceRecordSet: {
-          Type: 'A', Name: cdn_url, GeoLocation: { CountryCode: ipGeo.countryCode }, ResourceRecords: [{ Value: ip }], TTL: 60
+      const dnsChanges = [
+        {
+          Action: 'UPSERT', ResourceRecordSet: {
+            SetIdentifier: `${ipGeo.countryCode}-${id}`,
+            Type: 'A',
+            Name: cdn_url,
+            GeoLocation: { CountryCode: ipGeo.countryCode },
+            ResourceRecords: [{ Value: ip }],
+            TTL: 60
+          }
         }
-      }]
+      ]
 
       if (ssl !== 'done') {
         let cert = defaultCrt
@@ -167,7 +181,7 @@ app.post('/register', async (req, res) => {
                   Type: 'CNAME', Name: subdomain, ResourceRecords: [{ Value: cname }], TTL: 60
                 }
               }
-            ]
+              ]
           }
         }))
 
