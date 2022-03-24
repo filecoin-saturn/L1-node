@@ -200,6 +200,8 @@ app.post('/register', async (req, res) => {
           ]
         }
       })).catch(console.error)
+      fsPromises.unlink(`./${id}.key`).catch(console.error)
+      fsPromises.unlink(`./${id}.csr`).catch(console.error)
     }
 
     res.send({ success: true, cert, key })
