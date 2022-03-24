@@ -1,13 +1,13 @@
 import { promisify } from 'node:util'
 import { exec as CpExec } from 'node:child_process'
 import fsPromises from 'node:fs/promises'
-import { ChangeResourceRecordSetsCommand, Route53Client } from '@aws-sdk/client-route-53'
+import { ChangeResourceRecordSetsCommand, ListResourceRecordSetsCommand, Route53Client } from '@aws-sdk/client-route-53'
 import express from 'express'
 import fetch from 'node-fetch'
 
 const exec = promisify(CpExec)
 
-const { NODE_ENV, ACCESS_KEY_ID, SECRET_ACCESS_KEY, ZEROSSL_ACCESS_KEY, ORCHESTRATOR_PORT }  = process.env
+const { NODE_ENV, ACCESS_KEY_ID, SECRET_ACCESS_KEY, ZEROSSL_ACCESS_KEY, ORCHESTRATOR_PORT } = process.env
 const cdn_url = 'cdn.saturn-test.network'
 const defaultKey = `-----BEGIN RSA PRIVATE KEY-----
 MIIJKQIBAAKCAgEArQskZEb/zip/BCQI3uox9r53AU6GFV5M+ZEYzFumBbq1Q3Rw
@@ -93,7 +93,9 @@ XXZUn/W1t+wSI2ccrRr8C/ezB0V9Eq+aZO1lupz/IITsoae57SYhRsnZxo8jc88C
 KUoOmK6y8JnCxWrbp8B0tw==
 -----END CERTIFICATE-----`
 
-const route53Client = new Route53Client({ region: "us-east-1", credentials: { accessKeyId: ACCESS_KEY_ID, secretAccessKey: SECRET_ACCESS_KEY } })
+const route53Client = new Route53Client({
+  region: 'us-east-1', credentials: { accessKeyId: ACCESS_KEY_ID, secretAccessKey: SECRET_ACCESS_KEY }
+})
 
 const app = express()
 
@@ -102,7 +104,7 @@ app.use(express.json())
 app.disable('x-powered-by')
 
 app.post('/register', async (req, res) => {
-  const ip = req.ip.replace('::ffff:', '')
+  const ip = req.ip.replace('::ffff:', '').replace('127.0.0.1', '45.58.126.78')
   const { id, secret } = req.body
   console.log(`${id} at ${ip} with secret ${secret}`)
 
@@ -116,8 +118,7 @@ app.post('/register', async (req, res) => {
       console.log('New production registration, generating CSR')
       // TODO: use state field for something
       const {
-        stdout,
-        stderr
+        stdout, stderr
       } = await exec(`openssl req -new -newkey rsa:2048 -nodes -keyout ${id}.key -out ${id}.csr -subj "/C=US/ST=../L=${id}/O=Protocol Labs/OU=Filecoin Saturn/CN=cdn.saturn-test.network"`)
 
       console.log(stdout)
@@ -132,8 +133,7 @@ app.post('/register', async (req, res) => {
       createCertFormData.append('certificate_domains', cdn_url)
       createCertFormData.append('certificate_csr', csr)
       const createCertResponse = await fetch(`https://api.zerossl.com/certificates?access_key=${ZEROSSL_ACCESS_KEY}`, {
-        method: 'POST',
-        body: createCertFormData
+        method: 'POST', body: createCertFormData
       }).then(res => res.json())
       console.dir(createCertResponse)
       const { id: certId, validation } = createCertResponse
@@ -144,16 +144,11 @@ app.post('/register', async (req, res) => {
       console.log(`Validation of ${cdn_url} is to point ${subdomain} to ${cname}, creating...`)
 
       await route53Client.send(new ChangeResourceRecordSetsCommand({
-        HostedZoneId: 'Z09029712OH8948J1FFCU',
-        ChangeBatch: {
+        HostedZoneId: 'Z09029712OH8948J1FFCU', ChangeBatch: {
           Changes: [
             {
-              Action: 'UPSERT',
-              ResourceRecordSet: {
-                Type: 'CNAME',
-                Name: subdomain,
-                ResourceRecords: [{ Value: cname }],
-                TTL: 60
+              Action: 'UPSERT', ResourceRecordSet: {
+                Type: 'CNAME', Name: subdomain, ResourceRecords: [{ Value: cname }], TTL: 60
               }
             }
           ]
@@ -169,8 +164,7 @@ app.post('/register', async (req, res) => {
       const validateFormData = new URLSearchParams()
       validateFormData.append('validation_method', 'CNAME_CSR_HASH')
       const validateCnameResponse = await fetch(`https://api.zerossl.com/certificates/${certId}/challenges?access_key=${ZEROSSL_ACCESS_KEY}`, {
-        method: 'POST',
-        body: validateFormData
+        method: 'POST', body: validateFormData
       }).then(res => res.json())
 
       console.dir(validateCnameResponse)
@@ -186,16 +180,15 @@ app.post('/register', async (req, res) => {
       cert = certResponse['certificate.crt']
 
       route53Client.send(new ChangeResourceRecordSetsCommand({
-        HostedZoneId: 'Z09029712OH8948J1FFCU',
-        ChangeBatch: {
+        HostedZoneId: 'Z09029712OH8948J1FFCU', ChangeBatch: {
           Changes: [
             {
-              Action: 'DELETE',
-              ResourceRecordSet: {
-                Type: 'CNAME',
-                Name: subdomain,
-                ResourceRecords: [{ Value: cname }],
-                TTL: 60
+              Action: 'DELETE', ResourceRecordSet: {
+                Type: 'CNAME', Name: subdomain, ResourceRecords: [{ Value: cname }], TTL: 60
+              }
+            }, {
+              Action: 'UPSERT', ResourceRecordSet: {
+                Type: 'A', Name: cdn_url, ResourceRecords: [{ Value: ip }], TTL: 60
               }
             }
           ]
@@ -215,8 +208,39 @@ app.post('/register', async (req, res) => {
 
 app.listen(ORCHESTRATOR_PORT || 10363, () => console.log('listening', NODE_ENV))
 
-// const command = new ListResourceRecordSetsCommand({ HostedZoneId: 'Z09029712OH8948J1FFCU' })
-//
-// const response = await client.send(command)
-//
-// console.dir(response)
+const checkActive = async () => {
+  const command = new ListResourceRecordSetsCommand({
+    HostedZoneId: 'Z09029712OH8948J1FFCU',
+    StartRecordName: cdn_url,
+    StartRecordType: 'A'
+  })
+
+  const response = await route53Client.send(command)
+
+  for (const recordSet of response.ResourceRecordSets) {
+    if (recordSet.Name.startsWith(cdn_url)) {
+      const gatewayIp = recordSet.ResourceRecords[0].Value
+      console.log(`Checking ${recordSet.Name} > ${gatewayIp}...`)
+      try {
+        await fetch(`http://${gatewayIp}:10361/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF`)
+        console.log(`${gatewayIp} is active`)
+      } catch (e) {
+        console.error(`${gatewayIp} down, removing...`)
+        route53Client.send(new ChangeResourceRecordSetsCommand({
+          HostedZoneId: 'Z09029712OH8948J1FFCU', ChangeBatch: {
+            Changes: [
+              {
+                Action: 'DELETE', ResourceRecordSet: {
+                  Type: 'A', Name: cdn_url, ResourceRecords: [{ Value: gatewayIp }], TTL: 60
+                }
+              }
+            ]
+          }
+        })).catch(console.error)
+      }
+    }
+  }
+}
+
+checkActive()
+setInterval(checkActive, 60_000)
