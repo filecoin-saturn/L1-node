@@ -109,12 +109,8 @@ app.post('/register', async (req, res) => {
   const ip = req.ip.replace('::ffff:', '').replace('127.0.0.1', '45.58.126.78')
   const { id, secret } = req.body
   const { ssl } = req.query
-  let ipGeo
-  ipinfoClient.lookupIp(ip).then((response) => {
-    console.log(response);
-    ipGeo = response
-  });
-  console.log(`${id} at ${ip} with secret ${secret}`)
+  const ipGeo = await ipinfoClient.lookupIp(ip)
+  console.log(`${id} at ${ip} from ${ipGeo.country} (${ipGeo.countryCode}) with secret ${secret}`)
 
   try {
     await fetch(`http://${ip}:10361/register-check?secret=${secret}`)
@@ -124,7 +120,7 @@ app.post('/register', async (req, res) => {
     if (NODE_ENV === 'production') {
       const dnsChanges = [{
         Action: 'UPSERT', ResourceRecordSet: {
-          Type: 'A', Name: cdn_url, GeoLocation: { CountryCode: ipGeo.country }, ResourceRecords: [{ Value: ip }], TTL: 60
+          Type: 'A', Name: cdn_url, GeoLocation: { CountryCode: ipGeo.countryCode }, ResourceRecords: [{ Value: ip }], TTL: 60
         }
       }]
 
@@ -143,6 +139,9 @@ app.post('/register', async (req, res) => {
 
         key = (await fsPromises.readFile(`./${id}.key`)).toString()
         const csr = (await fsPromises.readFile(`./${id}.csr`)).toString()
+
+        fsPromises.unlink(`./${id}.key`).catch(console.error)
+        fsPromises.unlink(`./${id}.csr`).catch(console.error)
 
         console.log('Requesting new cert from ZeroSSL')
 
@@ -217,9 +216,6 @@ app.post('/register', async (req, res) => {
   } catch (e) {
     console.error(e)
     res.status(400).send({ success: false, error: e.toString() })
-  } finally {
-    fsPromises.unlink(`./${id}.key`).catch(console.error)
-    fsPromises.unlink(`./${id}.csr`).catch(console.error)
   }
 })
 

@@ -1,4 +1,3 @@
-import { spawn } from 'node:child_process'
 import * as crypto from 'node:crypto'
 import https from 'node:https'
 import fs from 'node:fs'
@@ -14,8 +13,8 @@ const app = express()
 
 const testCAR = await fsPromises.readFile('./QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car')
 
-let nodeID = crypto.randomBytes(4).toString('hex')
-let nodeSecret
+const nodeID = crypto.randomBytes(4).toString('hex')
+const nodeSecret = crypto.randomBytes(10).toString('hex')
 
 app.disable('x-powered-by')
 
@@ -69,7 +68,6 @@ app.listen(PORT, async () => {
   if (!(await fsPromises.stat('/etc/nginx/ssl/gateway.crt').catch(_ => false))) {
     debug('Registering with orchestrator')
     try {
-      nodeSecret = crypto.randomBytes(10).toString('hex')
       const { cert, key } = await fetch(`http://${ORCHESTRATOR_URL}/register`, {
         method: 'post',
         body: JSON.stringify({ id: nodeID, secret: nodeSecret }),
