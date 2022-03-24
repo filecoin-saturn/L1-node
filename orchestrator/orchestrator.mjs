@@ -112,13 +112,20 @@ app.post('/register', async (req, res) => {
     let key = defaultKey
 
     if (NODE_ENV === 'production') {
+      console.log('New production registration, generating CSR')
       // TODO: use state field for something
       const {
         stdout,
         stderr
       } = await exec(`openssl req -new -newkey rsa:2048 -nodes -keyout ${id}.key -out ${id}.csr -subj "/C=US/ST=../L=${id}/O=Protocol Labs/OU=Filecoin Saturn/CN=cdn.saturn-test.network"`)
+
+      console.log(stdout)
+      console.error(stderr)
+
       key = (await fsPromises.readFile(`./${id}.key`)).toString()
       const csr = (await fsPromises.readFile(`./${id}.csr`)).toString()
+
+      console.log('Requesting new cert from ZeroSSL')
 
       const createCertFormData = new URLSearchParams()
       createCertFormData.append('certificate_domains', cdn_url)
