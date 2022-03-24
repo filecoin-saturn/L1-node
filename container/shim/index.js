@@ -90,6 +90,13 @@ app.listen(PORT, async () => {
     }
   } else {
     debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev-${nodeID}`)
+    await fetch(`http://${ORCHESTRATOR_URL}/register?ssl=done`, {
+      method: 'post',
+      body: JSON.stringify({ id: nodeID, secret: nodeSecret }),
+      headers: { 'Content-Type': 'application/json' }
+    }).then(res => res.json())
+
+    debug('Successful registration')
   }
 
   // Start log ingestor
