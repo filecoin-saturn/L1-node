@@ -128,7 +128,7 @@ app.post('/register', async (req, res) => {
       const dnsChanges = [
         {
           Action: 'UPSERT', ResourceRecordSet: {
-            SetIdentifier: `${ipGeo.countryCode}-${id}`,
+            SetIdentifier: `${ipGeo.countryCode}-${ip}`,
             Type: 'A',
             Name: cdn_url,
             GeoLocation: { CountryCode: ipGeo.countryCode },
