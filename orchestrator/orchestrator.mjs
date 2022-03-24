@@ -175,13 +175,13 @@ app.post('/register', async (req, res) => {
 
         await route53Client.send(new ChangeResourceRecordSetsCommand({
           HostedZoneId: 'Z09029712OH8948J1FFCU', ChangeBatch: {
-            Changes: dnsChanges[
+            Changes: [
               {
                 Action: 'UPSERT', ResourceRecordSet: {
                   Type: 'CNAME', Name: subdomain, ResourceRecords: [{ Value: cname }], TTL: 60
                 }
               }
-              ]
+            ]
           }
         }))
 
