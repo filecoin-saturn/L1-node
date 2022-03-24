@@ -86,7 +86,7 @@ app.listen(PORT, async () => {
       process.exit(1)
     } catch (e) {
       debug('Failed registration %o', e)
-      // process.exit(1)
+      process.exit(0)
     }
   } else {
     debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev-${nodeID}`)
