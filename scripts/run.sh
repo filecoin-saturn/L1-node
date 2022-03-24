@@ -1,6 +1,6 @@
 #!/bin/bash
 
-: "${NGINX_PORT:=10443}" "${SHIM_PORT:=10361}" "${FIL_WALLET_ADDRESS:=dev}"
+: "${NGINX_PORT:=8443}" "${SHIM_PORT:=10361}" "${FIL_WALLET_ADDRESS:=dev}"
 
 echo "running gateway station with nginx @ ${NGINX_PORT} and shim @ ${SHIM_PORT}"
 

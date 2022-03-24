@@ -102,10 +102,11 @@ app.use(express.json())
 app.disable('x-powered-by')
 
 app.post('/register', async (req, res) => {
+  const ip = req.ip.replace('::ffff:', '')
+  const { id, secret } = req.body
+  console.log(`${id} at ${ip} with secret ${secret}`)
+
   try {
-    const ip = req.ip.replace('::ffff:', '')
-    const { id, secret } = req.body
-    console.log(`${id} at ${ip} with secret ${secret}`)
     await fetch(`http://${ip}:10361/register-check?secret=${secret}`)
 
     let cert = defaultCrt
@@ -200,14 +201,15 @@ app.post('/register', async (req, res) => {
           ]
         }
       })).catch(console.error)
-      fsPromises.unlink(`./${id}.key`).catch(console.error)
-      fsPromises.unlink(`./${id}.csr`).catch(console.error)
     }
 
     res.send({ success: true, cert, key })
   } catch (e) {
     console.error(e)
     res.status(400).send({ success: false, error: e.toString() })
+  } finally {
+    fsPromises.unlink(`./${id}.key`).catch(console.error)
+    fsPromises.unlink(`./${id}.csr`).catch(console.error)
   }
 })
 
