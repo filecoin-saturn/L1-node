@@ -125,7 +125,7 @@ app.post('/register', async (req, res) => {
     const response = { success: true }
 
     if (NODE_ENV === 'production') {
-      const dnsChanges = [
+      const dnsChanges =  [
         {
           Action: 'UPSERT', ResourceRecordSet: {
             SetIdentifier: `${ipGeo.countryCode}-${ip}`,
@@ -219,11 +219,11 @@ app.post('/register', async (req, res) => {
         })
       }
 
-      route53Client.send(new ChangeResourceRecordSetsCommand({
+      await route53Client.send(new ChangeResourceRecordSetsCommand({
         HostedZoneId: 'Z09029712OH8948J1FFCU', ChangeBatch: {
           Changes: dnsChanges
         }
-      })).catch(console.error)
+      }))
     }
 
     res.send(response)

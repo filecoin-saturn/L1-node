@@ -74,12 +74,12 @@ app.listen(PORT, async () => {
         headers: { 'Content-Type': 'application/json' }
       }).then(res => res.json())
 
-      debug('Successful registration')
-
       await Promise.all([
         fsPromises.writeFile('/etc/nginx/ssl/gateway.crt', cert),
         fsPromises.writeFile('/etc/nginx/ssl/gateway.key', key)
       ])
+
+      debug('Successful registration, restarting container...')
 
       process.exit(1)
     } catch (e) {
