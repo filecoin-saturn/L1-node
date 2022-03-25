@@ -12,19 +12,20 @@ ranges of CIDs, returning CAR files. The gateway station returns CAR files from 
 
 ## Running a gateway
 
-1. Have a SSL/TLS certificate and private key ready or generate it now
-2. Save both files as `gateway.crt` and `gateway.key` into a directory such as `/local/path/to/ssl-config`
-3. Run the docker image with the shim running in port 10361 and nginx in port 10362. **Set `FIL_WALLET_ADDRESS` carefully**
+1. Install docker ([Instructions here](https://docs.docker.com/engine/install/#server))
+2. Authenticate docker with the GitHub Container Registry ([Instructions here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry))
+4. Run the docker image with the shim running in port 10361 and nginx in port 8443. **Set `FIL_WALLET_ADDRESS` carefully**
     ```shell
-    docker run --rm -it \
+    sudo docker run -it --name gateway --restart=on-failure \
       -v /local/path/to/cache:/usr/src/app/cache \
       -v /local/path/to/ssl-config:/etc/nginx/ssl \
-      -e FIL_WALLET_ADDRESS=myfilecoinwalletaddress \
+      -e NGINX_PORT=8443 -e FIL_WALLET_ADDRESS=myfilecoinwalletaddress \
+      -e ORCHESTRATOR_URL=orchestrator.saturn-test.network:10363 \
       --network host \
       ghcr.io/filecoin-project/gateway-station:main
     ```
-4. Wait for the sign up to happen with the orchestrator
-5. check your live stats and earnings at the URL printed
+5. Wait for the sign up to happen with the orchestrator
+6. Check everything is up with `docker logs -f gateway`
 
 ## Developing
 
