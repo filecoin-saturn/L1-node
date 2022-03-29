@@ -139,13 +139,16 @@ app.post('/register', async (req, res) => {
         HostedZoneId, StartRecordName: cdn_url, StartRecordType: 'A', StartRecordIdentifier: setId, MaxItems: 1
       }))
 
+      let currentRecord = currentRecords?.ResourceRecordSets?.[0]
+      currentRecord = currentRecord.SetIdentifier === setId ? currentRecord : undefined
+
       const dnsChanges =  [
         {
           Action: 'UPSERT', ResourceRecordSet: {
             Name: cdn_url,
             Type: 'A',
             GeoLocation: geoLoc,
-            ResourceRecords: [...(currentRecords?.ResourceRecordSets?.[0]?.ResourceRecords || []), { Value: ip }],
+            ResourceRecords: [...(currentRecord?.ResourceRecords || []), { Value: ip }],
             SetIdentifier: setId,
             TTL: 60
           }
