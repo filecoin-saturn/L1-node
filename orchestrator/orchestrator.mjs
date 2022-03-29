@@ -250,6 +250,7 @@ app.post('/register', async (req, res) => {
 app.listen(ORCHESTRATOR_PORT || 10363, () => console.log('listening', NODE_ENV))
 
 let lastActive = new Set()
+let lastActiveUS = new Set()
 const checkActive = async () => {
   console.log(`Checking active gateways for (${cdn_url})...`)
 
@@ -258,6 +259,7 @@ const checkActive = async () => {
   }))
 
   const active = new Set()
+  const activeUS = new Set()
 
   for (const recordSet of response.ResourceRecordSets) {
     if (recordSet.Name.startsWith(cdn_url) && recordSet.GeoLocation?.CountryCode !== '*') {
@@ -267,6 +269,9 @@ const checkActive = async () => {
         await fetch(`http://${gatewayIp}:10361/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF`)
         console.log(`${gatewayIp} is active`)
         active.add(gatewayIp)
+        if (recordSet.GeoLocation?.CountryCode === 'US') {
+          activeUS.add(gatewayIp)
+        }
       } catch (e) {
         console.error(`${gatewayIp} down, removing...`)
         route53Client.send(new ChangeResourceRecordSetsCommand({
@@ -301,6 +306,26 @@ const checkActive = async () => {
       }
     })).catch(console.error)
     lastActive = active
+  }
+  if (activeUS.size !== lastActiveUS.size || ![...activeUS].every(activeIp => lastActiveUS.has(activeIp))) {
+    console.log('Updating US record with', [...activeUS].join(', '))
+    route53Client.send(new ChangeResourceRecordSetsCommand({
+      HostedZoneId, ChangeBatch: {
+        Changes: [
+          {
+            Action: 'UPSERT', ResourceRecordSet: {
+              SetIdentifier: 'US',
+              Type: 'A',
+              Name: cdn_url,
+              GeoLocation: { CountryCode: 'US' },
+              ResourceRecords: [...activeUS].map(ip => ({ Value: ip })),
+              TTL: 60
+            }
+          }
+        ]
+      }
+    })).catch(console.error)
+    lastActiveUS = activeUS
   }
 
   console.log('Updated DNS records')
