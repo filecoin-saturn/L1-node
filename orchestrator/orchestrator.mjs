@@ -5,6 +5,7 @@ import { ChangeResourceRecordSetsCommand, ListResourceRecordSetsCommand, Route53
 import express from 'express'
 import fetch from 'node-fetch'
 import { IPinfoWrapper } from 'node-ipinfo'
+import { stateList } from './states.mjs'
 
 const exec = promisify(CpExec)
 
@@ -99,6 +100,7 @@ XXZUn/W1t+wSI2ccrRr8C/ezB0V9Eq+aZO1lupz/IITsoae57SYhRsnZxo8jc88C
 2ShMK0BpwAkHY0VZ10MZPgtihZM7n/GQt0Jsrck1/A1BeZX2ASBXvy8a8ukTnZv9
 KUoOmK6y8JnCxWrbp8B0tw==
 -----END CERTIFICATE-----`
+const HostedZoneId = 'Z09029712OH8948J1FFCU'
 
 const ipinfoClient = new IPinfoWrapper(IPINFO_TOKEN)
 
@@ -117,7 +119,7 @@ app.post('/register', async (req, res) => {
   const { id, secret } = req.body
   const { ssl } = req.query
   const ipGeo = await ipinfoClient.lookupIp(ip)
-  console.log(`${id} at ${ip} from ${ipGeo.country} (${ipGeo.countryCode}) with secret ${secret}`)
+  console.log(`${id} at ${ip} from ${ipGeo.city}, ${ipGeo.region}, ${ipGeo.country} (${ipGeo.countryCode}) with secret ${secret}`)
 
   try {
     await fetch(`http://${ip}:10361/register-check?secret=${secret}`)
@@ -125,14 +127,26 @@ app.post('/register', async (req, res) => {
     const response = { success: true }
 
     if (NODE_ENV === 'production') {
+      const geoLoc = { CountryCode: ipGeo.countryCode }
+      let setId = ipGeo.countryCode
+
+      if (ipGeo.countryCode === 'US') {
+        geoLoc.SubdivisionCode = stateList[ipGeo.region]
+        setId += `-${stateList[ipGeo.region]}`
+      }
+
+      const currentRecords = await route53Client.send(new ListResourceRecordSetsCommand({
+        HostedZoneId, StartRecordName: cdn_url, StartRecordType: 'A', StartRecordIdentifier: setId, MaxItems: 1
+      }))
+
       const dnsChanges =  [
         {
           Action: 'UPSERT', ResourceRecordSet: {
-            SetIdentifier: `${ipGeo.countryCode}-${ip}`,
-            Type: 'A',
             Name: cdn_url,
-            GeoLocation: { CountryCode: ipGeo.countryCode },
-            ResourceRecords: [{ Value: ip }],
+            Type: 'A',
+            GeoLocation: geoLoc,
+            ResourceRecords: [...(currentRecords?.ResourceRecordSets?.[0]?.ResourceRecords || []), { Value: ip }],
+            SetIdentifier: setId,
             TTL: 60
           }
         }
@@ -174,7 +188,7 @@ app.post('/register', async (req, res) => {
         console.log(`Validation of ${cdn_url} is to point ${subdomain} to ${cname}, creating...`)
 
         await route53Client.send(new ChangeResourceRecordSetsCommand({
-          HostedZoneId: 'Z09029712OH8948J1FFCU', ChangeBatch: {
+          HostedZoneId, ChangeBatch: {
             Changes: [
               {
                 Action: 'UPSERT', ResourceRecordSet: {
@@ -220,7 +234,7 @@ app.post('/register', async (req, res) => {
       }
 
       await route53Client.send(new ChangeResourceRecordSetsCommand({
-        HostedZoneId: 'Z09029712OH8948J1FFCU', ChangeBatch: {
+        HostedZoneId, ChangeBatch: {
           Changes: dnsChanges
         }
       }))
@@ -239,11 +253,9 @@ let lastActive = new Set()
 const checkActive = async () => {
   console.log(`Checking active gateways for (${cdn_url})...`)
 
-  const command = new ListResourceRecordSetsCommand({
-    HostedZoneId: 'Z09029712OH8948J1FFCU', StartRecordName: cdn_url, StartRecordType: 'A'
-  })
-
-  const response = await route53Client.send(command)
+  const response = await route53Client.send(new ListResourceRecordSetsCommand({
+    HostedZoneId, StartRecordName: cdn_url, StartRecordType: 'A'
+  }))
 
   const active = new Set()
 
@@ -258,7 +270,7 @@ const checkActive = async () => {
       } catch (e) {
         console.error(`${gatewayIp} down, removing...`)
         route53Client.send(new ChangeResourceRecordSetsCommand({
-          HostedZoneId: 'Z09029712OH8948J1FFCU', ChangeBatch: {
+          HostedZoneId, ChangeBatch: {
             Changes: [
               {
                 Action: 'DELETE', ResourceRecordSet: recordSet
@@ -273,7 +285,7 @@ const checkActive = async () => {
   if (active.size !== lastActive.size || ![...active].every(activeIp => lastActive.has(activeIp))) {
     console.log('Updating global record with', [...active].join(', '))
     route53Client.send(new ChangeResourceRecordSetsCommand({
-      HostedZoneId: 'Z09029712OH8948J1FFCU', ChangeBatch: {
+      HostedZoneId, ChangeBatch: {
         Changes: [
           {
             Action: 'UPSERT', ResourceRecordSet: {
