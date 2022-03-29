@@ -266,26 +266,31 @@ const checkActive = async () => {
 
   for (const recordSet of response.ResourceRecordSets) {
     if (recordSet.Name.startsWith(cdn_url) && recordSet.GeoLocation?.CountryCode !== '*') {
-      const gatewayIp = recordSet.ResourceRecords[0].Value
-      console.log(`Checking ${gatewayIp}...`)
-      try {
-        await fetch(`http://${gatewayIp}:10361/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF`)
-        console.log(`${gatewayIp} is active`)
-        active.add(gatewayIp)
-        if (recordSet.GeoLocation?.CountryCode === 'US') {
-          activeUS.add(gatewayIp)
-        }
-      } catch (e) {
-        console.error(`${gatewayIp} down, removing...`)
-        route53Client.send(new ChangeResourceRecordSetsCommand({
-          HostedZoneId, ChangeBatch: {
-            Changes: [
-              {
-                Action: 'DELETE', ResourceRecordSet: recordSet
-              }
-            ]
+      if (recordSet.GeoLocation?.CountryCode === 'US' && !recordSet.GeoLocation?.SubdivisionCode) {
+        continue
+      }
+      const gatewayIps = recordSet.ResourceRecords.map(rr => rr.Value)
+      for (const gatewayIp of gatewayIps) {
+        console.log(`Checking ${gatewayIp} of ${recordSet.SetIdentifier}...`)
+        try {
+          await fetch(`http://${gatewayIp}:10361/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF`)
+          console.log(`${gatewayIp} of ${recordSet.SetIdentifier} is active`)
+          active.add(gatewayIp)
+          if (recordSet.GeoLocation?.CountryCode === 'US') {
+            activeUS.add(gatewayIp)
           }
-        })).catch(console.error)
+        } catch (e) {
+          console.error(`${gatewayIp} of ${recordSet.SetIdentifier} is down, removing...`)
+          route53Client.send(new ChangeResourceRecordSetsCommand({
+            HostedZoneId, ChangeBatch: {
+              Changes: [
+                {
+                  Action: 'DELETE', ResourceRecordSet: recordSet
+                }
+              ]
+            }
+          })).catch(console.error)
+        }
       }
     }
   }
