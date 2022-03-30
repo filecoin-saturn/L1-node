@@ -5,7 +5,7 @@ import { ChangeResourceRecordSetsCommand, ListResourceRecordSetsCommand, Route53
 import express from 'express'
 import fetch from 'node-fetch'
 import { IPinfoWrapper } from 'node-ipinfo'
-import { stateList } from './states.mjs'
+import { countryToContinent, superRegions, usStateList } from './geo.mjs'
 
 const exec = promisify(CpExec)
 
@@ -131,8 +131,8 @@ app.post('/register', async (req, res) => {
       let setId = ipGeo.countryCode
 
       if (ipGeo.countryCode === 'US') {
-        geoLoc.SubdivisionCode = stateList[ipGeo.region]
-        setId += `-${stateList[ipGeo.region]}`
+        geoLoc.SubdivisionCode = usStateList[ipGeo.region]
+        setId += `-${usStateList[ipGeo.region]}`
       }
 
       const currentRecords = await route53Client.send(new ListResourceRecordSetsCommand({
@@ -142,7 +142,7 @@ app.post('/register', async (req, res) => {
       let currentRecord = currentRecords?.ResourceRecordSets?.[0]
       currentRecord = currentRecord.SetIdentifier === setId ? currentRecord : undefined
 
-      const dnsChanges =  [
+      const dnsChanges = [
         {
           Action: 'UPSERT', ResourceRecordSet: {
             Name: cdn_url,
@@ -252,8 +252,7 @@ app.post('/register', async (req, res) => {
 
 app.listen(ORCHESTRATOR_PORT || 10363, () => console.log('listening', NODE_ENV))
 
-let lastActive = new Set()
-let lastActiveUS = new Set()
+let lastActiveSuperRegions = superRegions.reduce((pv, cv) => Object.assign(pv, { [cv]: new Set() }), {})
 const checkActive = async () => {
   console.log(`Checking active gateways for (${cdn_url})...`)
 
@@ -261,12 +260,14 @@ const checkActive = async () => {
     HostedZoneId, StartRecordName: cdn_url, StartRecordType: 'A'
   }))
 
-  const active = new Set()
-  const activeUS = new Set()
+  let activeSuperRegions = superRegions.reduce((pv, cv) => Object.assign(pv, { [cv]: new Set() }), {})
 
   for (const recordSet of response.ResourceRecordSets) {
-    if (recordSet.Name.startsWith(cdn_url) && recordSet.GeoLocation?.CountryCode !== '*') {
-      if (recordSet.GeoLocation?.CountryCode === 'US' && !recordSet.GeoLocation?.SubdivisionCode) {
+      // Skip global, continents and US-wide records
+      if (!recordSet.Name.startsWith(cdn_url)
+        || recordSet.GeoLocation?.CountryCode === '*'
+        || recordSet.GeoLocation.ContinentCode
+        || (recordSet.GeoLocation?.CountryCode === 'US' && !recordSet.GeoLocation?.SubdivisionCode)) {
         continue
       }
       const gatewayIps = recordSet.ResourceRecords.map(rr => rr.Value)
@@ -275,10 +276,11 @@ const checkActive = async () => {
         try {
           await fetch(`http://${gatewayIp}:10361/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF`)
           console.log(`${gatewayIp} of ${recordSet.SetIdentifier} is active`)
-          active.add(gatewayIp)
+          activeSuperRegions.Global.add(gatewayIp)
           if (recordSet.GeoLocation?.CountryCode === 'US') {
-            activeUS.add(gatewayIp)
+            activeSuperRegions.US.add(gatewayIp)
           }
+          activeSuperRegions[countryToContinent[recordSet.GeoLocation?.CountryCode]].add(gatewayIp)
         } catch (e) {
           console.error(`${gatewayIp} of ${recordSet.SetIdentifier} is down, removing...`)
           route53Client.send(new ChangeResourceRecordSetsCommand({
@@ -292,51 +294,41 @@ const checkActive = async () => {
           })).catch(console.error)
         }
       }
+
+  }
+
+  for (const superRegion of superRegions) {
+    if (activeSuperRegions[superRegion].size !== lastActiveSuperRegions[superRegion].size || ![...activeSuperRegions[superRegion]].every(activeIp => lastActiveSuperRegions[superRegion].has(activeIp))) {
+      console.log(`Updating ${superRegion} record with`, [...activeSuperRegions[superRegion]].join(', '))
+      const GeoLocation = {}
+      if (superRegion === 'Global') {
+        GeoLocation.CountryCode = '*'
+      } else if (superRegion === 'US') {
+        GeoLocation.CountryCode = superRegion
+      } else {
+        GeoLocation.ContinentCode = superRegion
+      }
+      route53Client.send(new ChangeResourceRecordSetsCommand({
+        HostedZoneId, ChangeBatch: {
+          Changes: [
+            {
+              Action: 'UPSERT', ResourceRecordSet: {
+                SetIdentifier: superRegion,
+                Type: 'A',
+                Name: cdn_url,
+                GeoLocation: { CountryCode: '*' },
+                ResourceRecords: [...activeSuperRegions[superRegion]].map(ip => ({ Value: ip })),
+                TTL: 60
+              }
+            }
+          ]
+        }
+      })).catch(console.error)
+      lastActiveSuperRegions[superRegion] = activeSuperRegions[superRegion]
     }
   }
 
-  if (active.size !== lastActive.size || ![...active].every(activeIp => lastActive.has(activeIp))) {
-    console.log('Updating global record with', [...active].join(', '))
-    route53Client.send(new ChangeResourceRecordSetsCommand({
-      HostedZoneId, ChangeBatch: {
-        Changes: [
-          {
-            Action: 'UPSERT', ResourceRecordSet: {
-              SetIdentifier: 'Global',
-              Type: 'A',
-              Name: cdn_url,
-              GeoLocation: { CountryCode: '*' },
-              ResourceRecords: [...active].map(ip => ({ Value: ip })),
-              TTL: 60
-            }
-          }
-        ]
-      }
-    })).catch(console.error)
-    lastActive = active
-  }
-  if (activeUS.size !== lastActiveUS.size || ![...activeUS].every(activeIp => lastActiveUS.has(activeIp))) {
-    console.log('Updating US record with', [...activeUS].join(', '))
-    route53Client.send(new ChangeResourceRecordSetsCommand({
-      HostedZoneId, ChangeBatch: {
-        Changes: [
-          {
-            Action: 'UPSERT', ResourceRecordSet: {
-              SetIdentifier: 'US',
-              Type: 'A',
-              Name: cdn_url,
-              GeoLocation: { CountryCode: 'US' },
-              ResourceRecords: [...activeUS].map(ip => ({ Value: ip })),
-              TTL: 60
-            }
-          }
-        ]
-      }
-    })).catch(console.error)
-    lastActiveUS = activeUS
-  }
-
-  console.log('Updated DNS records')
+  console.log('Updated DNS records\n')
 }
 
 checkActive()
