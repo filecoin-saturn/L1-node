@@ -314,7 +314,7 @@ const checkActive = async () => {
       }
 
       console.log(`Updating ${superRegion} (${JSON.stringify(GeoLocation)}) record with`, [...active].join(', '))
-      await route53Client.send(new ChangeResourceRecordSetsCommand({
+      route53Client.send(new ChangeResourceRecordSetsCommand({
         HostedZoneId, ChangeBatch: {
           Changes: [
             {
@@ -322,7 +322,7 @@ const checkActive = async () => {
                 SetIdentifier: superRegion,
                 Type: 'A',
                 Name: cdn_url,
-                GeoLocation: { CountryCode: '*' },
+                GeoLocation,
                 ResourceRecords: [...active].map(ip => ({ Value: ip })),
                 TTL: 60
               }
