@@ -314,7 +314,7 @@ const checkActive = async () => {
       }
 
       console.log(`Updating ${superRegion} (${JSON.stringify(GeoLocation)}) record with`, [...active].join(', '))
-      route53Client.send(new ChangeResourceRecordSetsCommand({
+      await route53Client.send(new ChangeResourceRecordSetsCommand({
         HostedZoneId, ChangeBatch: {
           Changes: [
             {
