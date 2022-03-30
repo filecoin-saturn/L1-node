@@ -276,11 +276,12 @@ const checkActive = async () => {
         try {
           await fetch(`http://${gatewayIp}:10361/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF`)
           console.log(`${gatewayIp} of ${recordSet.SetIdentifier} is active`)
+
           activeSuperRegions.Global.add(gatewayIp)
+          activeSuperRegions[countryToContinent[recordSet.GeoLocation?.CountryCode]].add(gatewayIp)
           if (recordSet.GeoLocation?.CountryCode === 'US') {
             activeSuperRegions.US.add(gatewayIp)
           }
-          activeSuperRegions[countryToContinent[recordSet.GeoLocation?.CountryCode]].add(gatewayIp)
         } catch (e) {
           console.error(`${gatewayIp} of ${recordSet.SetIdentifier} is down, removing...`)
           route53Client.send(new ChangeResourceRecordSetsCommand({
@@ -298,8 +299,11 @@ const checkActive = async () => {
   }
 
   for (const superRegion of superRegions) {
-    if (activeSuperRegions[superRegion].size !== lastActiveSuperRegions[superRegion].size || ![...activeSuperRegions[superRegion]].every(activeIp => lastActiveSuperRegions[superRegion].has(activeIp))) {
-      console.log(`Updating ${superRegion} record with`, [...activeSuperRegions[superRegion]].join(', '))
+    const active = activeSuperRegions[superRegion]
+    const lastActive = lastActiveSuperRegions[superRegion]
+    if (active.size !== lastActive.size
+      || ![...active].every(activeIp => lastActive.has(activeIp))) {
+
       const GeoLocation = {}
       if (superRegion === 'Global') {
         GeoLocation.CountryCode = '*'
@@ -308,6 +312,8 @@ const checkActive = async () => {
       } else {
         GeoLocation.ContinentCode = superRegion
       }
+
+      console.log(`Updating ${superRegion} (${JSON.stringify(GeoLocation)}) record with`, [...active].join(', '))
       route53Client.send(new ChangeResourceRecordSetsCommand({
         HostedZoneId, ChangeBatch: {
           Changes: [
@@ -317,14 +323,14 @@ const checkActive = async () => {
                 Type: 'A',
                 Name: cdn_url,
                 GeoLocation: { CountryCode: '*' },
-                ResourceRecords: [...activeSuperRegions[superRegion]].map(ip => ({ Value: ip })),
+                ResourceRecords: [...active].map(ip => ({ Value: ip })),
                 TTL: 60
               }
             }
           ]
         }
       })).catch(console.error)
-      lastActiveSuperRegions[superRegion] = activeSuperRegions[superRegion]
+      lastActiveSuperRegions[superRegion] = active
     }
   }
 
