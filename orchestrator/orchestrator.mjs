@@ -142,6 +142,11 @@ app.post('/register', async (req, res) => {
       let currentRecord = currentRecords?.ResourceRecordSets?.[0]
       currentRecord = currentRecord.SetIdentifier === setId ? currentRecord : undefined
 
+      if (currentRecord?.ResourceRecords.map(rr => rr.Value).includes(ip)) {
+        console.log('Already in the record, skipping')
+        return res.send(response)
+      }
+
       const dnsChanges = [
         {
           Action: 'UPSERT', ResourceRecordSet: {

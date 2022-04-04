@@ -64,6 +64,16 @@ app.listen(PORT, async () => {
   // debug(`==== IMPORTANT ====`)
   debug(`shim running on http://localhost:${PORT}. Test at http://localhost:${PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev-${nodeID}`)
 
+  await register()
+  setInterval(() => {
+    register().catch(() => process.exit(0))
+  }, 5 * 60 * 1000) // register every 5 minutes
+
+  // Start log ingestor
+  import('./log_ingestor.js')
+})
+
+async function register() {
   // If cert is not yet in the volume, register
   if (!(await fsPromises.stat('/etc/nginx/ssl/gateway.crt').catch(_ => false))) {
     debug('Registering with orchestrator')
@@ -96,7 +106,4 @@ app.listen(PORT, async () => {
 
     debug('Successful registration')
   }
-
-  // Start log ingestor
-  import('./log_ingestor.js')
-})
+}
