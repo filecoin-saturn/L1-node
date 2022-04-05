@@ -289,11 +289,15 @@ const checkActive = async () => {
         continue
       }
       const gatewayIps = recordSet.ResourceRecords.map(rr => rr.Value)
+      let body
       for (const gatewayIp of gatewayIps) {
         console.log(`Checking ${gatewayIp} of ${recordSet.SetIdentifier}...`)
         try {
-          await fetch(`http://${gatewayIp}:10361/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF`).then(res => res.blob())
-          console.log(`${gatewayIp} of ${recordSet.SetIdentifier} is active`)
+          body = await fetch(`http://${gatewayIp}:10361/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF`).then(res => res.arrayBuffer())
+          if (body.byteLength !== 1630210) {
+            throw new Error('Wrong CAR length: ' + body.byteLength)
+          }
+          console.log(`${gatewayIp} of ${recordSet.SetIdentifier} is active and healthy`)
 
           activeSuperRegions.Global.add(gatewayIp)
           activeSuperRegions[countryToContinent[recordSet.GeoLocation?.CountryCode]].add(gatewayIp)
@@ -301,7 +305,7 @@ const checkActive = async () => {
             activeSuperRegions.US.add(gatewayIp)
           }
         } catch (e) {
-          console.error(`${gatewayIp} of ${recordSet.SetIdentifier} is down, removing...`)
+          console.error(`${gatewayIp} of ${recordSet.SetIdentifier} is down/returning bad data (${e.message}), removing...`)
           route53Client.send(new ChangeResourceRecordSetsCommand({
             HostedZoneId, ChangeBatch: {
               Changes: [
