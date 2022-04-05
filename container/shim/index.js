@@ -76,13 +76,15 @@ app.listen(PORT, async () => {
 async function register() {
   // If cert is not yet in the volume, register
   if (!(await fsPromises.stat('/etc/nginx/ssl/gateway.crt').catch(_ => false))) {
-    debug('Registering with orchestrator')
+    debug('Registering with orchestrator, requesting new TLS cert...')
     try {
       const { cert, key } = await fetch(`http://${ORCHESTRATOR_URL}/register`, {
         method: 'post',
         body: JSON.stringify({ id: nodeID, secret: nodeSecret }),
         headers: { 'Content-Type': 'application/json' }
       }).then(res => res.json())
+
+      debug('TLS cert and key received, persisting to volume...')
 
       await Promise.all([
         fsPromises.writeFile('/etc/nginx/ssl/gateway.crt', cert),
@@ -98,6 +100,9 @@ async function register() {
     }
   } else {
     debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?rcid=dev-${nodeID}`)
+
+    debug('Re-registering with orchestrator...')
+
     await fetch(`http://${ORCHESTRATOR_URL}/register?ssl=done`, {
       method: 'post',
       body: JSON.stringify({ id: nodeID, secret: nodeSecret }),

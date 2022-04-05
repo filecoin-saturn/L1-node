@@ -209,7 +209,7 @@ app.post('/register', async (req, res) => {
 
         console.log('DNS record created, waiting for propagation...')
 
-        await new Promise((resolve => setTimeout(resolve, 10_000)))
+        await new Promise((resolve => setTimeout(resolve, 15_000)))
 
         console.log('Requesting validation from ZeroSSL')
 
@@ -221,13 +221,26 @@ app.post('/register', async (req, res) => {
 
         console.dir(validateCnameResponse)
 
+        console.log('CNAME validated, waiting for cert to be issued...')
+
+        await new Promise((resolve => setTimeout(resolve, 20_000)))
+
         console.log('Requesting cert from ZeroSSL')
 
-        await new Promise((resolve => setTimeout(resolve, 10_000)))
-
-        const certResponse = await fetch(`https://api.zerossl.com/certificates/${certId}/download/return?access_key=${ZEROSSL_ACCESS_KEY}`).then(res => res.json())
+        let certResponse = await fetch(`https://api.zerossl.com/certificates/${certId}/download/return?access_key=${ZEROSSL_ACCESS_KEY}`).then(res => res.json())
 
         console.log(certResponse)
+
+        if (!certResponse.success && certResponse.error.type === 'certificate_not_issued') {
+          console.log('Not yet issued, waiting and retrying...')
+          await new Promise((resolve => setTimeout(resolve, 20_000)))
+          console.log('Requesting cert from ZeroSSL')
+          certResponse = await fetch(`https://api.zerossl.com/certificates/${certId}/download/return?access_key=${ZEROSSL_ACCESS_KEY}`).then(res => res.json())
+        }
+
+        if (!certResponse.success) {
+          throw new Error('Certificate was not issued, error: ' + certResponse.error.type)
+        }
 
         cert = certResponse['certificate.crt']
 
