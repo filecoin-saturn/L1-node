@@ -231,14 +231,14 @@ app.post('/register', async (req, res) => {
 
         console.log(certResponse)
 
-        if (!certResponse.success && certResponse.error.type === 'certificate_not_issued') {
+        if (certResponse.success === false && certResponse.error?.type === 'certificate_not_issued') {
           console.log('Not yet issued, waiting and retrying...')
           await new Promise((resolve => setTimeout(resolve, 20_000)))
           console.log('Requesting cert from ZeroSSL')
           certResponse = await fetch(`https://api.zerossl.com/certificates/${certId}/download/return?access_key=${ZEROSSL_ACCESS_KEY}`).then(res => res.json())
         }
 
-        if (!certResponse.success) {
+        if (certResponse.success === false) {
           throw new Error('Certificate was not issued, error: ' + certResponse.error.type)
         }
 
