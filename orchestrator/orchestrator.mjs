@@ -292,7 +292,7 @@ const checkActive = async () => {
       for (const gatewayIp of gatewayIps) {
         console.log(`Checking ${gatewayIp} of ${recordSet.SetIdentifier}...`)
         try {
-          await fetch(`http://${gatewayIp}:10361/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF`)
+          await fetch(`http://${gatewayIp}:10361/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF`).then(res => res.blob())
           console.log(`${gatewayIp} of ${recordSet.SetIdentifier} is active`)
 
           activeSuperRegions.Global.add(gatewayIp)
