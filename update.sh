@@ -11,6 +11,7 @@ target=$HOME/update.sh
 if wget -O "$target.tmp" -T 30 "https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh" && [[ -s "$target.tmp" ]] && [ $(stat -c %s "$target.tmp") -ne $(stat -c %s "$target") ]
 then
   mv -f "$target.tmp" "$target"
+  chmod +x "$target"
   echo $(date -u) "Updated update.sh script"
   exit
 else
