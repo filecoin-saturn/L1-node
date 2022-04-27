@@ -21,7 +21,7 @@ COPY container/scripts/start.sh ./
 
 ARG RUN_NUMBER=0
 ARG GIT_COMMIT_HASH=dev
-ARG ORCHESTRATOR_URL=orchestrator.saturn-test.network:10363
+ARG ORCHESTRATOR_URL=orchestrator.saturn-test.network:10365
 
 ENV NODE_VERSION="${RUN_NUMBER}_${GIT_COMMIT_HASH}"
 ENV ORCHESTRATOR_URL=$ORCHESTRATOR_URL
