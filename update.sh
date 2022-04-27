@@ -5,7 +5,15 @@ if pidof -o %PPID -x "update.sh" > /dev/null; then
 	exit
 fi
 
-wget -O $HOME/update.sh https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh
+target=$HOME/update.sh
+if wget -O "$target.tmp" "https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh" && [[ -s "$target.tmp" ]] && [ $(stat -c %s "$target.tmp") -ne $(stat -c %s "$target") ]
+then
+  mv -f "$target.tmp" "$target"
+  echo $(date -u) "Updated update.sh script"
+  exit
+else
+  rm -f "$target.tmp"
+fi
 
 out=$(sudo docker pull ghcr.io/filecoin-project/saturn-node:main)
 
