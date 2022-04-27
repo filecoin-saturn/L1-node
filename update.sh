@@ -5,6 +5,8 @@ if pidof -o %PPID -x "update.sh" > /dev/null; then
 	exit
 fi
 
+echo $(date -u) "Checking for Saturn node updates..."
+
 target=$HOME/update.sh
 if wget -O "$target.tmp" "https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh" && [[ -s "$target.tmp" ]] && [ $(stat -c %s "$target.tmp") -ne $(stat -c %s "$target") ]
 then
@@ -12,6 +14,7 @@ then
   echo $(date -u) "Updated update.sh script"
   exit
 else
+  echo $(date -u) "update.sh script up to date"
   rm -f "$target.tmp"
 fi
 
