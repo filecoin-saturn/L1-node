@@ -38,7 +38,7 @@ The node returns CAR files from cache or falls back to inner level nodes.
    `wget https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh > $HOME/update.sh`
 8. Setup the cron to run every 5 minutes:
    ```
-   */5 * * * * /bin/bash $HOME/update.sh >> $HOME/update-cron.log
+   */5 * * * * $HOME/update.sh >> $HOME/cron.log
    ```
    **Make sure to have FIL_WALLET_ADDRESS set in `/etc/environment` or hardcoded in `update.sh` for auto-update to work**
 
