@@ -1,8 +1,10 @@
-# Saturn Node
+# Saturn Node 🪐
 
 Saturn node is the general implementation for L1 and L2 nodes of Saturn.
 It allows retrieval clients to request CIDs and byte ranges of CIDs.
 The node returns CAR files from cache or falls back to inner level nodes.
+
+**Saturn is still in v0, earnings have not been enable in test net, but you can run a node to help test the network today**
 
 ## Requirements
 
