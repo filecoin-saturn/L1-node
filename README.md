@@ -33,7 +33,7 @@ The node returns CAR files from cache or falls back to inner level nodes.
       --network host \
       ghcr.io/filecoin-project/saturn-node:main
     ```
-5. Check logs with `docker logs -f node`
+5. Check logs with `docker logs -f saturn-node`
 6. Wait for the sign up to happen with the orchestrator and the registration to DNS (this may take several minutes)
 7. Download the [`update.sh`](update.sh) script
    ```shell
