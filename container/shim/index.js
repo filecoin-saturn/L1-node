@@ -7,12 +7,13 @@ import Debug from 'debug'
 import fetch from 'node-fetch'
 import {
   FIL_WALLET_ADDRESS,
+  NODE_OPERATOR_EMAIL,
   NODE_VERSION,
-  nodeId,
   NGINX_PORT,
   ORCHESTRATOR_URL,
   PORT,
-  updateNodeToken
+  nodeId,
+  updateNodeToken,
 } from './config.js'
 import { streamCAR } from './utils.js'
 
@@ -68,11 +69,12 @@ app.get('/register-check', (req, res) => {
 
 app.listen(PORT, async () => {
   debug.extend('version')(`${NODE_VERSION}`)
-  debug.extend('address')(`==== IMPORTANT ====`)
-  debug.extend('address')(`==== Earnings will be sent to Filecoin wallet address: %s`, FIL_WALLET_ADDRESS)
-  debug.extend('address')(`==== IMPORTANT ====`)
   debug(`shim running on http://localhost:${PORT}. Test at http://localhost:${PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?clientId=${randomUUID()}`)
   debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?clientId=${randomUUID()}`)
+  debug.extend('address')(`===== IMPORTANT =====`)
+  debug.extend('address')(`= Earnings will be sent to Filecoin wallet address: ${FIL_WALLET_ADDRESS}`)
+  debug.extend('address')(NODE_OPERATOR_EMAIL ? `= Payment notifications and important update will be sent to: ${NODE_OPERATOR_EMAIL}` : 'NO OPERATOR EMAIL SET, WE HIGHLY RECOMMEND SETTING ONE')
+  debug.extend('address')(`===== IMPORTANT =====`)
 
   await register()
   setInterval(() => {
@@ -84,7 +86,7 @@ app.listen(PORT, async () => {
 })
 
 async function register () {
-  const registerBody = JSON.stringify({ nodeId, version: NODE_VERSION })
+  const registerBody = JSON.stringify({ nodeId, version: NODE_VERSION, operatorEmail: NODE_OPERATOR_EMAIL })
   const registerOptions = {
     method: 'post',
     body: registerBody,

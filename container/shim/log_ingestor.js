@@ -97,10 +97,10 @@ if (fs.existsSync('/var/log/nginx/node-access.log')) {
 
   setInterval(async () => {
     if (pending.length > 0) {
-      debug('Submitting pending retrievals %o to Wallet %s', pending, FIL_WALLET_ADDRESS)
+      debug(`Submitting pending ${pending.length} retrievals to wallet ${FIL_WALLET_ADDRESS}`)
       const body = {
         nodeId,
-        filAddress: FIL_WALLET_ADDRESS,
+        filAddress: FIL_WALLET_ADDRESS, // TODO: remove
         bandwidthLogs: pending
       }
       await fetch('https://mytvpqv54yawlsraubdzie5k2m0ggkjv.lambda-url.us-west-2.on.aws/', {

@@ -8,6 +8,11 @@ The node returns CAR files from cache or falls back to inner level nodes.
 
 ## Requirements
 
+### General requirements
+- Filecoin wallet address
+- Email address
+
+### Hardware requirements
 - Linux server with public IP
 - Docker installed ([Instructions here](https://docs.docker.com/engine/install/#server))
 - 100Mbps upload bandwidth minimum (1Gbps+ recommended)<sup>1</sup>
@@ -23,12 +28,13 @@ The node returns CAR files from cache or falls back to inner level nodes.
 
 1. Install docker ([Instructions here](https://docs.docker.com/engine/install/#server))
 2. Authenticate docker with the GitHub Container Registry ([Instructions here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry))
-3. Set FIL_WALLET_ADDRESS env variable in `.bashrc` / `.zshrc` and `/etc/environment` for auto-update
+3. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `.bashrc` and `/etc/environment` for auto-update
 4. Run the docker image:
     ```shell
     sudo docker run --name saturn-node -it -d --restart=unless-stopped \
       -v $HOME/shared:/usr/src/app/shared \
       -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS \
+      -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL \
       --network host \
       ghcr.io/filecoin-project/saturn-node:main
     ```
