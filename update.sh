@@ -7,18 +7,6 @@ fi
 
 echo $(date -u) "Checking for Saturn node updates..."
 
-if [ ! -d "$HOME/shared" ]; then
-  mkdir $HOME/shared
-fi
-
-if [ -d "$HOME/ssl" ]; then
-  cp -r $HOME/ssl $HOME/shared
-fi
-
-if [ -d "$HOME/cache" ]; then
-  cp -r $HOME/cache $HOME/shared
-fi
-
 target=$HOME/update.sh
 if wget -O "$target.tmp" -T 10 -t 3 "https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh" && [[ -s "$target.tmp" ]] && [ $(stat -c %s "$target.tmp") -ne $(stat -c %s "$target") ]
 then
