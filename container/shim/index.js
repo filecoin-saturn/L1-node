@@ -84,27 +84,30 @@ app.listen(PORT, async () => {
 })
 
 async function register () {
-  const registerBody = JSON.stringify({ id: nodeId, nodeId, version: NODE_VERSION })
+  const registerBody = JSON.stringify({ nodeId, version: NODE_VERSION })
   const registerOptions = {
     method: 'post',
     body: registerBody,
     headers: { 'Content-Type': 'application/json' }
   }
   // If cert is not yet in the volume, register
-  if (!(await fsPromises.stat('/etc/nginx/ssl/node.crt').catch(_ => false))) {
+  if (!(await fsPromises.stat('/usr/src/app/shared/ssl/node.crt').catch(_ => false))) {
     debug('Registering with orchestrator, requesting new TLS cert... (this could take up to 20 mins)')
     try {
-      const { cert, key } = await fetch(`http://${ORCHESTRATOR_URL}/register`, registerOptions).then(res => res.json())
+      const response = await fetch(`http://${ORCHESTRATOR_URL}/register`, registerOptions)
+      const body = await response.json()
+      const { cert, key } = body
 
       if (!cert || !key) {
-        throw new Error('Empty cert or key received')
+        debug('Received status %d with %o', response.status, body)
+        throw new Error(body?.error || 'Empty cert or key received')
       }
 
-      debug('TLS cert and key received, persisting to volume...')
+      debug('TLS cert and key received, persisting to shared volume...')
 
       await Promise.all([
-        fsPromises.writeFile('/etc/nginx/ssl/node.crt', cert),
-        fsPromises.writeFile('/etc/nginx/ssl/node.key', key)
+        fsPromises.writeFile('/usr/src/app/shared/ssl/node.crt', cert),
+        fsPromises.writeFile('/usr/src/app/shared/ssl/node.key', key)
       ])
 
       debug('Successful registration, restarting container...')

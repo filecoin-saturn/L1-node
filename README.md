@@ -4,7 +4,7 @@ Saturn node is the general implementation for L1 and L2 nodes of Saturn.
 It allows retrieval clients to request CIDs and byte ranges of CIDs.
 The node returns CAR files from cache or falls back to inner level nodes.
 
-**Saturn is still in v0, earnings have not been enable in test net, but you can run a node to help test the network today**
+**Saturn is still in v0, earnings have not been enable in test net, but you can run a node to help test the network today, we would appreciate any and all feedback**
 
 ## Requirements
 
@@ -27,8 +27,7 @@ The node returns CAR files from cache or falls back to inner level nodes.
 4. Run the docker image:
     ```shell
     sudo docker run --name saturn-node -it -d --restart=unless-stopped \
-      -v $HOME/cache:/usr/src/app/cache \
-      -v $HOME/ssl:/etc/nginx/ssl \
+      -v $HOME/shared:/usr/src/app/shared \
       -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS \
       --network host \
       ghcr.io/filecoin-project/saturn-node:main

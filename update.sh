@@ -7,6 +7,18 @@ fi
 
 echo $(date -u) "Checking for Saturn node updates..."
 
+if [ ! -d "$HOME/shared" ]; then
+  mkdir $HOME/shared
+fi
+
+if [ -d "$HOME/ssl" ]; then
+  cp -r $HOME/ssl $HOME/shared
+fi
+
+if [ -d "$HOME/cache" ]; then
+  cp -r $HOME/cache $HOME/shared
+fi
+
 target=$HOME/update.sh
 if wget -O "$target.tmp" -T 10 -t 3 "https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh" && [[ -s "$target.tmp" ]] && [ $(stat -c %s "$target.tmp") -ne $(stat -c %s "$target") ]
 then
@@ -27,7 +39,7 @@ if [[ $out != *"up to date"* ]]; then
   sleep $((RANDOM % 60))
   sudo docker stop --time 30 saturn-node
   sudo docker rm -f saturn-node
-  sudo docker run --name saturn-node -it -d --restart=unless-stopped -v $HOME/cache:/usr/src/app/cache -v $HOME/ssl:/etc/nginx/ssl -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS --network host ghcr.io/filecoin-project/saturn-node:main
+  sudo docker run --name saturn-node -it -d --restart=unless-stopped -v $HOME/shared:/usr/src/app/shared -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS --network host ghcr.io/filecoin-project/saturn-node:main
   sudo docker image prune -f
 
   echo $(date -u) "Update done!"

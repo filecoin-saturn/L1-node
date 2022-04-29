@@ -2,12 +2,11 @@
 
 : "${NGINX_PORT:=8443}" "${SHIM_PORT:=10361}" "${FIL_WALLET_ADDRESS:=dev}"
 
-echo "Running Saturn node with nginx @ ${NGINX_PORT} and shim @ ${SHIM_PORT}"
+echo "Running Saturn node dev"
 
 # Start the docker image
 docker run --name saturn-node -it --rm \
-          -v $(pwd)/live/ssl:/etc/nginx/ssl \
+          -v $(pwd)/shared:/usr/src/app/shared \
           -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS \
-          -e SHIM_PORT=$SHIM_PORT -e NGINX_PORT=$NGINX_PORT \
           -p $SHIM_PORT:$SHIM_PORT -p $NGINX_PORT:$NGINX_PORT \
-          node
+          saturn-node
