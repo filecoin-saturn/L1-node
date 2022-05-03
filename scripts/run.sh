@@ -2,7 +2,7 @@
 
 : "${NGINX_PORT:=8443}" "${SHIM_PORT:=10361}" "${FIL_WALLET_ADDRESS:=dev}"
 
-echo "Running Saturn node dev"
+echo $(date -u) "[host] Running Saturn node dev"
 
 # Start the docker image
 docker run --name saturn-node -it --rm \

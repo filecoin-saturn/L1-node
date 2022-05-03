@@ -1,8 +1,8 @@
 #!/bin/bash
 
-echo "Building docker image"
+echo $(date -u) "[host] Building docker image"
 
 # Build the docker image and tag it
 docker build -t saturn-node --build-arg ORCHESTRATOR_URL=host.docker.internal:10365 .
 
-echo "Build done"
+echo $(date -u) "[host] Build done"
