@@ -15,6 +15,7 @@ const NGINX_LOG_KEYS_MAP = {
   rid: 'requestId',
   rt: 'requestDuration',
   s: 'status',
+  ua: 'userAgent',
   ucs: 'cacheHit'
 }
 
@@ -68,7 +69,7 @@ if (fs.existsSync('/var/log/nginx/node-access.log')) {
           continue
         }
 
-        const { numBytesSent, request, requestId, localTime, requestDuration, args, range, cacheHit, referrer } = vars
+        const { numBytesSent, request, requestId, localTime, requestDuration, args, range, cacheHit, referrer, userAgent } = vars
         const cid = request.replace('/cid/', '')
         const { clientId } = args
         debug(`Client ${clientId} at ${referrer} requested ${cid} range: ${range} size: ${Math.floor(numBytesSent / 1024)} KB HIT:${cacheHit} duration: ${requestDuration}ms RID: ${requestId}`)
@@ -82,6 +83,7 @@ if (fs.existsSync('/var/log/nginx/node-access.log')) {
           range,
           requestDuration,
           requestId,
+          userAgent
         })
       }
 
