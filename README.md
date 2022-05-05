@@ -13,7 +13,7 @@ The node returns CAR files from cache or falls back to inner level nodes.
 - Email address
 
 ### Hardware requirements
-- Linux server with public IPv4 address
+- Linux server with a public IPv4 address
 - Docker installed ([Instructions here](https://docs.docker.com/engine/install/#server))
 - 1Gbps upload bandwidth minimum (10Gbps+ recommended)<sup>1</sup>
 - 16GB RAM minimum (64GB+ recommended)
