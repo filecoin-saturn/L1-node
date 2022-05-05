@@ -2,7 +2,7 @@ import fsPromises from 'node:fs/promises'
 import fetch from 'node-fetch'
 import Debug from 'debug'
 
-import { NODE_OPERATOR_EMAIL, NODE_VERSION, nodeId, ORCHESTRATOR_URL, updateNodeToken } from './config.js'
+import { NODE_OPERATOR_EMAIL, NODE_VERSION, nodeId, ORCHESTRATOR_HOST, updateNodeToken } from './config.js'
 
 const debug = Debug('node')
 
@@ -17,7 +17,7 @@ export async function register () {
   if (!(await fsPromises.stat('/usr/src/app/shared/ssl/node.crt').catch(_ => false))) {
     debug('Registering with orchestrator, requesting new TLS cert... (this could take up to 20 mins)')
     try {
-      const response = await fetch(`http://${ORCHESTRATOR_URL}/register`, registerOptions)
+      const response = await fetch(`https://${ORCHESTRATOR_HOST}/register`, registerOptions)
       const body = await response.json()
       const { cert, key } = body
 
@@ -44,7 +44,7 @@ export async function register () {
     debug('Re-registering with orchestrator...')
 
     try {
-      const { token } = await fetch(`http://${ORCHESTRATOR_URL}/register?ssl=done`, registerOptions).then(res => res.json())
+      const { token } = await fetch(`https://${ORCHESTRATOR_HOST}/register?ssl=done`, registerOptions).then(res => res.json())
 
       updateNodeToken(token)
 

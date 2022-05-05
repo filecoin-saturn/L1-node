@@ -17,12 +17,12 @@ COPY container/shim ./
 COPY container/nginx /etc/nginx/
 RUN rm /etc/nginx/conf.d/default.conf
 
-ARG RUN_NUMBER=0
-ARG GIT_COMMIT_HASH=dev
-ARG ORCHESTRATOR_URL=orchestrator.saturn-test.network:10365
+ARG RUN_NUMBER="0"
+ARG GIT_COMMIT_HASH="dev"
+ARG ORCHESTRATOR_HOST="orchestrator.saturn-test.network"
 
 ENV NODE_VERSION="${RUN_NUMBER}_${GIT_COMMIT_HASH}"
-ENV ORCHESTRATOR_URL=$ORCHESTRATOR_URL
+ENV ORCHESTRATOR_HOST=$ORCHESTRATOR_HOST
 ENV DEBUG node*
 
 # the command that starts our app
