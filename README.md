@@ -13,11 +13,11 @@ The node returns CAR files from cache or falls back to inner level nodes.
 - Email address
 
 ### Hardware requirements
-- Linux server with public IP
+- Linux server with public IPv4 address
 - Docker installed ([Instructions here](https://docs.docker.com/engine/install/#server))
-- 100Mbps upload bandwidth minimum (1Gbps+ recommended)<sup>1</sup>
-- 2GB RAM minimum (8GB+ recommended)
-- 128GB SSD minimum (2TB+ NVMe SSD in RAID0 recommended)<sup>2</sup>
+- 1Gbps upload bandwidth minimum (10Gbps+ recommended)<sup>1</sup>
+- 16GB RAM minimum (64GB+ recommended)
+- 1TB SSD minimum (2TB+ NVMe SSD in RAID0 recommended)<sup>2</sup>
 
 <sub>
 <sup>1</sup> The more you can serve &rarr; greater FIL earnings<br>
