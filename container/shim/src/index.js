@@ -25,23 +25,27 @@ app.get('/favicon.ico', (req, res) => {
 app.get('/cid/:cid*', async (req, res) => {
   const cid = req.params.cid + req.params[0]
   debug.extend('req')(`Cache miss for %s`, cid)
-  res.set('Cache-Control', 'public, max-age=31536000, immutable')
+
+  res.set({
+    'Cache-Control': 'public, max-age=31536000, immutable',
+    'Saturn-Node-Id': nodeId,
+    'Saturn-Node-Version': NODE_VERSION
+  })
 
   if (req.headers.range) {
     let [start, end] = req.headers.range.split('=')[1].split('-')
     start = parseInt(start, 10)
     end = parseInt(end, 10)
 
-    res.setHeader('Accept-Ranges', 'bytes')
-    res.setHeader('Content-Range', `bytes ${start}-${end}/${testCAR.length}`)
-    res.status(206)
-    return res.end(testCAR.slice(start, end + 1))
+    res.set({
+      'Accept-Ranges': 'bytes',
+      'Content-Range': `bytes ${start}-${end}/${testCAR.length}`
+    })
+    return res.status(206).end(testCAR.slice(start, end + 1))
   }
 
   // Testing CID
   if (cid === 'QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF') {
-    res.setHeader('X-Node-Id', nodeId)
-    res.setHeader('X-Node-Version', NODE_VERSION)
     return res.send(testCAR)
   }
 
