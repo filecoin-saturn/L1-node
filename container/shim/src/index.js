@@ -55,12 +55,13 @@ app.get('/cid/:cid*', async (req, res) => {
 })
 
 app.get('/register-check', (req, res) => {
+  const ip = req.ip.replace('::ffff:', '')
   const { nodeId: receivedNodeId } = req.query
   if (receivedNodeId !== nodeId) {
-    debug.extend('check')(`Check failed, nodeId mismatch. Received: ${receivedNodeId} from IP ${req.ip}`)
+    debug.extend('check')(`Check failed, nodeId mismatch. Received: ${receivedNodeId} from IP ${ip}`)
     return res.sendStatus(403)
   }
-  debug.extend('check')(`Check successful from IP ${req.ip}`)
+  debug.extend('check')(`Check successful from IP ${ip}`)
   res.sendStatus(200)
 })
 
