@@ -4,7 +4,7 @@ import fsPromises from 'node:fs/promises'
 import express from 'express'
 import Debug from 'debug'
 
-import { register} from './registration.js'
+import { register } from './registration.js'
 import { FIL_WALLET_ADDRESS, NGINX_PORT, NODE_OPERATOR_EMAIL, NODE_VERSION, nodeId, PORT, } from './config.js'
 import { streamCAR } from './utils.js'
 import { trapServer } from './trap.js'
@@ -15,6 +15,7 @@ const app = express()
 const testCAR = await fsPromises.readFile('./public/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car')
 
 app.disable('x-powered-by')
+app.set('trust proxy', true)
 
 app.get('/favicon.ico', (req, res) => {
   res.sendStatus(404)
@@ -56,10 +57,10 @@ app.get('/cid/:cid*', async (req, res) => {
 app.get('/register-check', (req, res) => {
   const { nodeId: receivedNodeId } = req.query
   if (receivedNodeId !== nodeId) {
-    debug.extend('check')('Check failed, nodeId mismatch')
+    debug.extend('check')(`Check failed, nodeId mismatch. Received: ${receivedNodeId} from IP ${req.ip}`)
     return res.sendStatus(403)
   }
-  debug.extend('check')('Check successful')
+  debug.extend('check')(`Check successful from IP ${req.ip}`)
   res.sendStatus(200)
 })
 
