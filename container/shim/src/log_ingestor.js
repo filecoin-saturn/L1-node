@@ -34,7 +34,7 @@ if (fs.existsSync('/var/log/nginx/node-access.log')) {
       const lines = read.toString().trim().split('\n')
 
       for (const line of lines) {
-        const vars = line.split('&&').reduce(((varsAgg, currentValue) => {
+        const vars = line.split('&&').reduce((varsAgg, currentValue) => {
           const [name, ...value] = currentValue.split('=')
           const jointValue = value.join('=')
 
@@ -63,7 +63,7 @@ if (fs.existsSync('/var/log/nginx/node-access.log')) {
             }
           }
           return Object.assign(varsAgg, { [NGINX_LOG_KEYS_MAP[name] || name]: parsedValue })
-        }), {})
+        }, {})
 
         if (!vars.request?.startsWith('/cid/') || vars.status !== 200) {
           continue
@@ -86,7 +86,6 @@ if (fs.existsSync('/var/log/nginx/node-access.log')) {
           userAgent
         })
       }
-
     } else {
       if (hasRead) {
         await fh.truncate()
@@ -109,7 +108,7 @@ if (fs.existsSync('/var/log/nginx/node-access.log')) {
         method: 'POST',
         body: JSON.stringify(body),
         headers: {
-          'Authentication': nodeToken,
+          Authentication: nodeToken,
           'Content-Type': 'application/json'
         }
       })
