@@ -10,7 +10,7 @@ WORKDIR /usr/src/app
 # copy the package.json files from local machine to the workdir in container
 COPY container/shim/package*.json ./
 # run npm install in our local machine
-RUN npm install --production
+RUN npm ci --production --ignore-scripts
 
 # copy the generated modules and all other files to the container
 COPY container/shim ./
