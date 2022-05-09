@@ -58,10 +58,10 @@ app.get('/register-check', (req, res) => {
   const ip = req.ip.replace('::ffff:', '')
   const { nodeId: receivedNodeId } = req.query
   if (receivedNodeId !== nodeId) {
-    debug.extend('check')(`Check failed, nodeId mismatch. Received: ${receivedNodeId} from IP ${ip}`)
+    debug.extend('registration-check')(`Check failed, nodeId mismatch. Received: ${receivedNodeId} from IP ${ip}`)
     return res.sendStatus(403)
   }
-  debug.extend('check')(`Check successful from IP ${ip}`)
+  debug.extend('registration-check')(`Check successful from IP ${ip}`)
   res.sendStatus(200)
 })
 

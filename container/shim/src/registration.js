@@ -5,7 +5,7 @@ import Debug from 'debug'
 
 import { NODE_OPERATOR_EMAIL, NODE_VERSION, nodeId, ORCHESTRATOR_HOST, updateNodeToken } from './config.js'
 
-const debug = Debug('node')
+const debug = Debug('node:registration')
 
 const CERT_PATH = '/usr/src/app/shared/ssl/node.crt'
 const KEY_PATH = '/usr/src/app/shared/ssl/node.key'
@@ -63,6 +63,8 @@ export async function register (initial) {
           fsPromises.unlink(CERT_PATH).catch(debug)
         ])
         process.exit()
+      } else {
+        debug(`Certificate is valid until ${cert.validTo}`)
       }
     }
 
