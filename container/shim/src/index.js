@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto'
 import https from 'node:https'
-import fs from 'node:fs'
 import fsPromises from 'node:fs/promises'
 import express from 'express'
 import Debug from 'debug'
@@ -73,10 +72,7 @@ const server = app.listen(PORT, async () => {
   debug.extend('address')(NODE_OPERATOR_EMAIL ? `Payment notifications and important update will be sent to: ${NODE_OPERATOR_EMAIL}` : 'NO OPERATOR EMAIL SET, WE HIGHLY RECOMMEND SETTING ONE')
   debug.extend('address')(`===== IMPORTANT =====`)
 
-  await register()
-  server.registerInterval = setInterval(() => {
-    register().catch(() => process.exit(0))
-  }, (Math.random() * 2 + 4) * 60 * 1000) // register every ~5 minutes
+  await register(true)
 
   // Start log ingestor
   import('./log_ingestor.js')
