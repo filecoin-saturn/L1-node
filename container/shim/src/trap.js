@@ -1,9 +1,11 @@
 import Debug from 'debug'
+import { deregister } from './registration.js'
 
 const debug = Debug('node:trap')
 
-const shutdown = (server) => () => {
+const shutdown = (server) => async () => {
   debug('shutting down server')
+  await deregister()
   server.close(() => {
     debug('server closed')
     process.exit()

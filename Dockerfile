@@ -19,10 +19,10 @@ RUN rm /etc/nginx/conf.d/default.conf
 
 ARG RUN_NUMBER="0"
 ARG GIT_COMMIT_HASH="dev"
-ARG ORCHESTRATOR_HOST="orchestrator.saturn-test.network"
+ARG ORCHESTRATOR_URL="https://orchestrator.saturn-test.network"
 
 ENV NODE_VERSION="${RUN_NUMBER}_${GIT_COMMIT_HASH}"
-ENV ORCHESTRATOR_HOST=$ORCHESTRATOR_HOST
+ENV ORCHESTRATOR_URL=$ORCHESTRATOR_URL
 ENV DEBUG node*
 
 # the command that starts our app
