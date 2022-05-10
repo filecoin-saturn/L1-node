@@ -6,6 +6,7 @@ The node returns CAR files from cache or falls back to inner level nodes.
 
 **Saturn is still in v0, earnings have not been enable in test net, but you can run a node to help test the network today, we appreciate any and all feedback**
 
+
 ## Requirements
 
 ### General requirements
@@ -23,6 +24,7 @@ The node returns CAR files from cache or falls back to inner level nodes.
 <sup>1</sup> The more you can serve &rarr; greater FIL earnings<br>
 <sup>2</sup> Bigger disk &rarr; bigger cache &rarr; greater FIL earnings
 </sub>
+
 
 ## Running a node
 
@@ -49,6 +51,7 @@ The node returns CAR files from cache or falls back to inner level nodes.
    */5 * * * * $HOME/update.sh >> $HOME/cron.log
    ```
    **Make sure to have FIL_WALLET_ADDRESS set in `/etc/environment` or hardcoded in `update.sh` for auto-update to work**
+
 
 ## Developing
 
@@ -78,6 +81,7 @@ Run the docker container with
 ./node build run
 ```
 
+
 ## Files
 
 #### nginx configuration
@@ -87,6 +91,7 @@ Run the docker container with
 #### Shim
 
 `shim/` contains the necessary code to fetch CIDs and CAR files for nginx to cache 
+
 
 ## License
 
