@@ -57,7 +57,7 @@ The node returns CAR files from cache or falls back to inner level nodes.
 
 In development, to avoid an automatic CI/CD deployment to the test network when any change is made to the `container/` directory, include `[skip ci]` in the `git commit` message. Like:
 
-```console
+```shell
 git commit -m "[skip ci] blah blah"
 ```
 
