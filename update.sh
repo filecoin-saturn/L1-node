@@ -2,7 +2,7 @@
 set -ex
 
 if pidof -o %PPID -x "update.sh" > /dev/null; then
-	exit
+  exit
 fi
 
 echo $(date -u) "Checking for auto-update script updates..."
