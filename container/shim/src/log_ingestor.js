@@ -7,7 +7,7 @@ import { FIL_WALLET_ADDRESS, nodeId, nodeToken } from './config.js'
 const debug = Debug('node:log-ingestor')
 
 const NGINX_LOG_KEYS_MAP = {
-  addr: 'address',
+  addr: 'clientAddress',
   b: 'numBytesSent',
   lt: 'localTime',
   r: 'request',
@@ -66,14 +66,15 @@ if (fs.existsSync('/var/log/nginx/node-access.log')) {
         }, {})
 
         if (vars.request?.startsWith('/cid/') && vars.status === 200) {
-          const { numBytesSent, request, requestId, localTime, requestDuration, args, range, cacheHit, referrer, userAgent } = vars
+          const { clientAddress, numBytesSent, request, requestId, localTime, requestDuration, args, range, cacheHit, referrer, userAgent } = vars
           const cid = request.replace('/cid/', '')
           const { clientId } = args
-          debug(`Client ${clientId} at ${referrer} requested ${cid} range: ${range} size: ${Math.floor(numBytesSent / 1024)} KB HIT:${cacheHit} duration: ${requestDuration}ms RID: ${requestId}`)
+          debug(`Client ${clientId} at ${clientAddress} from ${referrer} requested ${cid} range: ${range} size: ${Math.floor(numBytesSent / 1024)} KB HIT:${cacheHit} duration: ${requestDuration}ms RID: ${requestId}`)
 
           pending.push({
             cacheHit,
             cid,
+            clientAddress,
             clientId,
             localTime,
             numBytesSent,
