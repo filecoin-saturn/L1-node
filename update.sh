@@ -26,7 +26,7 @@ out=$(sudo docker pull ghcr.io/filecoin-project/saturn-node:main)
 if [[ $out != *"up to date"* ]]; then
   echo $(date -u) "New Saturn node version found, restarting..."
 
-  sudo docker stop --time 30 saturn-node
+  sudo docker stop --time 60 saturn-node
   sudo docker rm -f saturn-node
   sudo docker run --name saturn-node -it -d --restart=unless-stopped -v $HOME/shared:/usr/src/app/shared -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL --network host ghcr.io/filecoin-project/saturn-node:main
   sudo docker image prune -f
