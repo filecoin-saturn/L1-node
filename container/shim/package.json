@@ -19,15 +19,14 @@
   "devDependencies": {
     "@types/node": "^16.11.26",
     "eslint": "^8.15.0",
-    "eslint-config-standard": "^17.0.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-n": "^15.2.0",
+    "eslint-config-ipfs": "^2.1.0",
+    "eslint-plugin-jsdoc": "^39.2.9",
     "eslint-plugin-promise": "^6.0.0",
     "husky": "^8.0.1",
     "nodemon": "^2.0.15"
   },
   "eslintConfig": {
-    "extends": "standard",
+    "extends": "ipfs",
     "parserOptions": {
       "ecmaVersion": "latest",
       "sourceType": "module"

@@ -23,6 +23,6 @@ function pVersion (version) {
 
 function createNodeId () {
   const newNodeId = randomUUID()
-  writeFile(nodeIdFilePath, newNodeId).catch(console.error)
+  writeFile(nodeIdFilePath, newNodeId).catch(console.error) // eslint-disable-line no-console
   return newNodeId
 }

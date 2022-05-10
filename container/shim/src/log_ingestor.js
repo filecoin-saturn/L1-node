@@ -65,26 +65,24 @@ if (fs.existsSync('/var/log/nginx/node-access.log')) {
           return Object.assign(varsAgg, { [NGINX_LOG_KEYS_MAP[name] || name]: parsedValue })
         }, {})
 
-        if (!vars.request?.startsWith('/cid/') || vars.status !== 200) {
-          continue
+        if (vars.request?.startsWith('/cid/') && vars.status === 200) {
+          const { numBytesSent, request, requestId, localTime, requestDuration, args, range, cacheHit, referrer, userAgent } = vars
+          const cid = request.replace('/cid/', '')
+          const { clientId } = args
+          debug(`Client ${clientId} at ${referrer} requested ${cid} range: ${range} size: ${Math.floor(numBytesSent / 1024)} KB HIT:${cacheHit} duration: ${requestDuration}ms RID: ${requestId}`)
+
+          pending.push({
+            cacheHit,
+            cid,
+            clientId,
+            localTime,
+            numBytesSent,
+            range,
+            requestDuration,
+            requestId,
+            userAgent
+          })
         }
-
-        const { numBytesSent, request, requestId, localTime, requestDuration, args, range, cacheHit, referrer, userAgent } = vars
-        const cid = request.replace('/cid/', '')
-        const { clientId } = args
-        debug(`Client ${clientId} at ${referrer} requested ${cid} range: ${range} size: ${Math.floor(numBytesSent / 1024)} KB HIT:${cacheHit} duration: ${requestDuration}ms RID: ${requestId}`)
-
-        pending.push({
-          cacheHit,
-          cid,
-          clientId,
-          localTime,
-          numBytesSent,
-          range,
-          requestDuration,
-          requestId,
-          userAgent
-        })
       }
     } else {
       if (hasRead) {
@@ -101,7 +99,7 @@ if (fs.existsSync('/var/log/nginx/node-access.log')) {
       debug(`Submitting pending ${pending.length} retrievals to wallet ${FIL_WALLET_ADDRESS}`)
       const body = {
         nodeId,
-        filAddress: FIL_WALLET_ADDRESS, // TODO: remove
+        filAddress: FIL_WALLET_ADDRESS,
         bandwidthLogs: pending
       }
       await fetch('https://mytvpqv54yawlsraubdzie5k2m0ggkjv.lambda-url.us-west-2.on.aws/', {
