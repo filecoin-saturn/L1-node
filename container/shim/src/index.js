@@ -27,6 +27,7 @@ app.get('/cid/:cid*', async (req, res) => {
   debug.extend('req')(`Cache miss for ${cid}`)
 
   res.set({
+    'Content-Type': 'application/vnd.ipld.car',
     'Cache-Control': 'public, max-age=31536000, immutable',
     'Saturn-Node-Id': nodeId,
     'Saturn-Node-Version': NODE_VERSION
