@@ -16,6 +16,7 @@ The node returns CAR files from cache or falls back to inner level nodes.
 ### Hardware requirements
 - Linux server with a public IPv4 address
 - Docker installed ([Instructions here](https://docs.docker.com/engine/install/#server))
+- Modern CPU with 4 cores (8+ cores recommended)
 - 1Gbps upload bandwidth minimum (10Gbps+ recommended)<sup>1</sup>
 - 16GB RAM minimum (64GB+ recommended)
 - 1TB SSD minimum (2TB+ NVMe SSD in RAID0 recommended)<sup>2</sup>
