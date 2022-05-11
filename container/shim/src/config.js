@@ -3,7 +3,8 @@ import { readFile, writeFile } from 'fs/promises'
 
 const nodeIdFilePath = './shared/nodeId.txt'
 
-export const NODE_VERSION = pVersion(process.env.NODE_VERSION || '0_dev')
+export const DEV_VERSION = '0_dev'
+export const NODE_VERSION = pVersion(process.env.NODE_VERSION || DEV_VERSION)
 export const PORT = process.env.SHIM_PORT || 10361
 export const NGINX_PORT = process.env.NGINX_PORT || 8443
 export const ORCHESTRATOR_URL = process.env.ORCHESTRATOR_URL
