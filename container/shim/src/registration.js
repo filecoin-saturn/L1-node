@@ -133,7 +133,7 @@ async function getCPUStats () {
 
 async function getSpeedtest () {
   debug('Executing speedtest')
-  const { stdout: result } = await exec('speedtest --accept-license -f json')
+  const { stdout: result } = await exec('speedtest --accept-license --accept-gdpr -f json')
   const values = JSON.parse(result)
   debug(values)
   return values
