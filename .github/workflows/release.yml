@@ -34,6 +34,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
+      - name: Set orchestrator env
+        if: github.ref_name == 'main'
+        run: echo "ORCHESTRATOR_URL=https://orchestrator.strn.network" >> $GITHUB_ENV
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
@@ -44,3 +48,4 @@ jobs:
           build-args: |
             GIT_COMMIT_HASH=${{ github.sha }}
             RUN_NUMBER=${{ github.run_number }}
+            ORCHESTRATOR_URL=${{ env.ORCHESTRATOR_URL }}
