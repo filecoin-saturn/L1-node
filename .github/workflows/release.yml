@@ -34,9 +34,13 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Set orchestrator env
+      - name: Set orchestrator env (main)
         if: github.ref_name == 'main'
         run: echo "ORCHESTRATOR_URL=https://orchestrator.strn.network" >> $GITHUB_ENV
+
+      - name: Set orchestrator env (test)
+        if: github.ref_name == 'test'
+        run: echo "ORCHESTRATOR_URL=https://orchestrator.saturn-test.network" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2

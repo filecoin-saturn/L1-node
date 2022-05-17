@@ -20,7 +20,7 @@ RUN rm /etc/nginx/conf.d/default.conf
 
 ARG RUN_NUMBER="0"
 ARG GIT_COMMIT_HASH="dev"
-ARG ORCHESTRATOR_URL="https://orchestrator.saturn-test.network"
+ARG ORCHESTRATOR_URL="http://localhost:10365"
 
 ENV NODE_VERSION="${RUN_NUMBER}_${GIT_COMMIT_HASH}"
 ENV ORCHESTRATOR_URL=$ORCHESTRATOR_URL
