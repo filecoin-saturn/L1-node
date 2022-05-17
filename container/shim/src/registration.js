@@ -6,7 +6,15 @@ import { promisify } from 'node:util'
 import fetch from 'node-fetch'
 import Debug from 'debug'
 
-import { DEV_VERSION, NODE_OPERATOR_EMAIL, NODE_VERSION, nodeId, ORCHESTRATOR_URL, updateNodeToken } from './config.js'
+import {
+  DEV_VERSION,
+  FIL_WALLET_ADDRESS,
+  NODE_OPERATOR_EMAIL,
+  NODE_VERSION,
+  nodeId,
+  ORCHESTRATOR_URL,
+  updateNodeToken
+} from './config.js'
 
 const exec = promisify(CpExec)
 
@@ -17,7 +25,7 @@ const KEY_PATH = '/usr/src/app/shared/ssl/node.key'
 const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000
 
 export async function register (initial) {
-  const body = { nodeId, version: NODE_VERSION, operatorEmail: NODE_OPERATOR_EMAIL }
+  const body = { nodeId, version: NODE_VERSION, filWalletAddress: FIL_WALLET_ADDRESS, operatorEmail: NODE_OPERATOR_EMAIL }
 
   if (initial) {
     body.memoryStats = await getMemoryStats()
