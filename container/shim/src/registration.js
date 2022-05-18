@@ -115,6 +115,17 @@ export async function deregister () {
   }
 }
 
+export const addRegisterCheckRoute = (app) => app.get('/register-check', (req, res) => {
+  const ip = req.ip.replace('::ffff:', '')
+  const { nodeId: receivedNodeId } = req.query
+  if (receivedNodeId !== nodeId) {
+    debug.extend('registration-check')(`Check failed, nodeId mismatch. Received: ${receivedNodeId} from IP ${ip}`)
+    return res.sendStatus(403)
+  }
+  debug.extend('registration-check')(`Check successful from IP ${ip}`)
+  res.sendStatus(200)
+})
+
 async function getMemoryStats () {
   const nodeAvailableMemory = (freemem() / 1021 / 1024 / 1024).toFixed(1)
   const nodeTotalMemory = (totalmem() / 1021 / 1024 / 1024).toFixed(1)

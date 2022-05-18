@@ -4,7 +4,7 @@ import fsPromises from 'node:fs/promises'
 import express from 'express'
 import Debug from 'debug'
 
-import { register } from './registration.js'
+import { addRegisterCheckRoute, register } from './registration.js'
 import { FIL_WALLET_ADDRESS, NGINX_PORT, NODE_OPERATOR_EMAIL, NODE_VERSION, nodeId, PORT } from './config.js'
 import { streamCAR } from './utils.js'
 import { trapServer } from './trap.js'
@@ -55,16 +55,7 @@ app.get('/cid/:cid*', async (req, res) => {
   })
 })
 
-app.get('/register-check', (req, res) => {
-  const ip = req.ip.replace('::ffff:', '')
-  const { nodeId: receivedNodeId } = req.query
-  if (receivedNodeId !== nodeId) {
-    debug.extend('registration-check')(`Check failed, nodeId mismatch. Received: ${receivedNodeId} from IP ${ip}`)
-    return res.sendStatus(403)
-  }
-  debug.extend('registration-check')(`Check successful from IP ${ip}`)
-  res.sendStatus(200)
-})
+addRegisterCheckRoute(app)
 
 const server = app.listen(PORT, async () => {
   debug.extend('version')(`${NODE_VERSION}`)
