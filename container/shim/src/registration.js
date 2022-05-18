@@ -25,15 +25,20 @@ const KEY_PATH = '/usr/src/app/shared/ssl/node.key'
 const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000
 
 export async function register (initial) {
-  const body = { nodeId, version: NODE_VERSION, filWalletAddress: FIL_WALLET_ADDRESS, operatorEmail: NODE_OPERATOR_EMAIL }
+  const body = { nodeId, version: NODE_VERSION }
 
   if (initial) {
-    body.memoryStats = await getMemoryStats()
-    body.diskStats = await getDiskStats()
-    body.cpuStatus = await getCPUStats()
+    const speedtest = {}
     if (NODE_VERSION !== DEV_VERSION) {
-      body.speedtest = await getSpeedtest()
+      speedtest.speedtest = await getSpeedtest()
     }
+    Object.assign(body, {
+      filWalletAddress: FIL_WALLET_ADDRESS,
+      operatorEmail: NODE_OPERATOR_EMAIL,
+      memoryStats: await getMemoryStats(),
+      diskStats: await getDiskStats(),
+      cpuStatus: await getCPUStats()
+    }, speedtest)
   }
 
   const registerOptions = postOptions(body)
