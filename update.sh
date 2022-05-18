@@ -1,6 +1,8 @@
 #!/bin/bash
 set -ex
 
+: "${SATURN_NETWORK:=test}"
+
 if pidof -o %PPID -x "update.sh" > /dev/null; then
   exit
 fi
@@ -8,7 +10,7 @@ fi
 echo $(date -u) "Checking for auto-update script updates..."
 
 target=$HOME/update.sh
-if wget -O "$target.tmp" -T 10 -t 3 "https://raw.githubusercontent.com/filecoin-project/saturn-node/test/update.sh" && [[ -s "$target.tmp" ]] && [ $(stat -c %s "$target.tmp") -ne $(stat -c %s "$target") ]
+if wget -O "$target.tmp" -T 10 -t 3 "https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh" && [[ -s "$target.tmp" ]] && [ $(stat -c %s "$target.tmp") -ne $(stat -c %s "$target") ]
 then
   mv -f "$target.tmp" "$target"
   chmod +x "$target"
@@ -21,14 +23,14 @@ fi
 
 echo $(date -u) "Checking for Saturn node updates..."
 
-out=$(sudo docker pull ghcr.io/filecoin-project/saturn-node:test)
+out=$(sudo docker pull ghcr.io/filecoin-project/saturn-node:$SATURN_NETWORK)
 
 if [[ $out != *"up to date"* ]]; then
   echo $(date -u) "New Saturn node version found, restarting..."
 
   sudo docker stop --time 60 saturn-node
   sudo docker rm -f saturn-node
-  sudo docker run --name saturn-node -it -d --restart=unless-stopped -v $HOME/shared:/usr/src/app/shared -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL --network host ghcr.io/filecoin-project/saturn-node:test
+  sudo docker run --name saturn-node -it -d --restart=unless-stopped -v $HOME/shared:/usr/src/app/shared -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL --network host ghcr.io/filecoin-project/saturn-node:$SATURN_NETWORK
   sudo docker image prune -f
 
   echo $(date -u) "Updated to latest version successfully!"

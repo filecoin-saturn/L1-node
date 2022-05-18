@@ -2,7 +2,7 @@ name: Create and publish the Docker image
 
 on:
   push:
-    branches: ['main', 'test']
+    branches: ['main']
     paths:
       - 'container/**'
       - 'Dockerfile'
@@ -31,16 +31,16 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Set orchestrator env (main)
-        if: github.ref_name == 'main'
-        run: echo "ORCHESTRATOR_URL=https://orchestrator.strn.network" >> $GITHUB_ENV
+        if: github.ref_type == 'tag'
+        run: echo "ORCHESTRATOR_URL=https://orchestrator.strn.pl" >> $GITHUB_ENV
 
       - name: Set orchestrator env (test)
-        if: github.ref_name == 'test'
+        if: github.ref_type == 'branch'
         run: echo "ORCHESTRATOR_URL=https://orchestrator.saturn-test.network" >> $GITHUB_ENV
 
       - name: Build and push Docker image
