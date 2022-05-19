@@ -50,7 +50,8 @@ export async function register (initial) {
   if (!certExists) {
     const sslExist = await fsPromises.stat(SSL_PATH).catch(_ => false)
 
-    if (sslExist) {
+    if (!sslExist) {
+      debug('Creating SSL folder')
       await fsPromises.mkdir(SSL_PATH, { recursive: true })
     }
 
