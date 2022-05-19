@@ -60,11 +60,12 @@ The node returns CAR files from cache or falls back to inner level nodes.
 
    **Test network:**
     ```shell
-    wget -O $HOME/update.sh https://raw.githubusercontent.com/filecoin-project/saturn-node/test/update.sh
+    wget -O $HOME/update.sh https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh
     ```
 
    **Main network (invitation only):**
     ```shell
+    export SATURN_NETWORK=main # should also be saved in `.bashrc` and `/etc/environment`
     wget -O $HOME/update.sh https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh
     ```
 8. Setup the cron to run every 5 minutes:

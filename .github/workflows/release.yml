@@ -37,20 +37,20 @@ jobs:
 
       - name: Set orchestrator env (main)
         if: github.ref_type == 'tag'
-        run: echo "ORCHESTRATOR_URL=https://orchestrator.strn.pl" >> $GITHUB_ENV
+        run: echo "SATURN_NETWORK=main" >> $GITHUB_ENV
 
       - name: Set orchestrator env (test)
         if: github.ref_type == 'branch'
-        run: echo "ORCHESTRATOR_URL=https://orchestrator.saturn-test.network" >> $GITHUB_ENV
+        run: echo "SATURN_NETWORK=test" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ env.SATURN_NETWORK }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             GIT_COMMIT_HASH=${{ github.sha }}
             RUN_NUMBER=${{ github.run_number }}
-            ORCHESTRATOR_URL=${{ env.ORCHESTRATOR_URL }}
+            SATURN_NETWORK=${{ env.SATURN_NETWORK }}
