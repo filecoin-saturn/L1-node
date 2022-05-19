@@ -20,8 +20,9 @@ const exec = promisify(CpExec)
 
 const debug = Debug('node:registration')
 
-const CERT_PATH = '/usr/src/app/shared/ssl/node.crt'
-const KEY_PATH = '/usr/src/app/shared/ssl/node.key'
+const SSL_PATH = '/usr/src/app/shared/ssl'
+const CERT_PATH = `${SSL_PATH}/node.crt`
+const KEY_PATH = `${SSL_PATH}/node.key`
 const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000
 
 export async function register (initial) {
@@ -47,6 +48,12 @@ export async function register (initial) {
 
   // If cert is not yet in the volume, register
   if (!certExists) {
+    const sslExist = await fsPromises.stat(SSL_PATH).catch(_ => false)
+
+    if (sslExist) {
+      await fsPromises.mkdir(SSL_PATH, { recursive: true })
+    }
+
     debug('Registering with orchestrator, requesting new TLS cert... (this could take up to 20 mins)')
     try {
       const response = await fetch(`${ORCHESTRATOR_URL}/register`, registerOptions)
