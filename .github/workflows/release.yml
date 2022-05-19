@@ -3,6 +3,7 @@ name: Create and publish the Docker image
 on:
   push:
     branches: ['main']
+    tags: ['*']
     paths:
       - 'container/**'
       - 'Dockerfile'
