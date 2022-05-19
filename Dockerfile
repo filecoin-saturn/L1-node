@@ -4,7 +4,7 @@ FROM nginx:mainline
 # DEPENDENCIES
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 RUN curl -s https://install.speedtest.net/app/cli/install.deb.sh | bash -
-RUN apt-get install --no-install-recommends -y build-essential nodejs speedtest
+RUN apt-get install --no-install-recommends -y nodejs speedtest
 
 # create the directory inside the container
 WORKDIR /usr/src/app
