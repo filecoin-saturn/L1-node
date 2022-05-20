@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import fsPromises from 'node:fs/promises'
 import fetch from 'node-fetch'
 import Debug from 'debug'
-import { FIL_WALLET_ADDRESS, nodeId, nodeToken } from './config.js'
+import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, nodeId, nodeToken } from './config.js'
 
 const debug = Debug('node:log-ingestor')
 
@@ -103,7 +103,7 @@ if (fs.existsSync('/var/log/nginx/node-access.log')) {
         filAddress: FIL_WALLET_ADDRESS,
         bandwidthLogs: pending
       }
-      await fetch('https://mytvpqv54yawlsraubdzie5k2m0ggkjv.lambda-url.us-west-2.on.aws/', {
+      await fetch(LOG_INGESTOR_URL, {
         method: 'POST',
         body: JSON.stringify(body),
         headers: {
