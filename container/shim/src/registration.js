@@ -135,8 +135,8 @@ export const addRegisterCheckRoute = (app) => app.get('/register-check', (req, r
 })
 
 async function getMemoryStats () {
-  const nodeAvailableMemory = (freemem() / 1021 / 1024 / 1024).toFixed(1)
-  const nodeTotalMemory = (totalmem() / 1021 / 1024 / 1024).toFixed(1)
+  const nodeAvailableMemory = Number((freemem() / 1021 / 1024 / 1024).toFixed(1))
+  const nodeTotalMemory = Number((totalmem() / 1021 / 1024 / 1024).toFixed(1))
   const result = await fsPromises.readFile('/proc/meminfo', 'utf-8')
   const values = result.trim().split('\n').slice(0, 3).map(res => res.split(':').map(kv => kv.trim())).reduce((acc, cv) => {
     return Object.assign(acc, { [cv[0]]: Number((cv[1].split(' ')[0] / 1024 / 1024).toFixed(1)) })
