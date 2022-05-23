@@ -31,7 +31,7 @@ The node returns CAR files from cache or falls back to inner level nodes.
 
 1. Install docker ([Instructions here](https://docs.docker.com/engine/install/#server))
 2. Authenticate docker with the GitHub Container Registry ([Instructions here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry))
-3. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `.bashrc` and `/etc/environment` for auto-update
+3. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `.bashrc` and `/etc/environment`
 4. Run the docker image:
 
    **Test network:**
@@ -58,21 +58,22 @@ The node returns CAR files from cache or falls back to inner level nodes.
 6. Wait for the sign up to happen with the orchestrator and the registration to DNS (this may take several minutes)
 7. Download the [`update.sh`](update.sh) script
 
-   **Test network:**
-    ```shell
-    wget -O $HOME/update.sh https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh
-    ```
-
-   **Main network (invitation only):**
-    ```shell
-    export SATURN_NETWORK=main # should also be saved in `.bashrc` and `/etc/environment`
-    wget -O $HOME/update.sh https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh
-    ```
-8. Setup the cron to run every 5 minutes:
    ```shell
+   wget -O $HOME/update.sh https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh && chmod +x $HOME/update.sh
+   ```
+8. **Main network:** Set `SATURN_NETWORK` to `main` in `.bashrc` and `/etc/environment`
+9. Setup the cron to run every 5 minutes:
+
+   ```shell
+   crontab -e
+   ```
+
+   Add the following text:
+   ```
    */5 * * * * $HOME/update.sh >> $HOME/cron.log
    ```
-   **Make sure to have FIL_WALLET_ADDRESS set in `/etc/environment` or hardcoded in `update.sh` for auto-update to work**
+
+   **Make sure to have env variables set in `/etc/environment` or hardcoded in `update.sh` for auto-update to work**
 
 
 ## Developing
