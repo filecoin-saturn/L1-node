@@ -25,6 +25,8 @@ const CERT_PATH = `${SSL_PATH}/node.crt`
 const KEY_PATH = `${SSL_PATH}/node.key`
 const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000
 
+export const certExists = await fsPromises.stat(CERT_PATH).catch(_ => false)
+
 export async function register (initial) {
   const body = { nodeId, version: NODE_VERSION }
 
@@ -43,8 +45,6 @@ export async function register (initial) {
   }
 
   const registerOptions = postOptions(body)
-
-  const certExists = await fsPromises.stat(CERT_PATH).catch(_ => false)
 
   // If cert is not yet in the volume, register
   if (!certExists) {
@@ -130,7 +130,7 @@ export const addRegisterCheckRoute = (app) => app.get('/register-check', (req, r
     debug.extend('registration-check')(`Check failed, nodeId mismatch. Received: ${receivedNodeId} from IP ${ip}`)
     return res.sendStatus(403)
   }
-  debug.extend('registration-check')(`Check successful from IP ${ip}`)
+  debug.extend('registration-check')('Check successful from orchestrator')
   res.sendStatus(200)
 })
 
