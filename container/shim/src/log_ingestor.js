@@ -103,15 +103,19 @@ if (fs.existsSync('/var/log/nginx/node-access.log')) {
         filAddress: FIL_WALLET_ADDRESS,
         bandwidthLogs: pending
       }
-      await fetch(LOG_INGESTOR_URL, {
-        method: 'POST',
-        body: JSON.stringify(body),
-        headers: {
-          Authentication: nodeToken,
-          'Content-Type': 'application/json'
-        }
-      })
-      pending = []
+      try {
+        await fetch(LOG_INGESTOR_URL, {
+          method: 'POST',
+          body: JSON.stringify(body),
+          headers: {
+            Authentication: nodeToken,
+            'Content-Type': 'application/json'
+          }
+        })
+        pending = []
+      } catch (err) {
+        debug(err)
+      }
     }
   }, 60_000)
 }

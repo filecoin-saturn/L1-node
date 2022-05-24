@@ -57,9 +57,9 @@ app.get('/cid/:cid*', async (req, res) => {
 
 addRegisterCheckRoute(app)
 
-const server = app.listen(PORT, async () => {
+const server = app.listen(PORT, '127.0.0.1', async () => {
   debug.extend('version')(`${NODE_VERSION}`)
-  debug(`shim running on http://localhost:${PORT}. Test at http://localhost:${PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?clientId=${randomUUID()}`)
+  debug(`shim running on http://localhost:${PORT}`)
   debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?clientId=${randomUUID()}`)
   debug.extend('address')('===== IMPORTANT =====')
   debug.extend('address')(`Earnings will be sent to Filecoin wallet address: ${FIL_WALLET_ADDRESS}`)

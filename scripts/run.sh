@@ -1,6 +1,6 @@
 #!/bin/bash
 
-: "${NGINX_PORT:=8443}" "${SHIM_PORT:=10361}" "${FIL_WALLET_ADDRESS:=dev}"
+: "${NGINX_PORT:=443}" "${SHIM_PORT:=10361}" "${FIL_WALLET_ADDRESS:=dev}"
 
 echo $(date -u) "[host] Running Saturn node dev"
 
