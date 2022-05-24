@@ -130,7 +130,7 @@ export const addRegisterCheckRoute = (app) => app.get('/register-check', (req, r
     debug.extend('registration-check')(`Check failed, nodeId mismatch. Received: ${receivedNodeId} from IP ${ip}`)
     return res.sendStatus(403)
   }
-  debug.extend('registration-check')('Check successful from orchestrator')
+  debug.extend('registration-check')('Successful')
   res.sendStatus(200)
 })
 
