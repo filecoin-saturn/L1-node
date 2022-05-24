@@ -115,11 +115,18 @@ export async function register (initial) {
 
 export async function deregister () {
   debug('De-registering from orchestrator')
+  const controller = new AbortController()
+  const timeout = setTimeout(() => {
+    controller.abort()
+  }, 30_000)
+
   try {
-    await fetch(`${ORCHESTRATOR_URL}/deregister`, postOptions({ nodeId }))
+    await fetch(`${ORCHESTRATOR_URL}/deregister`, { ...postOptions({ nodeId }), signal: controller.signal })
     debug('De-registered successfully')
   } catch (err) {
     debug(err)
+  } finally {
+    clearTimeout(timeout)
   }
 }
 
