@@ -108,6 +108,9 @@ export async function register (initial) {
       debug('Successful re-registration, updated token')
     } catch (e) {
       debug('Failed re-registration %s', e.message)
+      if (initial) {
+        process.exit(1)
+      }
     }
   }
   setTimeout(register, (Math.random() * 2 + 4) * 60 * 1000)
