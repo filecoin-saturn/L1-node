@@ -2,14 +2,13 @@ import { randomUUID } from 'node:crypto'
 import https from 'node:https'
 import fsPromises from 'node:fs/promises'
 import express from 'express'
-import Debug from 'debug'
 
 import { addRegisterCheckRoute, certExists, register } from './registration.js'
 import { FIL_WALLET_ADDRESS, NGINX_PORT, NODE_OPERATOR_EMAIL, NODE_VERSION, nodeId, PORT } from './config.js'
 import { streamCAR } from './utils.js'
 import { trapServer } from './trap.js'
+import { debug } from './logging.js'
 
-const debug = Debug('node')
 const app = express()
 
 const testCAR = await fsPromises.readFile('./public/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car')

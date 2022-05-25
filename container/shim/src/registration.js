@@ -4,7 +4,7 @@ import { cpus, freemem, totalmem } from 'node:os'
 import fsPromises from 'node:fs/promises'
 import { promisify } from 'node:util'
 import fetch from 'node-fetch'
-import Debug from 'debug'
+import { debug as Debug } from './logging.js'
 
 import {
   DEV_VERSION,
@@ -18,7 +18,7 @@ import {
 
 const exec = promisify(CpExec)
 
-const debug = Debug('node:registration')
+const debug = Debug.extend('registration')
 
 const SSL_PATH = '/usr/src/app/shared/ssl'
 const CERT_PATH = `${SSL_PATH}/node.crt`

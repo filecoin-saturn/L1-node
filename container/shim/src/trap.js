@@ -1,7 +1,7 @@
-import Debug from 'debug'
 import { deregister } from './registration.js'
+import { debug as Debug } from './logging.js'
 
-const debug = Debug('node:trap')
+const debug = Debug.extend('trap')
 
 const shutdown = (server) => async () => {
   debug('shutting down server')

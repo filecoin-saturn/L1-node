@@ -1,10 +1,10 @@
 import fs from 'node:fs'
 import fsPromises from 'node:fs/promises'
 import fetch from 'node-fetch'
-import Debug from 'debug'
 import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, nodeId, nodeToken } from './config.js'
+import { debug as Debug } from './logging.js'
 
-const debug = Debug('node:log-ingestor')
+const debug = Debug.extend('log-ingestor')
 
 const NGINX_LOG_KEYS_MAP = {
   addr: 'clientAddress',

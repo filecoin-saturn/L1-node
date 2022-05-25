@@ -1,5 +1,4 @@
 import { Readable } from 'node:stream'
-import Debug from 'debug'
 import { CarBlockIterator, CarWriter } from '@ipld/car'
 import { bytes } from 'multiformats'
 import * as dagCbor from '@ipld/dag-cbor'
@@ -10,8 +9,9 @@ import * as json from 'multiformats/codecs/json'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { from as hasher } from 'multiformats/hashes/hasher'
 import { blake2b256 } from '@multiformats/blake2/blake2b'
+import { debug as Debug } from './logging.js'
 
-const debug = Debug('node:utils')
+const debug = Debug.extend('utils')
 
 const { toHex } = bytes
 
