@@ -161,7 +161,7 @@ async function getDiskStats () {
   const totalDisk = Number(values[1])
   const usedDisk = Number(values[2])
   const availableDisk = Number(values[3])
-  debug(`Total disk: ${totalDisk} Used: ${usedDisk} Available: ${availableDisk}`)
+  debug(`Total disk: ${totalDisk} GB Used: ${usedDisk} GB Available: ${availableDisk} GB`)
   return { totalDisk, usedDisk, availableDisk }
 }
 
