@@ -31,10 +31,9 @@ export async function register (initial) {
     operatorEmail: NODE_OPERATOR_EMAIL,
     memoryStats: await getMemoryStats(),
     diskStats: await getDiskStats(),
-    cpuStatus: await getCPUStats()
+    cpuStats: await getCPUStats(),
+    nicStats: getNICStats()
   }
-
-  getNICStats()
 
   if (initial) {
     const speedtest = {}
