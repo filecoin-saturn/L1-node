@@ -3,11 +3,11 @@ import https from 'node:https'
 import fsPromises from 'node:fs/promises'
 import express from 'express'
 
-import { addRegisterCheckRoute, certExists, register } from './registration.js'
+import { addRegisterCheckRoute, certExists, register } from './modules/registration.js'
 import { FIL_WALLET_ADDRESS, NGINX_PORT, NODE_OPERATOR_EMAIL, NODE_VERSION, nodeId, PORT } from './config.js'
-import { streamCAR } from './utils.js'
-import { trapServer } from './trap.js'
-import { debug } from './logging.js'
+import { streamCAR } from './utils/utils.js'
+import { trapServer } from './utils/trap.js'
+import { debug } from './utils/logging.js'
 
 const app = express()
 
@@ -70,7 +70,7 @@ const server = app.listen(PORT, certExists ? '127.0.0.1' : '0.0.0.0', async () =
   await register(true)
 
   // Start log ingestor
-  import('./log_ingestor.js')
+  import('./modules/log_ingestor.js')
 })
 
 trapServer(server)

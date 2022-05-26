@@ -1,4 +1,4 @@
-import { deregister } from './registration.js'
+import { deregister } from '../modules/registration.js'
 import { debug as Debug } from './logging.js'
 
 const debug = Debug.extend('trap')

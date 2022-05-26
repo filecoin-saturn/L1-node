@@ -1,8 +1,8 @@
 import fs from 'node:fs'
 import fsPromises from 'node:fs/promises'
 import fetch from 'node-fetch'
-import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, nodeId, nodeToken } from './config.js'
-import { debug as Debug } from './logging.js'
+import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, nodeId, nodeToken } from '../config.js'
+import { debug as Debug } from '../utils/logging.js'
 
 const debug = Debug.extend('log-ingestor')
 
