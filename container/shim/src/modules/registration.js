@@ -32,7 +32,7 @@ export async function register (initial) {
     memoryStats: await getMemoryStats(),
     diskStats: await getDiskStats(),
     cpuStats: await getCPUStats(),
-    nicStats: getNICStats()
+    nicStats: await getNICStats()
   }
 
   if (initial) {
