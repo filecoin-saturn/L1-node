@@ -40,16 +40,20 @@ export async function getCPUStats () {
 
 export async function getNICStats () {
   const { stdout: result } = await exec('cat /proc/net/dev')
-  const traffic = result.trim().split('\n').map(line => line.trim().split(/\s+/)).reduce((pv, cv) => {
-    const [name, ...values] = cv
-    pv[name.replace(':', '')] = {
+  const traffic = result.trim().split('\n').map(line => line.trim().split(/\s+/)).map((nic) => {
+    const [parsedName, ...values] = nic
+    const nicName = parsedName.replace(':', '')
+    if (!values[1] || !values[9] || ['lo', 'docker0'].includes(nicName)) {
+      return false
+    }
+    return {
+      interface: nicName,
       bytesReceived: values[1],
       bytesSent: values[9]
     }
-    return pv
-  }, {})
+  }).filter(Boolean)
   debug(traffic)
-  return traffic.eth0
+  return traffic
 }
 
 export async function getSpeedtest () {
