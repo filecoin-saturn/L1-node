@@ -43,7 +43,7 @@ export async function getNICStats () {
   const traffic = result.trim().split('\n').map(line => line.trim().split(/\s+/)).map((nic) => {
     const [parsedName, ...values] = nic
     const nicName = parsedName.replace(':', '')
-    if (!values[1] || !values[9] || ['lo', 'docker0'].includes(nicName)) {
+    if (!Number(values[1]) || !Number(values[9]) || ['lo', 'docker0'].includes(nicName)) {
       return false
     }
     return {
