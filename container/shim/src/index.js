@@ -3,11 +3,12 @@ import https from 'node:https'
 import fsPromises from 'node:fs/promises'
 import express from 'express'
 
-import { addRegisterCheckRoute, certExists, register } from './modules/registration.js'
+import { addRegisterCheckRoute, register } from './modules/registration.js'
 import { FIL_WALLET_ADDRESS, NGINX_PORT, NODE_OPERATOR_EMAIL, NODE_VERSION, nodeId, PORT } from './config.js'
 import { streamCAR } from './utils/utils.js'
 import { trapServer } from './utils/trap.js'
 import { debug } from './utils/logging.js'
+import { certExists } from './modules/tls.js'
 
 const app = express()
 
