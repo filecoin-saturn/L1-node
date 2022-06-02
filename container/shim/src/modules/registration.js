@@ -13,15 +13,11 @@ import {
   updateNodeToken
 } from '../config.js'
 import { getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from '../utils/system.js'
+import { CERT_PATH, certExists, deleteCertAndKey, KEY_PATH, SSL_PATH } from './tls.js'
 
 const debug = Debug.extend('registration')
 
-const SSL_PATH = '/usr/src/app/shared/ssl'
-const CERT_PATH = `${SSL_PATH}/node.crt`
-const KEY_PATH = `${SSL_PATH}/node.key`
 const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000
-
-export const certExists = await fsPromises.stat(CERT_PATH).catch(_ => false)
 
 export async function register (initial) {
   const body = {
@@ -68,7 +64,8 @@ export async function register (initial) {
       debug('TLS cert and key received, persisting to shared volume...')
 
       await Promise.all([
-        fsPromises.writeFile(CERT_PATH, cert), fsPromises.writeFile(KEY_PATH, key)
+        fsPromises.writeFile(CERT_PATH, cert),
+        fsPromises.writeFile(KEY_PATH, key)
       ])
 
       debug('Successful registration, restarting container...')
@@ -82,15 +79,19 @@ export async function register (initial) {
     if (initial) {
       const certBuffer = await fsPromises.readFile(CERT_PATH)
 
+      if (certBuffer.toString().split('BEGIN').length === 2) {
+        debug('Certificate does not have CA bundled, deleting and rebooting...')
+        await deleteCertAndKey()
+        process.exit()
+      }
+
       const cert = new X509Certificate(certBuffer)
 
       const validTo = Date.parse(cert.validTo)
 
       if (Date.now() > (validTo - FIVE_DAYS_MS)) {
         debug('Certificate is soon to expire, deleting and rebooting...')
-        await Promise.all([
-          fsPromises.unlink(CERT_PATH).catch(debug), fsPromises.unlink(CERT_PATH).catch(debug)
-        ])
+        await deleteCertAndKey()
         process.exit()
       } else {
         debug(`Certificate is valid until ${cert.validTo}`)
