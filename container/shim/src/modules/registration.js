@@ -113,7 +113,7 @@ export async function register (initial) {
       }
     }
   }
-  setTimeout(register, (SATURN_NETWORK === 'local' ? 1 : Math.random() * 2 + 4) * 60 * 1000)
+  setTimeout(register, (SATURN_NETWORK === 'local' ? 1 : Math.random() * 7 + 3) * 60 * 1000)
 }
 
 export async function deregister () {
