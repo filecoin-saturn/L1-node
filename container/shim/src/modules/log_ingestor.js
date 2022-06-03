@@ -61,6 +61,7 @@ async function parseLogs () {
     const lines = read.toString().trim().split('\n')
 
     let valid = 0
+    let hits = 0
     for (const line of lines) {
       const vars = line.split('&&').reduce((varsAgg, currentValue) => {
         const [name, ...value] = currentValue.split('=')
@@ -112,9 +113,10 @@ async function parseLogs () {
           userAgent
         })
         valid++
+        if (cacheHit) hits++
       }
     }
-    debug(`Parsed ${valid} valid retrievals`)
+    debug(`Parsed ${valid} valid retrievals with hit rate of ${(hits / valid * 100).toFixed(0)}%`)
   } else {
     if (hasRead) {
       await fh.truncate()
