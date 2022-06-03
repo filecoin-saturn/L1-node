@@ -116,7 +116,9 @@ async function parseLogs () {
         if (cacheHit) hits++
       }
     }
-    debug(`Parsed ${valid} valid retrievals with hit rate of ${(hits / valid * 100).toFixed(0)}%`)
+    if (valid > 0) {
+      debug(`Parsed ${valid} valid retrievals with hit rate of ${(hits / valid * 100).toFixed(0)}%`)
+    }
   } else {
     if (hasRead) {
       await fh.truncate()
