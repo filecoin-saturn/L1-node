@@ -5,11 +5,16 @@ const debug = Debug.extend('trap')
 
 const shutdown = (server) => async () => {
   debug('shutting down server')
-  await deregister()
-  server.close(() => {
-    debug('server closed')
-    process.exit()
-  })
+  try {
+    await deregister()
+  } catch (e) {
+    debug(e)
+  } finally {
+    server.close(() => {
+      debug('server closed')
+      process.exit()
+    })
+  }
 }
 
 export const trapServer = (server) => {

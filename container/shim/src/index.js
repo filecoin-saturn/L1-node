@@ -57,7 +57,7 @@ app.get('/cid/:cid*', async (req, res) => {
 
 addRegisterCheckRoute(app)
 
-const server = app.listen(PORT, certExists ? '127.0.0.1' : '0.0.0.0', async () => {
+const server = app.listen(PORT, '127.0.0.1', async () => {
   debug.extend('version')(`${NODE_VERSION}`)
   debug(`shim running on http://localhost:${PORT}`)
   if (certExists) {
