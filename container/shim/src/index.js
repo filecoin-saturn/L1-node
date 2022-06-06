@@ -68,7 +68,10 @@ const server = app.listen(PORT, certExists ? '127.0.0.1' : '0.0.0.0', async () =
   debug.extend('address')(NODE_OPERATOR_EMAIL ? `Payment notifications and important update will be sent to: ${NODE_OPERATOR_EMAIL}` : 'NO OPERATOR EMAIL SET, WE HIGHLY RECOMMEND SETTING ONE')
   debug.extend('address')('===== IMPORTANT =====')
 
-  await register(true)
+  await register(true).catch((err) => {
+    debug(err)
+    process.exit(1)
+  })
 
   // Start log ingestor
   import('./modules/log_ingestor.js')

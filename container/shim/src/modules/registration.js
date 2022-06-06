@@ -19,6 +19,9 @@ const debug = Debug.extend('registration')
 
 const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000
 
+// Upload speed should be great than 100 Mbps
+const MAIN_NET_MINIMUM_UPLOAD_BW_BYTES = 100 * 1024 * 1024 / 8
+
 export async function register (initial) {
   const body = {
     nodeId,
@@ -32,20 +35,21 @@ export async function register (initial) {
   }
 
   if (initial) {
-    const speedtest = {}
+    let speedtest
     if (NODE_VERSION !== DEV_VERSION) {
-      speedtest.speedtest = await getSpeedtest()
+      speedtest = await getSpeedtest()
+      if (SATURN_NETWORK === 'main' && speedtest.upload.bandwidth < MAIN_NET_MINIMUM_UPLOAD_BW_BYTES) {
+        throw new Error(`Node's upload speed is not enough, ${SATURN_NETWORK} network requirement is 1 Gbps`)
+      }
     }
-    Object.assign(body, speedtest)
+    Object.assign(body, { speedtest })
   }
 
   const registerOptions = postOptions(body)
 
   // If cert is not yet in the volume, register
   if (!certExists) {
-    const sslExist = await fsPromises.stat(SSL_PATH).catch(_ => false)
-
-    if (!sslExist) {
+    if (!await fsPromises.stat(SSL_PATH).catch(_ => false)) {
       debug('Creating SSL folder')
       await fsPromises.mkdir(SSL_PATH, { recursive: true })
     }
@@ -79,7 +83,7 @@ export async function register (initial) {
     if (initial) {
       const certBuffer = await fsPromises.readFile(CERT_PATH)
 
-      if (certBuffer.toString().split('BEGIN').length === 2) {
+      if (SATURN_NETWORK !== 'local' && certBuffer.toString().split('BEGIN').length === 2) {
         debug('Certificate does not have CA bundled, deleting and rebooting...')
         await deleteCertAndKey()
         process.exit()
