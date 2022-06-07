@@ -1,6 +1,6 @@
 #!/bin/bash
 
-: "${NGINX_PORT:=443}" "${SHIM_PORT:=10361}" "${FIL_WALLET_ADDRESS:=f012356}"
+: "${FIL_WALLET_ADDRESS:=f012356}"
 
 echo $(date -u) "[host] Running Saturn node dev"
 
@@ -8,5 +8,5 @@ echo $(date -u) "[host] Running Saturn node dev"
 docker run --name saturn-node -it --rm \
           -v $(pwd)/shared:/usr/src/app/shared \
           -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS \
-          -p $SHIM_PORT:$SHIM_PORT -p $NGINX_PORT:$NGINX_PORT \
+          -p 443:443 -p 8080:8080 \
           saturn-node
