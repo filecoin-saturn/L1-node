@@ -109,7 +109,9 @@ export async function register (initial) {
     debug('Re-registering with orchestrator...')
 
     try {
-      const { token } = await fetch(`${ORCHESTRATOR_URL}/register?ssl=done`, registerOptions).then(res => res.json())
+      const { token, ipGeo } = await fetch(`${ORCHESTRATOR_URL}/register?ssl=done`, registerOptions).then(res => res.json())
+
+      debug(`Node's geolocation is set to ${ipGeo.city}, ${ipGeo.region}, ${ipGeo.country}. If this is wrong, please reach open an issue at https://github.com/filecoin-project/saturn-node/issues`)
 
       updateNodeToken(token)
 
