@@ -1,10 +1,9 @@
-import { randomUUID } from 'node:crypto'
 import https from 'node:https'
 import fsPromises from 'node:fs/promises'
 import express from 'express'
 
 import { addRegisterCheckRoute, register } from './modules/registration.js'
-import { FIL_WALLET_ADDRESS, NGINX_PORT, NODE_OPERATOR_EMAIL, NODE_VERSION, nodeId, PORT } from './config.js'
+import { FIL_WALLET_ADDRESS, NGINX_HTTPS_PORT, NODE_OPERATOR_EMAIL, NODE_VERSION, nodeId, PORT } from './config.js'
 import { streamCAR } from './utils/utils.js'
 import { trapServer } from './utils/trap.js'
 import { debug } from './utils/logging.js'
@@ -59,9 +58,9 @@ addRegisterCheckRoute(app)
 
 const server = app.listen(PORT, '127.0.0.1', async () => {
   debug.extend('version')(`${NODE_VERSION}`)
-  debug(`shim running on http://localhost:${PORT}`)
+  debug(`shim running on port ${PORT}`)
   if (certExists) {
-    debug(`nginx caching proxy running on https://localhost:${NGINX_PORT}. Test at https://localhost:${NGINX_PORT}/cid/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF?clientId=${randomUUID()}`)
+    debug(`nginx TLS caching proxy running on ${NGINX_HTTPS_PORT}`)
   }
   debug.extend('address')('===== IMPORTANT =====')
   debug.extend('address')(`Earnings will be sent to Filecoin wallet address: ${FIL_WALLET_ADDRESS}`)
