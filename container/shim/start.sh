@@ -14,7 +14,7 @@ mkdir -p /usr/src/app/shared/ssl
 # If we have a cert, start the shim and nginx, else just the shim
 if [ -f "/usr/src/app/shared/ssl/node.crt" ]; then
   echo $(date -u) "[container] SSL config available, starting TLS nginx and node shim";
-  mv /etc/nginx/confs/* /etc/nginx/conf.d/;
+  cp /etc/nginx/confs/* /etc/nginx/conf.d/;
 else
   rm /etc/nginx/conf.d/proxy.tlsconf
   echo $(date -u) "[container] SSL config unavailable, starting non-TLS nginx node shim only";
