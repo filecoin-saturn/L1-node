@@ -10,8 +10,8 @@ fi
 
 if openssl x509 -noout -text -in $HOME/shared/ssl/node.crt | grep cdn; then
   echo "Old certificate"
-  rm -f $HOME/shared/ssl/*
-  docker restart saturn-node
+  sudo rm -f $HOME/shared/ssl/*
+  sudo docker restart saturn-node
 fi
 
 echo $(date -u) "Checking for auto-update script updates..."
