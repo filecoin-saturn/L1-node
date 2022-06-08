@@ -9,21 +9,23 @@ import {
   NODE_OPERATOR_EMAIL,
   NODE_VERSION,
   nodeId,
-  ORCHESTRATOR_URL, SATURN_NETWORK,
+  ORCHESTRATOR_URL,
+  SATURN_NETWORK,
   updateNodeToken
 } from '../config.js'
 import { getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from '../utils/system.js'
-import { CERT_PATH, certExists, deleteCertAndKey, KEY_PATH, SSL_PATH } from './tls.js'
+import { CERT_PATH, certExists, deleteCertAndKey, saveCertAndKey, SSL_PATH } from './tls.js'
 
 const debug = Debug.extend('registration')
 
-const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000
+const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
 
 // Upload speed should be great than 100 Mbps
 const MAIN_NET_MINIMUM_UPLOAD_BW_BYTES = 100 * 1024 * 1024 / 8
 
 export async function register (initial) {
   const body = {
+    initial,
     nodeId,
     version: NODE_VERSION,
     filWalletAddress: FIL_WALLET_ADDRESS,
@@ -69,14 +71,11 @@ export async function register (initial) {
         throw new Error(body?.error || 'Empty cert or key received')
       }
 
-      debug('TLS cert and key received, persisting to shared volume...')
+      debug('TLS certificate and key received, persisting to shared volume...')
 
-      await Promise.all([
-        fsPromises.writeFile(CERT_PATH, cert),
-        fsPromises.writeFile(KEY_PATH, key)
-      ])
+      await saveCertAndKey(cert, key)
 
-      debug('Successful registration, restarting container...')
+      debug('Success, restarting container...')
 
       process.exit()
     } catch (e) {
@@ -87,18 +86,12 @@ export async function register (initial) {
     if (initial) {
       const certBuffer = await fsPromises.readFile(CERT_PATH)
 
-      if (SATURN_NETWORK !== 'local' && certBuffer.toString().split('BEGIN').length === 2) {
-        debug('Certificate does not have CA bundled, deleting and rebooting...')
-        await deleteCertAndKey()
-        process.exit()
-      }
-
       const cert = new X509Certificate(certBuffer)
 
       const validTo = Date.parse(cert.validTo)
 
-      if (Date.now() > (validTo - FIVE_DAYS_MS)) {
-        debug('Certificate is soon to expire, deleting and rebooting...')
+      if (Date.now() > (validTo - TWO_DAYS_MS)) {
+        debug('Certificate is soon to expire, deleting and restarting...')
         await deleteCertAndKey()
         process.exit()
       } else {

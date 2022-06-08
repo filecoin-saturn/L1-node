@@ -9,6 +9,14 @@ export const KEY_PATH = `${SSL_PATH}/node.key`
 
 export const certExists = await fsPromises.stat(CERT_PATH).catch(_ => false)
 
+export async function saveCertAndKey (cert, key) {
+  debug('Saving cert and key')
+  return await Promise.all([
+    fsPromises.writeFile(CERT_PATH, cert),
+    fsPromises.writeFile(KEY_PATH, key)
+  ])
+}
+
 export async function deleteCertAndKey () {
   debug('Deleting cert and key')
   return Promise.all([
