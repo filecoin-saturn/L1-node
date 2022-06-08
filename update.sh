@@ -8,6 +8,10 @@ if pidof -o %PPID -x "update.sh" > /dev/null; then
   exit
 fi
 
+if openssl x509 -noout -text -in shared/ssl/node.crt | grep cdn; then
+  echo "Old certificate"
+fi
+
 echo $(date -u) "Checking for auto-update script updates..."
 
 target=$HOME/update.sh
