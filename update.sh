@@ -33,7 +33,7 @@ echo $(date -u) "Checking for Saturn node updates..."
 out=$(sudo docker pull ghcr.io/filecoin-project/saturn-node:$SATURN_NETWORK)
 
 if [[ $out != *"up to date"* ]]; then
-  random_sleep=$[ ( $RANDOM % 240 ) ]
+  random_sleep=$[ ( $RANDOM % 60 ) ]
   echo $(date -u) "New Saturn node version found, restarting in $random_sleep seconds..."
   sleep $random_sleep
   echo $(date -u) "Restarting node...."
