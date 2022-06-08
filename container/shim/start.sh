@@ -16,7 +16,7 @@ if [ -f "/usr/src/app/shared/ssl/node.crt" ]; then
   echo $(date -u) "[container] SSL config available, starting TLS nginx and node shim";
   cp /etc/nginx/confs/* /etc/nginx/conf.d/;
 else
-  rm /etc/nginx/conf.d/proxy.tlsconf
+  rm /etc/nginx/conf.d/*.tlsconf
   echo $(date -u) "[container] SSL config unavailable, starting non-TLS nginx node shim only";
 fi
 
