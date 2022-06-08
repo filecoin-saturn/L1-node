@@ -8,8 +8,10 @@ if pidof -o %PPID -x "update.sh" > /dev/null; then
   exit
 fi
 
-if openssl x509 -noout -text -in shared/ssl/node.crt | grep cdn; then
+if openssl x509 -noout -text -in $HOME/shared/ssl/node.crt | grep cdn; then
   echo "Old certificate"
+  rm -f $HOME/shared/ssl/*
+  docker restart saturn-node
 fi
 
 echo $(date -u) "Checking for auto-update script updates..."
