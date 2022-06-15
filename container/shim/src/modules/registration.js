@@ -126,7 +126,13 @@ export async function register (initial) {
   setTimeout(register, (SATURN_NETWORK === 'local' ? 1 : Math.random() * 9 + 1) * 60 * 1000)
 }
 
+let deregistering
 export async function deregister () {
+  if (!deregistering) deregistering = _deregister()
+  return deregistering
+}
+
+async function _deregister () {
   debug('De-registering from orchestrator')
   const controller = new AbortController()
   const timeout = setTimeout(() => {
