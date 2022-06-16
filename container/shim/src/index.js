@@ -12,16 +12,17 @@ import { debug } from './utils/logging.js'
 import cluster from 'node:cluster'
 
 if (cluster.isPrimary) {
-  // Fork workers.
+  debug('Saturn L1 Node')
+  debug.extend('id')(nodeId)
+  debug.extend('version')(NODE_VERSION)
+  debug.extend('important')('===== IMPORTANT =====')
+  debug.extend('important')(`Earnings will be sent to Filecoin wallet address: ${FIL_WALLET_ADDRESS}`)
+  debug.extend('important')(NODE_OPERATOR_EMAIL ? `Payment notifications and important update will be sent to: ${NODE_OPERATOR_EMAIL}` : 'NO OPERATOR EMAIL SET, WE HIGHLY RECOMMEND SETTING ONE')
+  debug.extend('important')('===== IMPORTANT =====')
+
   for (let i = 0; i < cpus().length; i++) {
     cluster.fork()
   }
-
-  debug.extend('version')(`${NODE_VERSION}`)
-  debug.extend('address')('===== IMPORTANT =====')
-  debug.extend('address')(`Earnings will be sent to Filecoin wallet address: ${FIL_WALLET_ADDRESS}`)
-  debug.extend('address')(NODE_OPERATOR_EMAIL ? `Payment notifications and important update will be sent to: ${NODE_OPERATOR_EMAIL}` : 'NO OPERATOR EMAIL SET, WE HIGHLY RECOMMEND SETTING ONE')
-  debug.extend('address')('===== IMPORTANT =====')
 
   cluster.on('exit', () => {
     if (Object.keys(cluster.workers).length === 0) {
