@@ -19,7 +19,7 @@ COPY container/shim ./
 COPY container/nginx /etc/nginx/
 RUN rm /etc/nginx/conf.d/default.conf
 
-ARG RUN_NUMBER="0"
+ARG RUN_NUMBER="9999"
 ARG GIT_COMMIT_HASH="dev"
 ARG SATURN_NETWORK="local"
 ARG ORCHESTRATOR_URL

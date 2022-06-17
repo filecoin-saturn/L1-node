@@ -8,20 +8,23 @@ const exec = promisify(CpExec)
 
 const debug = Debug.extend('system')
 
+const memoryBytesToGB = (bytes) => bytes / 1_024_000_000
+const meminfoKBToGB = (bytes) => bytes / 1_000_000
+
 export async function getMemoryStats () {
-  const nodeAvailableMemory = Number((freemem() / 1021 / 1024 / 1024).toFixed(1))
-  const nodeTotalMemory = Number((totalmem() / 1021 / 1024 / 1024).toFixed(1))
+  const nodeAvailableMemory = Number(memoryBytesToGB(freemem()).toFixed(1))
+  const nodeTotalMemory = Number(memoryBytesToGB(totalmem()).toFixed(1))
   const result = await fsPromises.readFile('/proc/meminfo', 'utf-8')
   const values = result.trim().split('\n').slice(0, 3).map(res => res.split(':').map(kv => kv.trim())).reduce((acc, cv) => {
-    return Object.assign(acc, { [cv[0]]: Number((cv[1].split(' ')[0] / 1024 / 1024).toFixed(1)) })
+    return Object.assign(acc, { [cv[0]]: Number(meminfoKBToGB(cv[1].split(' ')[0]).toFixed(1)) })
   }, {})
   debug(`Total memory: ${values.MemTotal} GB / ${nodeTotalMemory} GB Free: ${values.MemFree} GB Available: ${values.MemAvailable} GB / ${nodeAvailableMemory} GB`)
   return { procTotalMemory: values.MemTotal, nodeTotalMemory, procFreeMemory: values.MemFree, procAvailableMemory: values.MemAvailable, nodeAvailableMemory }
 }
 
 export async function getDiskStats () {
-  const { stdout: result } = await exec('df -BG /usr/src/app/shared')
-  const values = result.trim().split('\n')[1].split(/\s+/).map(res => res.replace('G', ''))
+  const { stdout: result } = await exec('df -B GB /usr/src/app/shared')
+  const values = result.trim().split('\n')[1].split(/\s+/).map(res => res.replace('GB', ''))
   const totalDisk = Number(values[1])
   const usedDisk = Number(values[2])
   const availableDisk = Number(values[3])
@@ -53,9 +56,9 @@ export async function getNICStats () {
       packetsReceived: values[1],
       packetsSent: values[9]
     }
-  }).filter(Boolean)
+  }).filter(Boolean).sort((a, b) => a.packetsSent - b.packetsSent)
   debug(traffic)
-  return traffic
+  return traffic[0]
 }
 
 export async function getSpeedtest () {
