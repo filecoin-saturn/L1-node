@@ -1,6 +1,6 @@
-# Saturn Node 🪐
+# Saturn L1 Node 🪐
 
-Saturn node is the general implementation for L1 and L2 nodes of Saturn.
+Saturn L1 node is the outermost layer of the Saturn Network.
 It allows retrieval clients to request CIDs and byte ranges of CIDs.
 The node returns CAR files from cache or falls back to inner level nodes.
 
@@ -13,13 +13,15 @@ The node returns CAR files from cache or falls back to inner level nodes.
 - Filecoin wallet address
 - Email address
 
-### Hardware requirements
+### Node's host requirements
 - Linux server with a public IPv4 address
+- Root access / passwordless sudo user
+- Port 80 and port 443 free
 - Docker installed ([Instructions here](https://docs.docker.com/engine/install/#server))
 - Modern CPU with 4 cores (8+ cores recommended)
 - 1Gbps upload bandwidth minimum (10Gbps+ recommended)<sup>1</sup>
 - 16GB RAM minimum (64GB+ recommended)
-- 1TB SSD minimum (2TB+ NVMe SSD in RAID0 recommended)<sup>2</sup>
+- 1TB SSD minimum (4TB+ NVMe SSD in RAID0 recommended)<sup>2</sup>
 
 <sub>
 <sup>1</sup> The more you can serve &rarr; greater FIL earnings<br>
