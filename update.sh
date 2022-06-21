@@ -8,30 +8,30 @@ if pidof -o %PPID -x "update.sh" > /dev/null; then
   exit
 fi
 
-echo -n $(date -u) "Checking for auto-update script updates... "
+echo -n $(date -u) "Checking for update.sh script updates... "
 
 target=$HOME/update.sh
 if wget -O "$target.tmp" -T 10 -t 3 "https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh" && [[ -s "$target.tmp" ]] && [ $(stat -c %s "$target.tmp") -ne $(stat -c %s "$target") ]
 then
   mv -f "$target.tmp" "$target"
   chmod +x "$target"
-  echo "Updated update.sh script successfully!"
+  echo "updated update.sh script successfully!"
   exit
 else
   echo "update.sh script up to date"
   rm -f "$target.tmp"
 fi
 
-echo -n $(date -u) "Checking for Saturn node updates... "
+echo -n $(date -u) "Checking for Saturn L1 node updates... "
 
 out=$(sudo docker pull ghcr.io/filecoin-project/saturn-node:$SATURN_NETWORK)
 
 if [[ $out != *"up to date"* ]]; then
+  echo $(date -u) "New Saturn L1 node version found!"
   random_sleep=$[ ( $RANDOM % 60 ) ]
-  echo "New Saturn node version found"
-  echo -n $(date -u) "Restarting node in $random_sleep seconds... "
+  echo -n $(date -u) "Restarting L1 node in $random_sleep seconds... "
   sleep $random_sleep
-  echo "Restarting...."
+  echo "restarting...."
 
   sudo docker stop --time 60 saturn-node || true
   sudo docker rm -f saturn-node || true
@@ -40,5 +40,5 @@ if [[ $out != *"up to date"* ]]; then
 
   echo "Updated to latest version successfully!"
 else
-  echo "Saturn node up to date"
+  echo "Saturn L1 node up to date"
 fi
