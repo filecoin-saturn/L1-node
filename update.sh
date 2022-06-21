@@ -15,10 +15,10 @@ if wget -O "$target.tmp" -T 10 -t 3 "https://raw.githubusercontent.com/filecoin-
 then
   mv -f "$target.tmp" "$target"
   chmod +x "$target"
-  echo $(date -u) "Updated update.sh script successfully!"
+  echo "Updated update.sh script successfully!"
   exit
 else
-  echo $(date -u) "update.sh script up to date"
+  echo "update.sh script up to date"
   rm -f "$target.tmp"
 fi
 
@@ -28,17 +28,17 @@ out=$(sudo docker pull ghcr.io/filecoin-project/saturn-node:$SATURN_NETWORK)
 
 if [[ $out != *"up to date"* ]]; then
   random_sleep=$[ ( $RANDOM % 60 ) ]
-  echo $(date -u) "New Saturn node version found"
+  echo "New Saturn node version found"
   echo -n $(date -u) "Restarting node in $random_sleep seconds... "
   sleep $random_sleep
-  echo $(date -u) "Restarting...."
+  echo "Restarting...."
 
   sudo docker stop --time 60 saturn-node || true
   sudo docker rm -f saturn-node || true
   sudo docker run --name saturn-node -it -d --restart=unless-stopped -v $HOME/shared:/usr/src/app/shared -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL --network host ghcr.io/filecoin-project/saturn-node:$SATURN_NETWORK
   sudo docker image prune -f
 
-  echo $(date -u) "Updated to latest version successfully!"
+  echo "Updated to latest version successfully!"
 else
-  echo $(date -u) "Saturn node up to date"
+  echo "Saturn node up to date"
 fi
