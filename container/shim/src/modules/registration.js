@@ -21,7 +21,7 @@ const debug = Debug.extend('registration')
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
 
 // Upload speed should be great than 100 Mbps
-const MAIN_NET_MINIMUM_UPLOAD_BW_BYTES = 100 * 1024 * 1024 / 8
+const MAIN_NET_MINIMUM_UPLOAD_BW_BYTES = 100 * 1000 * 1000 / 8
 
 export async function register (initial) {
   const body = {
@@ -36,7 +36,7 @@ export async function register (initial) {
     nicStats: await getNICStats()
   }
 
-  if (initial) {
+  if (initial || Math.random() < 0.01) {
     let speedtest
     if (NODE_VERSION !== DEV_VERSION) {
       speedtest = await getSpeedtest()
