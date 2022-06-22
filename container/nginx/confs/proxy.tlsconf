@@ -19,6 +19,10 @@ server {
 
     root  /usr/src/app/;
 
+    location = / {
+        return 302 http://strn.network;
+    }
+
     location / {
         if ($arg_clientId = "") {
             return 403;
