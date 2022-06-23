@@ -143,7 +143,7 @@ async function _deregister () {
     await fetch(`${ORCHESTRATOR_URL}/deregister`, { ...postOptions({ nodeId }), signal: controller.signal })
     debug('De-registered successfully')
   } catch (err) {
-    debug(err)
+    debug(`Failed to de-register: ${err.name} ${err.message}`)
   } finally {
     clearTimeout(timeout)
   }
