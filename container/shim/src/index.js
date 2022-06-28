@@ -89,7 +89,7 @@ if (cluster.isPrimary) {
     }
 
     const ipfsReq = https.get(`https://gateway.ipfs.io/api/v0/dag/export?arg=${cid}`, {
-      agent, timeout: 55_000, headers: { 'User-Agent': `Saturn/${NODE_VERSION}` }
+      agent, timeout: 45_000, headers: { 'User-Agent': `Saturn/${NODE_VERSION}` }
     }, async fetchRes => {
       const { statusCode } = fetchRes
       if (statusCode !== 200) {
