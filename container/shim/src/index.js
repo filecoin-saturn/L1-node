@@ -10,7 +10,7 @@ import { trapServer } from './utils/trap.js'
 import { debug } from './utils/logging.js'
 
 import cluster from 'node:cluster'
-import { submitRetrievals } from './modules/log_ingestor.js'
+import { submitRetrievals, initLogIngestor } from './modules/log_ingestor.js'
 
 if (cluster.isPrimary) {
   debug('Saturn L1 Node')
@@ -41,7 +41,7 @@ if (cluster.isPrimary) {
   })
 
   // Start log ingestor
-  import('./modules/log_ingestor.js')
+  await initLogIngestor()
 } else {
   const agent = new https.Agent({
     keepAlive: true

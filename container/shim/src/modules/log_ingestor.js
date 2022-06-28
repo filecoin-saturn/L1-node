@@ -22,13 +22,15 @@ const NGINX_LOG_KEYS_MAP = {
 let pending = []
 let fh, hasRead
 
-if (fs.existsSync('/var/log/nginx/node-access.log')) {
-  debug('Reading nginx log file')
-  fh = await openFileHandle()
+export async function initLogIngestor () {
+  if (fs.existsSync('/var/log/nginx/node-access.log')) {
+    debug('Reading nginx log file')
+    fh = await openFileHandle()
 
-  parseLogs()
+    parseLogs()
 
-  submitRetrievals()
+    submitRetrievals()
+  }
 }
 
 async function parseLogs () {
