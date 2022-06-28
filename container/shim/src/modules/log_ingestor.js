@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import fsPromises from 'node:fs/promises'
 import fetch from 'node-fetch'
-import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, nodeId, nodeToken } from '../config.js'
+import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, nodeId, nodeToken, TESTING_CID } from '../config.js'
 import { debug as Debug } from '../utils/logging.js'
 
 const debug = Debug.extend('log-ingestor')
@@ -97,6 +97,7 @@ async function parseLogs () {
       if (vars.request?.startsWith('/cid/') && vars.status === 200) {
         const { clientAddress, numBytesSent, request, requestId, localTime, requestDuration, args, range, cacheHit, referrer, userAgent } = vars
         const cid = request.replace('/cid/', '')
+        if (cid === TESTING_CID) continue
         const { clientId } = args
 
         pending.push({

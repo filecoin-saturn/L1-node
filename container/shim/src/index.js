@@ -4,7 +4,7 @@ import { cpus } from 'node:os'
 import express from 'express'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
-import { FIL_WALLET_ADDRESS, NODE_OPERATOR_EMAIL, NODE_VERSION, nodeId, PORT } from './config.js'
+import { FIL_WALLET_ADDRESS, NODE_OPERATOR_EMAIL, NODE_VERSION, nodeId, PORT, TESTING_CID } from './config.js'
 import { streamCAR } from './utils/car.js'
 import { trapServer } from './utils/trap.js'
 import { debug } from './utils/logging.js'
@@ -78,7 +78,7 @@ if (cluster.isPrimary) {
     }
 
     // Testing CID
-    if (cid === 'QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF') {
+    if (cid === TESTING_CID) {
       return res.send(testCAR)
     }
 
