@@ -43,6 +43,10 @@ if (cluster.isPrimary) {
   // Start log ingestor
   import('./modules/log_ingestor.js')
 } else {
+  const agent = new https.Agent({
+    keepAlive: true
+  })
+
   const app = express()
 
   const testCAR = await fsPromises.readFile('./public/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car')
@@ -83,7 +87,7 @@ if (cluster.isPrimary) {
       return res.send(testCAR)
     }
 
-    https.get(`https://ipfs.io/api/v0/dag/export?arg=${cid}`, async fetchRes => {
+    const ipfsReq = https.get(`https://ipfs.io/api/v0/dag/export?arg=${cid}`, { agent, timeout: 30 }, async fetchRes => {
       const { statusCode } = fetchRes
       let error
       // Any 2xx status code signals a successful response but
@@ -100,9 +104,11 @@ if (cluster.isPrimary) {
       }
 
       streamCAR(fetchRes, res).catch(debug)
-    }).on('error', (error) => {
+    }).on('error', error => {
       debug.extend('error')(`Error fetching from IPFS gateway: ${error.name} ${error.message}`)
       res.sendStatus(502)
+    }).on('timeout', err => {
+      ipfsReq.destroy(err)
     })
   })
 
