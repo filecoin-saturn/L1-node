@@ -104,8 +104,8 @@ if (cluster.isPrimary) {
       }
 
       streamCAR(fetchRes, res).catch(debug)
-    }).on('error', error => {
-      debug.extend('error')(`Error fetching from IPFS gateway: ${error.name} ${error.message}`)
+    }).on('error', err => {
+      debug.extend('error')(`Error fetching from IPFS gateway: ${err.name} ${err.message}`)
       res.sendStatus(502)
     }).on('timeout', err => {
       ipfsReq.destroy(err)
