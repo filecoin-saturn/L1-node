@@ -44,7 +44,8 @@ if (cluster.isPrimary) {
   await initLogIngestor()
 } else {
   const agent = new https.Agent({
-    keepAlive: true
+    keepAlive: true,
+    maxSockets: 128 / cpus().length
   })
 
   const app = express()
