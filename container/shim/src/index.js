@@ -88,7 +88,7 @@ if (cluster.isPrimary) {
       return res.send(testCAR)
     }
 
-    const ipfsReq = https.get(`https://ipfs.io/api/v0/dag/export?arg=${cid}`, { agent, timeout: 30 }, async fetchRes => {
+    const ipfsReq = https.get(`https://gateway.ipfs.io/api/v0/dag/export?arg=${cid}`, { agent, timeout: 30 }, async fetchRes => {
       const { statusCode } = fetchRes
       let error
       // Any 2xx status code signals a successful response but
