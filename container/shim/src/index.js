@@ -106,7 +106,6 @@ if (cluster.isPrimary) {
     }).on('timeout', () => {
       debug.extend('error')('Timeout from IPFS gateway')
       ipfsReq.destroy()
-      res.sendStatus(504)
     })
   })
 
