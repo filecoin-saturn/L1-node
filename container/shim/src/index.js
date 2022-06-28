@@ -112,6 +112,7 @@ if (cluster.isPrimary) {
       res.sendStatus(502)
     }).on('timeout', err => {
       ipfsReq.destroy(err)
+      res.sendStatus(504)
     })
   })
 
