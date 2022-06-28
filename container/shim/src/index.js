@@ -84,6 +84,9 @@ if (cluster.isPrimary) {
 
     https.get(`https://ipfs.io/api/v0/dag/export?arg=${cid}`, async fetchRes => {
       streamCAR(fetchRes, res).catch(debug)
+    }).on('error', (e) => {
+      debug.extend('error')(`Error fetching from IPFS gateway: ${e.name} ${e.message}`)
+      res.sendStatus(502)
     })
   })
 
