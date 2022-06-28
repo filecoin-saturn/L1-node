@@ -21,6 +21,8 @@ const NGINX_LOG_KEYS_MAP = {
 
 let pending = []
 let fh, hasRead
+let parseLogsTimer
+let submitRetrievalsTimer
 
 export async function initLogIngestor () {
   if (fs.existsSync('/var/log/nginx/node-access.log')) {
@@ -34,6 +36,7 @@ export async function initLogIngestor () {
 }
 
 async function parseLogs () {
+  clearTimeout(parseLogsTimer)
   const read = await fh.readFile()
 
   if (read.length > 0) {
@@ -108,7 +111,7 @@ async function parseLogs () {
       fh = await openFileHandle()
     }
   }
-  setTimeout(parseLogs, 10_000)
+  parseLogsTimer = setTimeout(parseLogs, 10_000)
 }
 
 async function openFileHandle () {
@@ -116,6 +119,7 @@ async function openFileHandle () {
 }
 
 export async function submitRetrievals () {
+  clearTimeout(submitRetrievalsTimer)
   if (pending.length > 0) {
     const body = {
       nodeId,
@@ -137,5 +141,5 @@ export async function submitRetrievals () {
       debug(`Failed to submit pending retrievals ${err.name} ${err.message}`)
     }
   }
-  setTimeout(submitRetrievals, 60_000)
+  submitRetrievalsTimer = setTimeout(submitRetrievals, 60_000)
 }
