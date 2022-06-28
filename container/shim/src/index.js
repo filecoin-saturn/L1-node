@@ -106,7 +106,7 @@ if (cluster.isPrimary) {
         return
       }
 
-      streamCAR(fetchRes, res).catch(debug)
+      streamCAR(fetchRes, res).catch(() => {})
     }).on('error', err => {
       debug.extend('error')(`Error fetching from IPFS gateway: ${err.name} ${err.message}`)
       res.sendStatus(502)
