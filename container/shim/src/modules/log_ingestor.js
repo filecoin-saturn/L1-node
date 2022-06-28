@@ -28,29 +28,7 @@ if (fs.existsSync('/var/log/nginx/node-access.log')) {
 
   parseLogs()
 
-  setInterval(async () => {
-    if (pending.length > 0) {
-      const body = {
-        nodeId,
-        filAddress: FIL_WALLET_ADDRESS,
-        bandwidthLogs: pending
-      }
-      try {
-        await fetch(LOG_INGESTOR_URL, {
-          method: 'POST',
-          body: JSON.stringify(body),
-          headers: {
-            Authentication: nodeToken,
-            'Content-Type': 'application/json'
-          }
-        })
-        debug(`Submitted pending ${pending.length} retrievals to wallet ${FIL_WALLET_ADDRESS}`)
-        pending = []
-      } catch (err) {
-        debug(err)
-      }
-    }
-  }, 60_000)
+  submitRetrievals()
 }
 
 async function parseLogs () {
@@ -133,4 +111,29 @@ async function parseLogs () {
 
 async function openFileHandle () {
   return await fsPromises.open('/var/log/nginx/node-access.log', 'r+')
+}
+
+export async function submitRetrievals () {
+  if (pending.length > 0) {
+    const body = {
+      nodeId,
+      filAddress: FIL_WALLET_ADDRESS,
+      bandwidthLogs: pending
+    }
+    try {
+      await fetch(LOG_INGESTOR_URL, {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: {
+          Authentication: nodeToken,
+          'Content-Type': 'application/json'
+        }
+      })
+      debug(`Submitted pending ${pending.length} retrievals to wallet ${FIL_WALLET_ADDRESS}`)
+      pending = []
+    } catch (err) {
+      debug(`Failed to submit pending retrievals ${err.name} ${err.message}`)
+    }
+  }
+  setTimeout(submitRetrievals, 60_000)
 }

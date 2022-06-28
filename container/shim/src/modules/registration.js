@@ -78,8 +78,8 @@ export async function register (initial) {
       debug('Success, restarting container...')
 
       process.exit()
-    } catch (e) {
-      debug('Failed registration %o', e)
+    } catch (err) {
+      debug('Failed registration %o', err)
       process.exit(1)
     }
   } else {
@@ -116,8 +116,8 @@ export async function register (initial) {
       updateNodeToken(token)
 
       debug('Successful re-registration, updated token')
-    } catch (e) {
-      debug('Failed re-registration %s', e.message)
+    } catch (err) {
+      debug('Failed re-registration %s', err.message)
       if (initial) {
         process.exit(1)
       }

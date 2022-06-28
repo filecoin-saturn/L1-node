@@ -3,9 +3,9 @@ import { debug as Debug } from './logging.js'
 const debug = Debug.extend('trap')
 
 const shutdownServer = (server) => () => {
-  debug('shutting down server')
+  debug('Shutting down server')
   server.close(() => {
-    debug('server closed')
+    debug('Server closed')
     process.exit()
   })
 }

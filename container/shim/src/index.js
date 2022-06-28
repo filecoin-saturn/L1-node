@@ -10,6 +10,7 @@ import { trapServer } from './utils/trap.js'
 import { debug } from './utils/logging.js'
 
 import cluster from 'node:cluster'
+import { submitRetrievals } from './modules/log_ingestor.js'
 
 if (cluster.isPrimary) {
   debug('Saturn L1 Node')
@@ -34,8 +35,8 @@ if (cluster.isPrimary) {
   process.on('SIGQUIT', shutdownCluster)
   process.on('SIGINT', shutdownCluster)
 
-  await register(true).catch((err) => {
-    debug(err)
+  await register(true).catch(err => {
+    debug(`Failed to register ${err.name} ${err.message}`)
     process.exit(1)
   })
 
@@ -83,9 +84,24 @@ if (cluster.isPrimary) {
     }
 
     https.get(`https://ipfs.io/api/v0/dag/export?arg=${cid}`, async fetchRes => {
+      const { statusCode } = fetchRes
+      let error
+      // Any 2xx status code signals a successful response but
+      // here we're only checking for 200.
+      if (statusCode !== 200) {
+        error = new Error(`Request Failed. Status Code: ${statusCode}`)
+      }
+      if (error) {
+        debug.extend('error')(`Error fetching from IPFS gateway: ${error.name} ${error.message}`)
+        // Consume response data to free up memory
+        fetchRes.resume()
+        res.sendStatus(502)
+        return
+      }
+
       streamCAR(fetchRes, res).catch(debug)
-    }).on('error', (e) => {
-      debug.extend('error')(`Error fetching from IPFS gateway: ${e.name} ${e.message}`)
+    }).on('error', (error) => {
+      debug.extend('error')(`Error fetching from IPFS gateway: ${error.name} ${error.message}`)
       res.sendStatus(502)
     })
   })
@@ -101,9 +117,12 @@ if (cluster.isPrimary) {
 
 async function shutdownCluster () {
   try {
-    await deregister()
-  } catch (e) {
-    debug(e)
+    await Promise.allSettled([
+      submitRetrievals(),
+      deregister()
+    ])
+  } catch (err) {
+    debug(`Failed during shutdown: ${err.name} ${err.message}`)
   } finally {
     if (Object.keys(cluster.workers).length === 0) {
       debug('Exiting...')
