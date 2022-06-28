@@ -93,7 +93,7 @@ if (cluster.isPrimary) {
     }, async fetchRes => {
       const { statusCode } = fetchRes
       if (statusCode !== 200) {
-        debug.extend('error')(`Invalid response from IPFS gateway (${statusCode})`)
+        debug.extend('error')(`Invalid response from IPFS gateway (${statusCode}) for ${cid}`)
         fetchRes.resume()
         res.sendStatus(502)
         return
@@ -101,10 +101,10 @@ if (cluster.isPrimary) {
 
       streamCAR(fetchRes, res).catch(() => {})
     }).on('error', err => {
-      debug.extend('error')(`Error fetching from IPFS gateway: ${err.name} ${err.message}`)
+      debug.extend('error')(`Error fetching from IPFS gateway for ${cid}: ${err.name} ${err.message}`)
       res.sendStatus(502)
     }).on('timeout', () => {
-      debug.extend('error')('Timeout from IPFS gateway')
+      debug.extend('error')(`Timeout from IPFS gateway for ${cid}`)
       ipfsReq.destroy()
     })
   })
