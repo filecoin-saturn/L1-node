@@ -92,15 +92,8 @@ if (cluster.isPrimary) {
       agent, timeout: 55_000, headers: { 'User-Agent': `Saturn/${NODE_VERSION}` }
     }, async fetchRes => {
       const { statusCode } = fetchRes
-      let error
-      // Any 2xx status code signals a successful response but
-      // here we're only checking for 200.
       if (statusCode !== 200) {
-        error = new Error(`Request Failed. Status Code: ${statusCode}`)
-      }
-      if (error) {
-        debug.extend('error')(`Error fetching from IPFS gateway: ${error.name} ${error.message}`)
-        // Consume response data to free up memory
+        debug.extend('error')(`Invalid response from IPFS gateway (${statusCode})`)
         fetchRes.resume()
         res.sendStatus(502)
         return
@@ -110,8 +103,9 @@ if (cluster.isPrimary) {
     }).on('error', err => {
       debug.extend('error')(`Error fetching from IPFS gateway: ${err.name} ${err.message}`)
       res.sendStatus(502)
-    }).on('timeout', err => {
-      ipfsReq.destroy(err)
+    }).on('timeout', () => {
+      debug.extend('error')('Timeout from IPFS gateway')
+      ipfsReq.destroy()
       res.sendStatus(504)
     })
   })
