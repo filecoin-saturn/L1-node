@@ -62,7 +62,9 @@ if (cluster.isPrimary) {
   // Whenever nginx doesn't have a CAR file in cache, this is called
   app.get('/cid/:cid*', async (req, res) => {
     const cid = req.params.cid + req.params[0]
-    debug.extend('req')(`Cache miss for ${cid}`)
+    if (cid !== TESTING_CID) {
+      debug.extend('req')(`Cache miss for ${cid}`)
+    }
 
     res.set({
       'Content-Type': 'application/vnd.ipld.car',
@@ -89,7 +91,7 @@ if (cluster.isPrimary) {
     }
 
     const ipfsReq = https.get(`https://gateway.ipfs.io/api/v0/dag/export?arg=${cid}`, {
-      agent, timeout: 55_000, headers: { 'User-Agent': `Saturn/${NODE_VERSION}` }
+      agent, timeout: 120_000, headers: { 'User-Agent': `Saturn/${NODE_VERSION}` }
     }, async fetchRes => {
       const { statusCode } = fetchRes
       if (statusCode !== 200) {
