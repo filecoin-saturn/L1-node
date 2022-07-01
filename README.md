@@ -16,7 +16,7 @@ The node returns CAR files from cache or falls back to inner level nodes.
 ### Node's host requirements
 - Linux server with a public IPv4 address
 - Root access / passwordless sudo user
-- Port 80 and port 443 free
+- Ports 80, 8080 and 443 free
 - Docker installed ([Instructions here](https://docs.docker.com/engine/install/#server))
 - Modern CPU with 4 cores (8+ cores recommended)
 - 1Gbps upload bandwidth minimum (10Gbps+ recommended)<sup>1</sup>
