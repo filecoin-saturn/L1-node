@@ -159,10 +159,10 @@ export const addRegisterCheckRoute = (app) => app.get('/register-check', (req, r
   const ip = req.ip.replace('::ffff:', '')
   const { nodeId: receivedNodeId } = req.query
   if (receivedNodeId !== nodeId) {
-    debug.extend('registration-check')(`Check failed, nodeId mismatch. Received: ${receivedNodeId} from IP ${ip}`)
+    debug.extend('check')(`Check failed, nodeId mismatch. Received: ${receivedNodeId} from IP ${ip}`)
     return res.sendStatus(403)
   }
-  debug.extend('registration-check')('Successful')
+  debug.extend('check')('Successful')
   res.sendStatus(200)
 })
 

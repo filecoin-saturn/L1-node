@@ -35,13 +35,15 @@ if (cluster.isPrimary) {
   process.on('SIGQUIT', shutdownCluster)
   process.on('SIGINT', shutdownCluster)
 
-  await register(true).catch(err => {
-    debug(`Failed to register ${err.name} ${err.message}`)
-    process.exit(1)
-  })
+  setTimeout(async function () {
+    await register(true).catch(err => {
+      debug(`Failed to register ${err.name} ${err.message}`)
+      process.exit(1)
+    })
 
-  // Start log ingestor
-  await initLogIngestor()
+    // Start log ingestor
+    await initLogIngestor()
+  }, 100)
 } else {
   const agent = new https.Agent({
     keepAlive: true,
