@@ -61,13 +61,18 @@ export async function register (initial) {
     }
 
     debug('Registering with orchestrator, requesting new TLS cert... (this could take up to 20 mins)')
+    const controller = new AbortController()
+    const timeout = setTimeout(() => {
+      controller.abort()
+    }, 10_000)
     try {
-      const response = await fetch(`${ORCHESTRATOR_URL}/register`, registerOptions)
+      const response = await fetch(`${ORCHESTRATOR_URL}/register`, { ...registerOptions, signal: controller.signal })
+      clearTimeout(timeout)
       const body = await response.json()
       const { cert, key } = body
 
-      if (!cert || !key) {
-        debug('Received status %d with %o', response.status, body)
+      if (!response.ok || !cert || !key) {
+        debug('Received status %d with body: %o', response.status, body)
         throw new Error(body?.error || 'Empty cert or key received')
       }
 
@@ -81,6 +86,8 @@ export async function register (initial) {
     } catch (err) {
       debug('Failed registration %o', err)
       process.exit(1)
+    } finally {
+      clearTimeout(timeout)
     }
   } else {
     if (initial) {
@@ -137,7 +144,7 @@ async function _deregister () {
   const controller = new AbortController()
   const timeout = setTimeout(() => {
     controller.abort()
-  }, 30_000)
+  }, 10_000)
 
   try {
     await fetch(`${ORCHESTRATOR_URL}/deregister`, { ...postOptions({ nodeId }), signal: controller.signal })
