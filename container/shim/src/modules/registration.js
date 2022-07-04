@@ -25,8 +25,8 @@ const MAIN_NET_MINIMUM_UPLOAD_BW_BYTES = 100 * 1000 * 1000 / 8
 
 export async function register (initial) {
   const body = {
-    initial,
     nodeId,
+    level: 1,
     version: NODE_VERSION,
     filWalletAddress: FIL_WALLET_ADDRESS,
     operatorEmail: NODE_OPERATOR_EMAIL,
