@@ -21,4 +21,4 @@ else
 fi
 
 nginx -g "daemon off;" &
-exec node src/index.js
+exec node --experimental-fetch src/index.js

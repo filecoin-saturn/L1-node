@@ -14,7 +14,6 @@
     "debug": "^4.3.4",
     "express": "^4.18.1",
     "multiformats": "^9.7.0",
-    "node-fetch": "^3.2.6",
     "pretty-bytes": "^6.0.0"
   },
   "devDependencies": {

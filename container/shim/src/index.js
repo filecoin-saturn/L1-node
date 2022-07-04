@@ -4,7 +4,7 @@ import { cpus } from 'node:os'
 import express from 'express'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
-import { FIL_WALLET_ADDRESS, NODE_OPERATOR_EMAIL, NODE_VERSION, nodeId, PORT, TESTING_CID } from './config.js'
+import { FIL_WALLET_ADDRESS, NODE_OPERATOR_EMAIL, NODE_UA, NODE_VERSION, nodeId, PORT, TESTING_CID } from './config.js'
 import { streamCAR } from './utils/car.js'
 import { trapServer } from './utils/trap.js'
 import { debug } from './utils/logging.js'
@@ -91,7 +91,7 @@ if (cluster.isPrimary) {
     }
 
     const ipfsReq = https.get(`https://gateway.ipfs.io/api/v0/dag/export?arg=${cid}`, {
-      agent, timeout: 60_000, headers: { 'User-Agent': `Saturn/${NODE_VERSION}` }
+      agent, timeout: 60_000, headers: { 'User-Agent': NODE_UA }
     }, async fetchRes => {
       const { statusCode } = fetchRes
       if (statusCode !== 200) {

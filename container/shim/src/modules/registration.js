@@ -1,12 +1,12 @@
 import { X509Certificate } from 'node:crypto'
 import https from 'node:https'
 import fsPromises from 'node:fs/promises'
-import fetch from 'node-fetch'
 
 import {
   DEV_VERSION,
   FIL_WALLET_ADDRESS,
   NODE_OPERATOR_EMAIL,
+  NODE_UA,
   NODE_VERSION,
   nodeId,
   ORCHESTRATOR_URL,
@@ -168,6 +168,12 @@ export const addRegisterCheckRoute = (app) => app.get('/register-check', (req, r
 
 function postOptions (body) {
   return {
-    method: 'post', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' }, agent
+    agent,
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: {
+      'Content-Type': 'application/json',
+      'User-Agent': NODE_UA
+    }
   }
 }
