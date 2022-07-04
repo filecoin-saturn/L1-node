@@ -1,6 +1,7 @@
 import { X509Certificate } from 'node:crypto'
 import https from 'node:https'
 import fsPromises from 'node:fs/promises'
+import fetch from 'node-fetch'
 
 import {
   DEV_VERSION,
@@ -85,7 +86,7 @@ export async function register (initial) {
 
       process.exit()
     } catch (err) {
-      debug('Failed registration %o', err)
+      debug(`Failed registration: ${err.name} ${err.message}`)
       process.exit(1)
     }
   } else {
