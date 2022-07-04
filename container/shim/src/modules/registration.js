@@ -61,14 +61,10 @@ export async function register (initial) {
       await fsPromises.mkdir(SSL_PATH, { recursive: true })
     }
 
-    debug('Registering with orchestrator, requesting new TLS cert... (this could take up to 20 mins)')
-    const controller = new AbortController()
-    const timeout = setTimeout(() => {
-      controller.abort()
-    }, 10_000)
+    debug('Registering with orchestrator for the first time, requesting new TLS cert with the following config (this could take up to 20 mins)')
+    debug(body)
     try {
-      const response = await fetch(`${ORCHESTRATOR_URL}/register`, { ...registerOptions, signal: controller.signal })
-      clearTimeout(timeout)
+      const response = await fetch(`${ORCHESTRATOR_URL}/register`, { ...registerOptions })
       const body = await response.json()
       const { cert, key } = body
 
@@ -87,8 +83,6 @@ export async function register (initial) {
     } catch (err) {
       debug('Failed registration %o', err)
       process.exit(1)
-    } finally {
-      clearTimeout(timeout)
     }
   } else {
     if (initial) {
