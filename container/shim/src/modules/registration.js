@@ -36,10 +36,9 @@ export async function register (initial) {
     nicStats: await getNICStats()
   }
 
-  if (initial || Math.random() < 0.01) {
-    let speedtest
-    if (NODE_VERSION !== DEV_VERSION) {
-      speedtest = await getSpeedtest()
+  if (NODE_VERSION !== DEV_VERSION && (initial || Math.random() < 0.01)) {
+    try {
+      const speedtest = await getSpeedtest()
       if (speedtest.upload.bandwidth < MAIN_NET_MINIMUM_UPLOAD_BW_BYTES) {
         if (SATURN_NETWORK === 'main') {
           throw new Error(`Node's upload speed is not enough, ${SATURN_NETWORK} network requirement is 1 Gbps`)
@@ -47,8 +46,10 @@ export async function register (initial) {
           debug('WARNING: This node\'s upload speed is not enough for main network')
         }
       }
+      Object.assign(body, { speedtest })
+    } catch (err) {
+      debug(`Error while performing speedtest: ${err.name} ${err.message}`)
     }
-    Object.assign(body, { speedtest })
   }
 
   const registerOptions = postOptions(body)
