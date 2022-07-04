@@ -1,7 +1,7 @@
 import { X509Certificate } from 'node:crypto'
+import https from 'node:https'
 import fsPromises from 'node:fs/promises'
 import fetch from 'node-fetch'
-import { debug as Debug } from '../utils/logging.js'
 
 import {
   DEV_VERSION,
@@ -13,13 +13,17 @@ import {
   SATURN_NETWORK,
   updateNodeToken
 } from '../config.js'
+import { debug as Debug } from '../utils/logging.js'
 import { getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from '../utils/system.js'
 import { CERT_PATH, certExists, deleteCertAndKey, saveCertAndKey, SSL_PATH } from './tls.js'
 
 const debug = Debug.extend('registration')
 
-const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
+const agent = new https.Agent({
+  keepAlive: true
+})
 
+const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
 // Upload speed should be great than 100 Mbps
 const MAIN_NET_MINIMUM_UPLOAD_BW_BYTES = 100 * 1000 * 1000 / 8
 
@@ -64,7 +68,7 @@ export async function register (initial) {
     debug('Registering with orchestrator for the first time, requesting new TLS cert with the following config (this could take up to 20 mins)')
     debug(body)
     try {
-      const response = await fetch(`${ORCHESTRATOR_URL}/register`, { ...registerOptions })
+      const response = await fetch(`${ORCHESTRATOR_URL}/register`, registerOptions)
       const body = await response.json()
       const { cert, key } = body
 
@@ -164,6 +168,6 @@ export const addRegisterCheckRoute = (app) => app.get('/register-check', (req, r
 
 function postOptions (body) {
   return {
-    method: 'post', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' }
+    method: 'post', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' }, agent
   }
 }
