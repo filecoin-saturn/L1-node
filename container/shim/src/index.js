@@ -92,9 +92,14 @@ if (cluster.isPrimary) {
       return res.send(testCAR)
     }
 
+    const controller = new AbortController()
+    const timeout = setTimeout(() => {
+      controller.abort()
+    }, 30_000)
     const ipfsReq = https.get(`https://gateway.ipfs.io/api/v0/dag/export?arg=${cid}`, {
-      agent, timeout: 60_000, headers: { 'User-Agent': NODE_UA }
+      agent, timeout: 60_000, headers: { 'User-Agent': NODE_UA }, signal: controller.signal
     }, async fetchRes => {
+      clearTimeout(timeout)
       const { statusCode } = fetchRes
       if (statusCode !== 200) {
         debug.extend('error')(`Invalid response from IPFS gateway (${statusCode}) for ${cid}`)
@@ -104,10 +109,14 @@ if (cluster.isPrimary) {
       }
 
       streamCAR(fetchRes, res).catch(() => {})
+    }).on('close', () => {
+      debug('Client closed %o', res)
     }).on('error', err => {
+      clearTimeout(timeout)
       debug.extend('error')(`Error fetching from IPFS gateway for ${cid}: ${err.name} ${err.message}`)
       res.sendStatus(502)
     }).on('timeout', () => {
+      clearTimeout(timeout)
       debug.extend('error')(`Timeout from IPFS gateway for ${cid}`)
       ipfsReq.destroy()
       res.destroy()
