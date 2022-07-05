@@ -49,7 +49,7 @@ if (cluster.isPrimary) {
 } else {
   const agent = new https.Agent({
     keepAlive: true,
-    maxSockets: 256 / cpus().length
+    maxSockets: Math.floor(256 / cpus().length)
   })
 
   const app = express()
