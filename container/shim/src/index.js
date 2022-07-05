@@ -12,6 +12,8 @@ import { debug } from './utils/logging.js'
 import cluster from 'node:cluster'
 import { submitRetrievals, initLogIngestor } from './modules/log_ingestor.js'
 
+const GATEWAY_TIMEOUT = 120_000
+
 if (cluster.isPrimary) {
   debug('Saturn L1 Node')
   debug.extend('id')(nodeId)
@@ -43,7 +45,7 @@ if (cluster.isPrimary) {
 
     // Start log ingestor
     await initLogIngestor()
-  }, 100)
+  }, 500)
 } else {
   const agent = new https.Agent({
     keepAlive: true,
@@ -95,23 +97,25 @@ if (cluster.isPrimary) {
     const controller = new AbortController()
     const timeout = setTimeout(() => {
       controller.abort()
-    }, 30_000)
+    }, GATEWAY_TIMEOUT)
     const ipfsReq = https.get(`https://gateway.ipfs.io/api/v0/dag/export?arg=${cid}`, {
-      agent, timeout: 30_000, headers: { 'User-Agent': NODE_UA }, signal: controller.signal
+      agent, timeout: GATEWAY_TIMEOUT, headers: { 'User-Agent': NODE_UA }, signal: controller.signal
     }, async fetchRes => {
       clearTimeout(timeout)
       const { statusCode } = fetchRes
       if (statusCode !== 200) {
         debug.extend('error')(`Invalid response from IPFS gateway (${statusCode}) for ${cid}`)
         fetchRes.resume()
-        res.sendStatus(502)
-        return
+        return res.sendStatus(502)
       }
 
       streamCAR(fetchRes, res).catch(() => {})
     }).on('error', err => {
       clearTimeout(timeout)
       debug.extend('error')(`Error fetching from IPFS gateway for ${cid}: ${err.name} ${err.message}`)
+      if (controller.signal.aborted) {
+        return res.sendStatus(504)
+      }
       res.sendStatus(502)
     }).on('timeout', () => {
       clearTimeout(timeout)
@@ -123,7 +127,7 @@ if (cluster.isPrimary) {
     req.on('close', () => {
       clearTimeout(timeout)
       if (!res.writableEnded) {
-        debug('Client aborted early, terminating gateway request')
+        debug.extend('error')('Client aborted early, terminating gateway request')
         ipfsReq.destroy()
       }
     })
