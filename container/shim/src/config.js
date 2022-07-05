@@ -7,7 +7,6 @@ export const DEV_VERSION = '9999_dev'
 export const NODE_VERSION = pVersion(process.env.NODE_VERSION || DEV_VERSION)
 export const NODE_UA = `Saturn/${NODE_VERSION}`
 export const PORT = 10361
-export const NGINX_HTTPS_PORT = 443
 export const SATURN_NETWORK = process.env.SATURN_NETWORK
 export const ORCHESTRATOR_URL = process.env.ORCHESTRATOR_URL || networkToOrchestrator()
 export const LOG_INGESTOR_URL = process.env.LOG_INGESTOR_URL || networkToIngestor()

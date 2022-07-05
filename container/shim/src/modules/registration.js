@@ -1,4 +1,5 @@
 import { X509Certificate } from 'node:crypto'
+import http from 'http'
 import https from 'node:https'
 import fsPromises from 'node:fs/promises'
 import fetch from 'node-fetch'
@@ -20,9 +21,10 @@ import { CERT_PATH, certExists, deleteCertAndKey, saveCertAndKey, SSL_PATH } fro
 
 const debug = Debug.extend('registration')
 
-const agent = new https.Agent({
+const agentOpts = {
   keepAlive: true
-})
+}
+const agent = ORCHESTRATOR_URL.includes('https') ? new https.Agent(agentOpts) : new http.Agent(agentOpts)
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
 // Upload speed should be great than 100 Mbps

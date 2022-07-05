@@ -97,7 +97,7 @@ if (cluster.isPrimary) {
       controller.abort()
     }, 30_000)
     const ipfsReq = https.get(`https://gateway.ipfs.io/api/v0/dag/export?arg=${cid}`, {
-      agent, timeout: 60_000, headers: { 'User-Agent': NODE_UA }, signal: controller.signal
+      agent, timeout: 30_000, headers: { 'User-Agent': NODE_UA }, signal: controller.signal
     }, async fetchRes => {
       clearTimeout(timeout)
       const { statusCode } = fetchRes
@@ -121,7 +121,11 @@ if (cluster.isPrimary) {
     })
 
     req.on('close', () => {
-      debug('Client closed')
+      clearTimeout(timeout)
+      if (!res.writableEnded) {
+        debug('Client aborted early, terminating gateway request')
+        ipfsReq.destroy()
+      }
     })
   })
 
