@@ -109,8 +109,6 @@ if (cluster.isPrimary) {
       }
 
       streamCAR(fetchRes, res).catch(() => {})
-    }).on('close', () => {
-      debug('Client closed %o', res)
     }).on('error', err => {
       clearTimeout(timeout)
       debug.extend('error')(`Error fetching from IPFS gateway for ${cid}: ${err.name} ${err.message}`)
@@ -120,6 +118,10 @@ if (cluster.isPrimary) {
       debug.extend('error')(`Timeout from IPFS gateway for ${cid}`)
       ipfsReq.destroy()
       res.destroy()
+    })
+
+    req.on('close', () => {
+      debug('Client closed')
     })
   })
 
