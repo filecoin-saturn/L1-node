@@ -6,7 +6,6 @@ import mimeTypes from 'mime-types'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
 import {
-  DEV_VERSION,
   FIL_WALLET_ADDRESS,
   NODE_OPERATOR_EMAIL,
   NODE_UA,
@@ -57,10 +56,14 @@ if (cluster.isPrimary) {
     await initLogIngestor()
   }, 500)
 } else {
-  const agent = new https.Agent({
+  const ipfsAgent = new https.Agent({
     keepAlive: true,
-    maxSockets: Math.floor(256 / cpus().length),
-    rejectUnauthorized: NODE_VERSION !== DEV_VERSION
+    maxSockets: Math.floor(256 / cpus().length)
+  })
+
+  const localAgent = new https.Agent({
+    keepAlive: true,
+    rejectUnauthorized: false
   })
 
   const app = express()
@@ -110,7 +113,7 @@ if (cluster.isPrimary) {
       controller.abort()
     }, GATEWAY_TIMEOUT)
     const ipfsReq = https.get(`https://gateway.ipfs.io/api/v0/dag/export?arg=${cid}`, {
-      agent, timeout: GATEWAY_TIMEOUT, headers: { 'User-Agent': NODE_UA }, signal: controller.signal
+      agent: ipfsAgent, timeout: GATEWAY_TIMEOUT, headers: { 'User-Agent': NODE_UA }, signal: controller.signal
     }, async fetchRes => {
       clearTimeout(timeout)
       const { statusCode } = fetchRes
@@ -148,7 +151,7 @@ if (cluster.isPrimary) {
     const cid = req.params.cid
     const path = req.params.path + req.params[0]
 
-    debug('Cache miss for %s %s', cid, path)
+    debug('Cache miss for %s/%s', cid, path)
 
     res.set({
       'Content-Type': mimeTypes.lookup(path) || 'application/octet-stream',
@@ -162,7 +165,7 @@ if (cluster.isPrimary) {
       controller.abort()
     }, GATEWAY_TIMEOUT)
     const ipfsReq = https.get(`https://127.0.0.1/cid/${cid}?clientId=${req.query.clientId}`, {
-      agent, timeout: GATEWAY_TIMEOUT, headers: { 'User-Agent': NODE_UA }, signal: controller.signal
+      agent: localAgent, timeout: GATEWAY_TIMEOUT, headers: { 'User-Agent': NODE_UA }, signal: controller.signal
     }, async fetchRes => {
       clearTimeout(timeout)
       const { statusCode } = fetchRes
