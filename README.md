@@ -106,6 +106,13 @@ Run the docker container with
 ./node build run
 ```
 
+### Deploy
+
+**Only changes to `container/` and `Dockerfile`** trigger a build
+
+- To deploy to test network, just push to main.
+- To deploy to main network, create a tag being `last run + 1` (e.g. if [last run](https://github.com/filecoin-project/saturn-node/actions/workflows/release.yml) is 10, tag should be 11)
+
 
 ## Files
 
