@@ -123,7 +123,7 @@ if (cluster.isPrimary) {
         return res.sendStatus(502)
       }
 
-      streamCAR(fetchRes, res).catch(() => res.sendStatus(503))
+      streamCAR(fetchRes, res).catch(() => {})
     }).on('error', err => {
       clearTimeout(timeout)
       debug.extend('error')(`Error fetching from IPFS gateway for ${cid}: ${err.name} ${err.message}`)
@@ -175,7 +175,7 @@ if (cluster.isPrimary) {
         return res.sendStatus(502)
       }
 
-      extractPathFromCar(fetchRes, cid + '/' + path, res).catch(() => res.sendStatus(503))
+      extractPathFromCar(fetchRes, cid + '/' + path, res).catch(() => {})
     }).on('error', err => {
       clearTimeout(timeout)
       debug.extend('error')(`Error fetching from IPFS gateway for ${cid}: ${err.name} ${err.message}`)
