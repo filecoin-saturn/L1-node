@@ -9,6 +9,9 @@ import * as json from 'multiformats/codecs/json'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { from as hasher } from 'multiformats/hashes/hasher'
 import { blake2b256 } from '@multiformats/blake2/blake2b'
+import { MemoryBlockstore } from 'blockstore-core/memory'
+import { exporter } from 'ipfs-unixfs-exporter'
+
 import { debug as Debug } from './logging.js'
 
 const debug = Debug.extend('utils')
@@ -62,4 +65,21 @@ export async function streamCAR (streamIn, streamOut) {
     await writer.put({ cid, bytes })
   }
   await writer.close()
+}
+
+export async function extractPathFromCar (streamIn, path, res) {
+  const carBlockIterator = await CarBlockIterator.fromIterable(streamIn)
+  const blockstore = new MemoryBlockstore()
+
+  for await (const { cid, bytes } of carBlockIterator) {
+    await blockstore.put(cid, bytes)
+  }
+
+  const file = await exporter(path, blockstore)
+
+  for await (const chunk of file.content()) {
+    res.write(chunk)
+  }
+
+  res.end()
 }

@@ -2,10 +2,20 @@ import https from 'node:https'
 import fsPromises from 'node:fs/promises'
 import { cpus } from 'node:os'
 import express from 'express'
+import mimeTypes from 'mime-types'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
-import { FIL_WALLET_ADDRESS, NODE_OPERATOR_EMAIL, NODE_UA, NODE_VERSION, nodeId, PORT, TESTING_CID } from './config.js'
-import { streamCAR } from './utils/car.js'
+import {
+  DEV_VERSION,
+  FIL_WALLET_ADDRESS,
+  NODE_OPERATOR_EMAIL,
+  NODE_UA,
+  NODE_VERSION,
+  nodeId,
+  PORT,
+  TESTING_CID
+} from './config.js'
+import { extractPathFromCar, streamCAR } from './utils/car.js'
 import { trapServer } from './utils/trap.js'
 import { debug } from './utils/logging.js'
 
@@ -49,7 +59,8 @@ if (cluster.isPrimary) {
 } else {
   const agent = new https.Agent({
     keepAlive: true,
-    maxSockets: Math.floor(256 / cpus().length)
+    maxSockets: Math.floor(256 / cpus().length),
+    rejectUnauthorized: NODE_VERSION !== DEV_VERSION
   })
 
   const app = express()
@@ -64,8 +75,8 @@ if (cluster.isPrimary) {
   })
 
   // Whenever nginx doesn't have a CAR file in cache, this is called
-  app.get('/cid/:cid*', async (req, res) => {
-    const cid = req.params.cid + req.params[0]
+  app.get('/cid/:cid', async (req, res) => {
+    const cid = req.params.cid
     if (cid !== TESTING_CID) {
       debug.extend('req')(`Cache miss for ${cid}`)
     }
@@ -109,7 +120,59 @@ if (cluster.isPrimary) {
         return res.sendStatus(502)
       }
 
-      streamCAR(fetchRes, res).catch(() => {})
+      streamCAR(fetchRes, res).catch(() => res.sendStatus(503))
+    }).on('error', err => {
+      clearTimeout(timeout)
+      debug.extend('error')(`Error fetching from IPFS gateway for ${cid}: ${err.name} ${err.message}`)
+      if (controller.signal.aborted) {
+        return res.sendStatus(504)
+      }
+      res.sendStatus(502)
+    }).on('timeout', () => {
+      clearTimeout(timeout)
+      debug.extend('error')(`Timeout from IPFS gateway for ${cid}`)
+      ipfsReq.destroy()
+      res.destroy()
+    })
+
+    req.on('close', () => {
+      clearTimeout(timeout)
+      if (!res.writableEnded) {
+        debug.extend('error')('Client aborted early, terminating gateway request')
+        ipfsReq.destroy()
+      }
+    })
+  })
+
+  app.get('/cid/:cid/:path*', async (req, res) => {
+    const cid = req.params.cid
+    const path = req.params.path + req.params[0]
+
+    debug('Cache miss for %s %s', cid, path)
+
+    res.set({
+      'Content-Type': mimeTypes.lookup(path) || 'application/octet-stream',
+      'Cache-Control': 'public, max-age=31536000, immutable',
+      'Saturn-Node-Id': nodeId,
+      'Saturn-Node-Version': NODE_VERSION
+    })
+
+    const controller = new AbortController()
+    const timeout = setTimeout(() => {
+      controller.abort()
+    }, GATEWAY_TIMEOUT)
+    const ipfsReq = https.get(`https://127.0.0.1/cid/${cid}?clientId=${req.query.clientId}`, {
+      agent, timeout: GATEWAY_TIMEOUT, headers: { 'User-Agent': NODE_UA }, signal: controller.signal
+    }, async fetchRes => {
+      clearTimeout(timeout)
+      const { statusCode } = fetchRes
+      if (statusCode !== 200) {
+        debug.extend('error')(`Invalid response from IPFS gateway (${statusCode}) for ${cid}`)
+        fetchRes.resume()
+        return res.sendStatus(502)
+      }
+
+      extractPathFromCar(fetchRes, cid + '/' + path, res).catch(() => res.sendStatus(503))
     }).on('error', err => {
       clearTimeout(timeout)
       debug.extend('error')(`Error fetching from IPFS gateway for ${cid}: ${err.name} ${err.message}`)
