@@ -1,3 +1,23 @@
+map $http_accept $format_header {
+    default                     "";
+    "application/vnd.ipld.car" "car";
+    "application/vnd.ipld.raw" "raw";
+}
+
+# Restrict valid values to prevent cache key explosion.
+map $arg_format $format_query {
+    default "";
+    "car"   "car";
+    "raw"   "raw";
+}
+
+# Coalesce header & query values to make a single cache key component.
+map $format_query $format_final {
+    default $format_header;
+    "car"   "car";
+    "raw"   "raw";
+}
+
 server {
     listen 443 default_server ssl http2;
 
@@ -41,7 +61,7 @@ server {
         proxy_set_header        Connection      "";
 
         proxy_cache             my_cache;
-        proxy_cache_key         $scheme$proxy_host$uri$arg_sc;
+        proxy_cache_key         $scheme$proxy_host$uri$format_final$arg_sc;
         proxy_cache_lock        on;
         proxy_cache_valid       180d;
         proxy_cache_lock_age    2m;

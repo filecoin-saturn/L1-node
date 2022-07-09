@@ -61,11 +61,6 @@ if (cluster.isPrimary) {
     maxSockets: Math.floor(256 / cpus().length)
   })
 
-  const localAgent = new https.Agent({
-    keepAlive: true,
-    rejectUnauthorized: false
-  })
-
   const app = express()
 
   const testCAR = await fsPromises.readFile('./public/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car')
@@ -78,14 +73,19 @@ if (cluster.isPrimary) {
   })
 
   // Whenever nginx doesn't have a CAR file in cache, this is called
-  app.get('/cid/:cid', async (req, res) => {
+  app.get('/cid/:cid', handleCID) // Deprecated
+  app.get('/ipfs/:cid', handleCID)
+  app.get('/ipfs/:cid/:path*', handleCID)
+
+  async function handleCID (req, res) {
     const cid = req.params.cid
-    if (cid !== TESTING_CID) {
-      debug.extend('req')(`Cache miss for ${cid}`)
-    }
+    const path = req.params.path ? (req.params.path + req.params[0]) : null
+    const format = getResponseFormat(req)
+
+    debug('Cache miss for %s/%s', cid, path)
 
     res.set({
-      'Content-Type': 'application/vnd.ipld.car',
+      'Content-Type': mimeTypes.lookup(path) || 'application/octet-stream',
       'Cache-Control': 'public, max-age=31536000, immutable',
       'Saturn-Node-Id': nodeId,
       'Saturn-Node-Version': NODE_VERSION
@@ -108,12 +108,24 @@ if (cluster.isPrimary) {
       return res.send(testCAR)
     }
 
+    let ipfsUrl = `https://ipfs.io/ipfs/${cid}`
+    if (path) {
+      ipfsUrl += `/${path}`
+    }
+    if (format) {
+      ipfsUrl += `?format=${format}`
+    }
+
     const controller = new AbortController()
     const timeout = setTimeout(() => {
       controller.abort()
     }, GATEWAY_TIMEOUT)
-    const ipfsReq = https.get(`https://gateway.ipfs.io/api/v0/dag/export?arg=${cid}`, {
-      agent: ipfsAgent, timeout: GATEWAY_TIMEOUT, headers: { 'User-Agent': NODE_UA }, signal: controller.signal
+
+    const ipfsReq = https.get(ipfsUrl, {
+      agent: ipfsAgent,
+      timeout: GATEWAY_TIMEOUT,
+      headers: { 'User-Agent': NODE_UA },
+      signal: controller.signal
     }, async fetchRes => {
       clearTimeout(timeout)
       const { statusCode } = fetchRes
@@ -123,7 +135,13 @@ if (cluster.isPrimary) {
         return res.sendStatus(502)
       }
 
-      streamCAR(fetchRes, res).catch(() => {})
+      res.set('Content-Type', fetchRes.headers['content-type'])
+
+      if (format === 'car') {
+        streamCAR(fetchRes, res).catch(() => {})
+      } else {
+        fetchRes.pipe(res)
+      }
     }).on('error', err => {
       clearTimeout(timeout)
       debug.extend('error')(`Error fetching from IPFS gateway for ${cid}: ${err.name} ${err.message}`)
@@ -145,59 +163,7 @@ if (cluster.isPrimary) {
         ipfsReq.destroy()
       }
     })
-  })
-
-  app.get('/cid/:cid/:path*', async (req, res) => {
-    const cid = req.params.cid
-    const path = req.params.path + req.params[0]
-
-    debug('Cache miss for %s/%s', cid, path)
-
-    res.set({
-      'Content-Type': mimeTypes.lookup(path) || 'application/octet-stream',
-      'Cache-Control': 'public, max-age=31536000, immutable',
-      'Saturn-Node-Id': nodeId,
-      'Saturn-Node-Version': NODE_VERSION
-    })
-
-    const controller = new AbortController()
-    const timeout = setTimeout(() => {
-      controller.abort()
-    }, GATEWAY_TIMEOUT)
-    const ipfsReq = https.get(`https://127.0.0.1/cid/${cid}?clientId=${req.query.clientId}`, {
-      agent: localAgent, timeout: GATEWAY_TIMEOUT, headers: { 'User-Agent': NODE_UA }, signal: controller.signal
-    }, async fetchRes => {
-      clearTimeout(timeout)
-      const { statusCode } = fetchRes
-      if (statusCode !== 200) {
-        debug.extend('error')(`Invalid response from IPFS gateway (${statusCode}) for ${cid}`)
-        fetchRes.resume()
-        return res.sendStatus(502)
-      }
-
-      extractPathFromCar(fetchRes, cid + '/' + path, res).catch(() => {})
-    }).on('error', err => {
-      clearTimeout(timeout)
-      debug.extend('error')(`Error fetching from IPFS gateway for ${cid}: ${err.name} ${err.message}`)
-      if (controller.signal.aborted) {
-        return res.sendStatus(504)
-      }
-      res.sendStatus(502)
-    }).on('timeout', () => {
-      clearTimeout(timeout)
-      debug.extend('error')(`Timeout from IPFS gateway for ${cid}`)
-      ipfsReq.destroy()
-      res.destroy()
-    })
-
-    req.on('close', () => {
-      clearTimeout(timeout)
-      if (!res.writableEnded) {
-        debug.extend('error')('Client aborted early, terminating gateway request')
-        ipfsReq.destroy()
-      }
-    })
-  })
+  }
 
   addRegisterCheckRoute(app)
 
@@ -206,6 +172,19 @@ if (cluster.isPrimary) {
   })
 
   trapServer(server)
+}
+
+function getResponseFormat (req) {
+  // ipfs gw returns default format for invalid formats
+  if (req.query.format) {
+    return req.query.format
+  } else if (req.headers.accept === 'application/vnd.ipld.car') {
+    return 'car'
+  } else if (req.headers.accept === 'application/vnd.ipld.raw') {
+    return 'raw'
+  } else {
+    return null
+  }
 }
 
 async function shutdownCluster () {
