@@ -61,11 +61,13 @@ server {
         proxy_set_header        Connection      "";
 
         proxy_cache             my_cache;
-        proxy_cache_key         $scheme$proxy_host$uri$format_final$arg_sc;
+        proxy_cache_key         $scheme$proxy_host$uri$format_final;
         proxy_cache_lock        on;
         proxy_cache_valid       180d;
         proxy_cache_lock_age    2m;
         proxy_cache_use_stale   error timeout invalid_header updating http_502 http_503 http_504 http_429;
+        proxy_no_cache          $arg_nocache;
+        proxy_cache_bypass      $arg_nocache;
 
         add_header 'Saturn-Cache-Status'            $upstream_cache_status;
         add_header 'Saturn-Transfer-Id'             $request_id;
