@@ -14,7 +14,7 @@ import {
   PORT,
   TESTING_CID
 } from './config.js'
-import { extractPathFromCar, streamCAR } from './utils/car.js'
+import { streamCAR } from './utils/car.js'
 import { trapServer } from './utils/trap.js'
 import { debug } from './utils/logging.js'
 
