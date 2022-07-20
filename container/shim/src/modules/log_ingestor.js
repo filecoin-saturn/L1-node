@@ -80,13 +80,17 @@ async function parseLogs () {
 
       if (vars.request?.startsWith('/ipfs/') && vars.status === 200) {
         const { clientAddress, numBytesSent, request, requestId, localTime, requestDuration, args, range, cacheHit, referrer, userAgent } = vars
-        const cid = request.replace('/ipfs/', '')
+        const cidPath = request.replace('/ipfs/', '')
+        const [cid, ...rest] = cidPath.split('/')
+        const filePath = rest.join('/')
+
         if (cid === TESTING_CID) continue
         const { clientId } = args
 
         pending.push({
           cacheHit,
           cid,
+          filePath,
           clientAddress,
           clientId,
           localTime,
