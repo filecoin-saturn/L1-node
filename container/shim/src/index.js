@@ -73,7 +73,6 @@ if (cluster.isPrimary) {
   })
 
   // Whenever nginx doesn't have a CAR file in cache, this is called
-  app.get('/cid/:cid', handleCID) // Deprecated
   app.get('/ipfs/:cid', handleCID)
   app.get('/ipfs/:cid/:path*', handleCID)
 

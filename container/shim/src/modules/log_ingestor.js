@@ -78,9 +78,9 @@ async function parseLogs () {
         return Object.assign(varsAgg, { [NGINX_LOG_KEYS_MAP[name] || name]: parsedValue })
       }, {})
 
-      if (vars.request?.startsWith('/cid/') && vars.status === 200) {
+      if (vars.request?.startsWith('/ipfs/') && vars.status === 200) {
         const { clientAddress, numBytesSent, request, requestId, localTime, requestDuration, args, range, cacheHit, referrer, userAgent } = vars
-        const cid = request.replace('/cid/', '')
+        const cid = request.replace('/ipfs/', '')
         if (cid === TESTING_CID) continue
         const { clientId } = args
 
