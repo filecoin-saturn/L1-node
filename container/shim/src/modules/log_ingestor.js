@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import fsPromises from 'node:fs/promises'
 import fetch from 'node-fetch'
+import prettyBytes from 'pretty-bytes'
 
 import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, nodeId, nodeToken, TESTING_CID } from '../config.js'
 import { debug as Debug } from '../utils/logging.js'
@@ -20,6 +21,8 @@ const NGINX_LOG_KEYS_MAP = {
   ucs: 'cacheHit'
 }
 
+const TWO_GIGABYTES = 2147483647
+
 let pending = []
 let fh, hasRead
 let parseLogsTimer
@@ -38,14 +41,22 @@ export async function initLogIngestor () {
 
 async function parseLogs () {
   clearTimeout(parseLogsTimer)
+  const stat = await fh.stat()
+
+  if (stat.size > TWO_GIGABYTES) {
+    // Got to big we can't read it into single buffer.
+    // TODO: stream read it
+    await fh.truncate()
+  }
+
   const read = await fh.readFile()
 
+  let valid = 0
+  let hits = 0
   if (read.length > 0) {
     hasRead = true
     const lines = read.toString().trim().split('\n')
 
-    let valid = 0
-    let hits = 0
     for (const line of lines) {
       const vars = line.split('&&').reduce((varsAgg, currentValue) => {
         const [name, ...value] = currentValue.split('=')
@@ -106,7 +117,7 @@ async function parseLogs () {
       }
     }
     if (valid > 0) {
-      debug(`Parsed ${valid} valid retrievals with hit rate of ${(hits / valid * 100).toFixed(0)}%`)
+      debug(`Parsed ${valid} valid retrievals in ${prettyBytes(read.length)} with hit rate of ${(hits / valid * 100).toFixed(0)}%`)
     }
   } else {
     if (hasRead) {
@@ -116,7 +127,7 @@ async function parseLogs () {
       fh = await openFileHandle()
     }
   }
-  parseLogsTimer = setTimeout(parseLogs, 10_000)
+  parseLogsTimer = setTimeout(parseLogs, Math.max(10_000 - valid, 1000))
 }
 
 async function openFileHandle () {
@@ -125,12 +136,14 @@ async function openFileHandle () {
 
 export async function submitRetrievals () {
   clearTimeout(submitRetrievalsTimer)
-  if (pending.length > 0) {
+  const length = pending.length
+  if (length > 0) {
     const body = {
       nodeId,
       filAddress: FIL_WALLET_ADDRESS,
       bandwidthLogs: pending
     }
+    pending = []
     try {
       await fetch(LOG_INGESTOR_URL, {
         method: 'POST',
@@ -140,11 +153,11 @@ export async function submitRetrievals () {
           'Content-Type': 'application/json'
         }
       })
-      debug(`Submitted pending ${pending.length} retrievals to wallet ${FIL_WALLET_ADDRESS}`)
-      pending = []
+      debug(`Submitted pending ${length} retrievals to wallet ${FIL_WALLET_ADDRESS}`)
     } catch (err) {
       debug(`Failed to submit pending retrievals ${err.name} ${err.message}`)
+      pending.push(...body.bandwidthLogs)
     }
   }
-  submitRetrievalsTimer = setTimeout(submitRetrievals, 60_000)
+  submitRetrievalsTimer = setTimeout(submitRetrievals, Math.max(60_000 - length, 10_000))
 }
