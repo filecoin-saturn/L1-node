@@ -19,7 +19,7 @@ map $format_query $format_final {
 }
 
 server {
-    listen 443 default_server ssl http2;
+    listen 443 default_server ssl http2 reuseport;
 
     ssl_certificate             /usr/src/app/shared/ssl/node.crt;
     ssl_certificate_key         /usr/src/app/shared/ssl/node.key;
@@ -33,7 +33,7 @@ server {
     server_name _; # This is just an invalid value which will never trigger on a real hostname
     server_name_in_redirect off;
 
-    access_log  /var/log/nginx/node-access.log node;
+    access_log  /var/log/nginx/node-access.log node buffer=128k;
 
     limit_req   zone=one burst=200 nodelay;
 
@@ -96,7 +96,7 @@ server {
 }
 
 server {
-    listen 80 default_server;
+    listen 80 default_server reuseport;
 
     server_name _;
 
