@@ -35,7 +35,7 @@ server {
 
     access_log  /var/log/nginx/node-access.log node;
 
-    limit_req   zone=one burst=1000;
+    limit_req   zone=one burst=200 nodelay;
 
     root  /usr/src/app/;
 
