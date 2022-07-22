@@ -53,7 +53,7 @@ export async function getNICStats () {
       packetsReceived: Number(values[1]),
       packetsSent: Number(values[9])
     }
-  }).filter(Boolean).sort((a, b) => a.packetsSent - b.packetsSent)[0]
+  }).filter(Boolean).sort((a, b) => b.packetsSent - a.packetsSent)[0]
   debug(`NIC ${nicStats.interface}: ${prettyBytes(nicStats.bytesReceived)} downloaded / ${prettyBytes(nicStats.bytesSent)} uploaded`)
   return nicStats
 }
