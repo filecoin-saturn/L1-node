@@ -21,7 +21,7 @@ const NGINX_LOG_KEYS_MAP = {
   ucs: 'cacheHit'
 }
 
-const TWO_GIGABYTES = 2147483647
+const ONE_GIGABYTE = 1073741823
 
 let pending = []
 let fh, hasRead
@@ -43,8 +43,8 @@ async function parseLogs () {
   clearTimeout(parseLogsTimer)
   const stat = await fh.stat()
 
-  if (stat.size > TWO_GIGABYTES) {
-    // Got to big we can't read it into single buffer.
+  if (stat.size > ONE_GIGABYTE) {
+    // Got to big we can't read it into single string
     // TODO: stream read it
     await fh.truncate()
   }
