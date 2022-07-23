@@ -156,7 +156,7 @@ export async function submitRetrievals () {
       debug(`Submitted pending ${length} retrievals to wallet ${FIL_WALLET_ADDRESS}`)
     } catch (err) {
       debug(`Failed to submit pending retrievals ${err.name} ${err.message}`)
-      pending.push(...body.bandwidthLogs)
+      pending = body.bandwidthLogs.concat(pending)
     }
   }
   submitRetrievalsTimer = setTimeout(submitRetrievals, Math.max(60_000 - length, 10_000))
