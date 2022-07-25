@@ -33,7 +33,8 @@ The node returns CAR files from cache or falls back to inner level nodes.
 
 1. Install docker ([Instructions here](https://docs.docker.com/engine/install/#server))
 2. Authenticate docker with the GitHub Container Registry ([Instructions here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry))
-3. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `.bashrc` and `/etc/environment`
+3. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `/etc/environment` (global) and load them
+   - If **Main network:** Set `SATURN_NETWORK` to `main` too
 4. Run the docker image:
 
    **Test network:**
@@ -57,14 +58,13 @@ The node returns CAR files from cache or falls back to inner level nodes.
     ```
     
 5. Check logs with `docker logs -f saturn-node`
-6. Wait for the sign up to happen with the orchestrator and the registration to DNS (this may take several minutes)
+6. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
 7. Download the [`update.sh`](update.sh) script
 
    ```shell
    wget -O $HOME/update.sh https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh && chmod +x $HOME/update.sh
    ```
-8. **Main network:** Set `SATURN_NETWORK` to `main` in `.bashrc` and `/etc/environment`
-9. Setup the cron to run every 5 minutes:
+8. Setup the cron to run every 5 minutes:
 
    ```shell
    crontab -e
@@ -80,11 +80,9 @@ The node returns CAR files from cache or falls back to inner level nodes.
 
 ## Developing
 
-In development, to avoid an automatic CI/CD deployment to the test network when any change is made to the `container/` directory, include `[skip ci]` in the `git commit` message. Like:
-
-```shell
-git commit -m "my commit message [skip ci]"
-```
+### Requirements
+1. Run orchestrator locally
+2. Self-signed certificate
 
 ### Build
 
@@ -119,6 +117,11 @@ Run the docker container with
   git push --follow-tags
   ```
 
+In development, to avoid an automatic CI/CD deployment to the test network when any change is made to the `container/` directory, include `[skip ci]` in the `git commit` message. Like:
+
+```shell
+git commit -m "my commit message [skip ci]"
+```
 
 ## Files
 
