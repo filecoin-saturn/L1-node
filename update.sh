@@ -24,7 +24,7 @@ fi
 
 echo -n $(date -u) "Checking for Saturn L1 node updates... "
 
-out=$(sudo docker pull ghcr.io/filecoin-project/saturn-node:$SATURN_NETWORK)
+out=$(sudo docker pull ghcr.io/filecoin-saturn/l1-node:$SATURN_NETWORK)
 
 if [[ $out != *"up to date"* ]]; then
   echo $(date -u) "New Saturn L1 node version found!"
