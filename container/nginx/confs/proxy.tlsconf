@@ -33,7 +33,7 @@ server {
     server_name _; # This is just an invalid value which will never trigger on a real hostname
     server_name_in_redirect off;
 
-    access_log  /var/log/nginx/node-access.log node buffer=128k;
+    access_log  /var/log/nginx/node-access.log node buffer=256k;
 
     limit_req   zone=one burst=200 nodelay;
 
@@ -63,7 +63,7 @@ server {
         proxy_cache             my_cache;
         proxy_cache_key         $scheme$proxy_host$uri$format_final;
         proxy_cache_lock        on;
-        proxy_cache_valid       180d;
+        proxy_cache_valid       365d;
         proxy_cache_lock_age    2m;
         proxy_cache_use_stale   error timeout invalid_header updating http_502 http_503 http_504 http_429;
         proxy_no_cache          $arg_nocache;
