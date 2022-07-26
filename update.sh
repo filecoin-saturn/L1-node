@@ -11,7 +11,7 @@ fi
 echo -n $(date -u) "Checking for update.sh script updates... "
 
 target=$HOME/update.sh
-if wget -O "$target.tmp" -T 10 -t 3 "https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh" && [[ -s "$target.tmp" ]] && [ $(stat -c %s "$target.tmp") -ne $(stat -c %s "$target") ]
+if wget -O "$target.tmp" -T 10 -t 3 "https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh" && [[ -s "$target.tmp" ]] && [ $(stat -c %s "$target.tmp") -ne $(stat -c %s "$target") ]
 then
   mv -f "$target.tmp" "$target"
   chmod +x "$target"
