@@ -148,6 +148,8 @@ export async function submitRetrievals () {
     }
     pending = []
     try {
+      debug(`Submitting ${length} pending retrievals`)
+      const startTime = Date.now()
       await fetch(LOG_INGESTOR_URL, {
         method: 'POST',
         body: JSON.stringify(body),
@@ -156,7 +158,7 @@ export async function submitRetrievals () {
           'Content-Type': 'application/json'
         }
       })
-      debug(`Submitted pending ${length} retrievals to wallet ${FIL_WALLET_ADDRESS}`)
+      debug(`Submitted ${length} retrievals to wallet ${FIL_WALLET_ADDRESS} in ${Date.now() - startTime}ms`)
     } catch (err) {
       debug(`Failed to submit pending retrievals ${err.name} ${err.message}`)
       pending = body.bandwidthLogs.concat(pending)
