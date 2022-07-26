@@ -3,6 +3,8 @@ import fsPromises from 'node:fs/promises'
 import { cpus } from 'node:os'
 import express from 'express'
 import mimeTypes from 'mime-types'
+import timers from 'node:timers/promises'
+import assert from 'node:assert'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
 import {
@@ -46,15 +48,17 @@ if (cluster.isPrimary) {
   process.on('SIGQUIT', shutdownCluster)
   process.on('SIGINT', shutdownCluster)
 
-  setTimeout(async function () {
-    await register(true).catch(err => {
-      debug(`Failed to register ${err.name} ${err.message}`)
-      process.exit(1)
-    })
+  await timers.setTimeout(500)
 
-    // Start log ingestor
-    await initLogIngestor()
-  }, 500)
+  try {
+    await register(true)
+  } catch (err) {
+    debug(`Failed to register ${err.name} ${err.stack}`)
+    process.exit(1)
+  }
+
+  // Start log ingestor
+  await initLogIngestor()
 } else {
   const ipfsAgent = new https.Agent({
     keepAlive: true,
@@ -91,9 +95,10 @@ if (cluster.isPrimary) {
     })
 
     if (req.headers.range) {
-      let [start, end] = req.headers.range.split('=')[1].split('-')
-      start = parseInt(start, 10)
-      end = parseInt(end, 10)
+      const range = req.headers.range.split('=')?[1]?.split('-')
+      assert(range, 'TODO')
+      const start = Number(range[0])
+      const end = Number(range[0])
 
       res.set({
         'Accept-Ranges': 'bytes',
@@ -120,6 +125,8 @@ if (cluster.isPrimary) {
       controller.abort()
     }, GATEWAY_TIMEOUT)
 
+    // Use node-fetch or undici instead, the `"error"`
+    // event makes this difficult to consume
     const ipfsReq = https.get(ipfsUrl, {
       agent: ipfsAgent,
       timeout: GATEWAY_TIMEOUT,
