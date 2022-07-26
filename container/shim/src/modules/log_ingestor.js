@@ -118,9 +118,6 @@ async function parseLogs () {
     }
     if (valid > 0) {
       debug(`Parsed ${valid} valid retrievals in ${prettyBytes(read.length)} with hit rate of ${(hits / valid * 100).toFixed(0)}%`)
-      if (pending > 10000) {
-        submitRetrievals()
-      }
     }
   } else {
     if (hasRead) {
