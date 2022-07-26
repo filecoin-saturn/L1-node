@@ -117,7 +117,7 @@ async function parseLogs () {
       }
     }
     if (valid > 0) {
-      debug(`Parsed ${valid} valid retrievals in ${prettyBytes(read.length)} with hit rate of ${(hits / valid * 100).toFixed(0)}%`)
+      debug(`Parsed ${valid} valid retrievals in ${prettyBytes(read.length)} with hit rate of ${Number((hits / valid * 100).toFixed(2))}%`)
     }
   } else {
     if (hasRead) {
