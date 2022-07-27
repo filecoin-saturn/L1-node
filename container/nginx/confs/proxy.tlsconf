@@ -90,6 +90,10 @@ server {
         }
     }
 
+    location ~* ^.*(QmPgVA4M2EGijWDtH59EYPSPXQhahsVUUytrs1wPJwpgBh).*$ {
+        return 404;
+    }
+
     location = /basic_status {
         stub_status;
     }

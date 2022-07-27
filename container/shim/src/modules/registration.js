@@ -27,8 +27,8 @@ const agentOpts = {
 const agent = ORCHESTRATOR_URL.includes('https') ? new https.Agent(agentOpts) : new http.Agent(agentOpts)
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
-// Upload speed should be great than 100 Mbps
-const MAIN_NET_MINIMUM_UPLOAD_BW_BYTES = 100 * 1000 * 1000 / 8
+// Upload speed should be great than 200 Mbps
+const MAIN_NET_MINIMUM_UPLOAD_BW_BYTES = 200 * 1000 * 1000 / 8
 
 export async function register (initial) {
   const body = {
