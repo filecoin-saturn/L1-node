@@ -81,7 +81,7 @@ if (cluster.isPrimary) {
     const path = req.params.path ? (req.params.path + req.params[0]) : null
     const format = getResponseFormat(req)
 
-    debug('Cache miss for %s/%s', cid, path)
+    debug(`Cache miss for ${cid}` + (path ? `/${path}` : ''))
 
     res.set({
       'Content-Type': mimeTypes.lookup(path) || 'application/octet-stream',

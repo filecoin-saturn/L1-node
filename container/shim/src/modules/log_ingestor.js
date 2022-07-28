@@ -89,8 +89,8 @@ async function parseLogs () {
         return Object.assign(varsAgg, { [NGINX_LOG_KEYS_MAP[name] || name]: parsedValue })
       }, {})
 
-      if (vars.request?.startsWith('/ipfs/') && vars.status === 200) {
-        const { clientAddress, numBytesSent, request, requestId, localTime, requestDuration, args, range, cacheHit, referrer, userAgent } = vars
+      if (vars.request?.startsWith('/ipfs/')) {
+        const { clientAddress, numBytesSent, request, requestId, localTime, requestDuration, args, range, cacheHit, referrer, userAgent, status } = vars
         const cidPath = request.replace('/ipfs/', '')
         const [cid, ...rest] = cidPath.split('/')
         const filePath = rest.join('/')
@@ -110,7 +110,8 @@ async function parseLogs () {
           referrer,
           requestDuration,
           requestId,
-          userAgent
+          userAgent,
+          httpStatusCode: status
         })
         valid++
         if (cacheHit) hits++
