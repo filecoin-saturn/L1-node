@@ -119,7 +119,8 @@ export async function register (initial) {
       }
 
       if (ipGeo) {
-        debug(`Node's geolocation is set to ${ipGeo.city}, ${ipGeo.region}, ${ipGeo.country}. If this is wrong, please open an issue at https://github.com/filecoin-project/saturn-node/issues`)
+        debug(`Node's geolocation is set to ${ipGeo.city}, ${ipGeo.region}, ${ipGeo.country}. ` +
+            'If this is wrong, please open an issue at https://github.com/filecoin-saturn/L1-node/issues')
       }
 
       updateNodeToken(token)
