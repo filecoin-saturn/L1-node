@@ -90,8 +90,8 @@ server {
         }
     }
 
-    location ~* ^.*(QmPgVA4M2EGijWDtH59EYPSPXQhahsVUUytrs1wPJwpgBh).*$ {
-        return 404;
+    location ~* ^.*(QmPgVA4M2EGijWDtH59EYPSPXQhahsVUUytrs1wPJwpgBh|bafybeidgnebuxvarpnw2grmkgnamu6cv6|bafkreibk3n7kxz6ep4g6z6wr737jbd3upibwkzskp6olu7at7qa6bhrrc4).*$ {
+        return 410;
     }
 
     location = /basic_status {
