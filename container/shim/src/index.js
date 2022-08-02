@@ -2,7 +2,7 @@ import fsPromises from 'node:fs/promises'
 import { cpus } from 'node:os'
 import express from 'express'
 import mimeTypes from 'mime-types'
-import { https } from 'follow-redirects'
+import followRedirects from 'follow-redirects'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
 import {
@@ -20,6 +20,8 @@ import { debug } from './utils/logging.js'
 
 import cluster from 'node:cluster'
 import { submitRetrievals, initLogIngestor } from './modules/log_ingestor.js'
+
+const { https } = followRedirects
 
 const GATEWAY_TIMEOUT = 120_000
 

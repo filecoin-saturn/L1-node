@@ -90,7 +90,7 @@ server {
         }
     }
 
-    location ~* ^.*(QmPgVA4M2EGijWDtH59EYPSPXQhahsVUUytrs1wPJwpgBh|bafybeidgnebuxvarpnw2grmkgnamu6cv6|bafkreibk3n7kxz6ep4g6z6wr737jbd3upibwkzskp6olu7at7qa6bhrrc4).*$ {
+    location ~* ^.*(QmPgVA4M2EGijWDtH59EYPSPXQhahsVUUytrs1wPJwpgBh|bafybeidgnebuxvarpnw2grmkgnamu6cv6|bafkreibk3n7kxz6ep4g6z6wr737jbd3upibwkzskp6olu7at7qa6bhrrc4|QmTuWjNEmtUd2HGqH5UJzBJ83EFE1yVLxsfgQvUmnFDdan).*$ {
         return 410;
     }
 
