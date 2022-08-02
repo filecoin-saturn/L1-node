@@ -20,8 +20,8 @@ The node returns CAR files from cache or falls back to inner level nodes.
 - Docker installed ([Instructions here](https://docs.docker.com/engine/install/#server))
 - Modern CPU with 4 cores (8+ cores recommended)
 - 1Gbps upload bandwidth minimum (10Gbps+ recommended)<sup>1</sup>
-- 16GB RAM minimum (64GB+ recommended)
-- 1TB SSD minimum (4TB+ NVMe SSD in RAID0 recommended)<sup>2</sup>
+- 8GB RAM minimum (32GB+ recommended)
+- 1TB SSD minimum (4x1TB+ NVMe SSD in RAID 5 or RAID 10 recommended)<sup>2</sup>
 
 <sub>
 <sup>1</sup> The more you can serve &rarr; greater FIL earnings<br>
