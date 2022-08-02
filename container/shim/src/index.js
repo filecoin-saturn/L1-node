@@ -1,8 +1,8 @@
-import https from 'node:https'
 import fsPromises from 'node:fs/promises'
 import { cpus } from 'node:os'
 import express from 'express'
 import mimeTypes from 'mime-types'
+import { https } from 'follow-redirects'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
 import {
