@@ -22,8 +22,6 @@ else
   rm -f "$target.tmp"
 fi
 
-sudo rm -rf shared/cache
-
 echo -n $(date -u) "Checking for Saturn L1 node updates... "
 
 out=$(sudo docker pull ghcr.io/filecoin-saturn/l1-node:$SATURN_NETWORK)
