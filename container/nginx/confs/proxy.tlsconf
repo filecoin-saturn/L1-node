@@ -27,8 +27,14 @@ server {
     ssl_ciphers                 HIGH:!aNULL:!MD5;
     ssl_prefer_server_ciphers   on;
     ssl_session_cache           shared:SSL:10m;
-    ssl_session_timeout         10m;
+    ssl_session_timeout         1d;
+    ssl_session_tickets         off;
     ssl_buffer_size             4k;
+    ssl_stapling                on;
+    ssl_stapling_verify         on;
+    ssl_trusted_certificate     /usr/src/app/shared/ssl/node.crt;
+
+    resolver    8.8.8.8 8.8.4.4 valid=300s;
 
     server_name _; # This is just an invalid value which will never trigger on a real hostname
     server_name_in_redirect off;
@@ -40,7 +46,8 @@ server {
     root  /usr/src/app/;
 
     location = / {
-        return 302 http://strn.network;
+        add_header 'Strict-Transport-Security'      'max-age=63072000; includeSubDomains; preload' always;
+        return 302 https://strn.network;
     }
 
     location / {
