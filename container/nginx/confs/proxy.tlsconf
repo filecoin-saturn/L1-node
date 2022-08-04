@@ -26,7 +26,7 @@ server {
     ssl_protocols               TLSv1.2 TLSv1.3;
     ssl_ciphers                 HIGH:!aNULL:!MD5;
     ssl_prefer_server_ciphers   on;
-    ssl_session_cache           shared:SSL:10m;
+    ssl_session_cache           shared:SSL:20m;
     ssl_session_timeout         1d;
     ssl_session_tickets         off;
     ssl_buffer_size             4k;
@@ -34,12 +34,12 @@ server {
     ssl_stapling_verify         on;
     ssl_trusted_certificate     /usr/src/app/shared/ssl/node.crt;
 
-    resolver    8.8.8.8 8.8.4.4 valid=300s;
+    resolver    8.8.8.8 8.8.4.4 valid=600s;
 
     server_name _; # This is just an invalid value which will never trigger on a real hostname
     server_name_in_redirect off;
 
-    access_log  /var/log/nginx/node-access.log node buffer=256k;
+    access_log  /var/log/nginx/node-access.log node buffer=128k;
 
     limit_req   zone=one burst=200 nodelay;
 
