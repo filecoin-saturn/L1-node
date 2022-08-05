@@ -122,9 +122,14 @@ if (cluster.isPrimary) {
       return res.send(testCAR)
     }
 
-    let ipfsUrl = 'https://ipfs.io' + req.path
+    const ipfsUrl = new URL('https://ipfs.io' + req.path)
     if (format) {
-      ipfsUrl += `?format=${format}`
+      ipfsUrl.searchParams.set('format', format)
+    }
+    for (const key of ['filename', 'download']) {
+      if (key in req.query) {
+        ipfsUrl.searchParams.set(key, req.query[key])
+      }
     }
 
     const controller = new AbortController()

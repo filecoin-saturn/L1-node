@@ -68,7 +68,7 @@ server {
         proxy_set_header        Connection      "";
 
         proxy_cache             my_cache;
-        proxy_cache_key         $uri$format_final;
+        proxy_cache_key         $uri$format_final$arg_filename$arg_download;
         proxy_cache_lock        on;
         proxy_cache_valid       365d;
         proxy_cache_lock_age    2m;
