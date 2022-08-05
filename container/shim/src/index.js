@@ -24,6 +24,19 @@ import { submitRetrievals, initLogIngestor } from './modules/log_ingestor.js'
 const { https } = followRedirects
 
 const GATEWAY_TIMEOUT = 120_000
+const PROXY_RESPONSE_HEADERS = [
+  'content-disposition',
+  'content-type',
+  'content-length',
+  'cache-control',
+  'etag',
+  'last-modified',
+  'location',
+  'x-ipfs-path',
+  'x-ipfs-roots',
+  'x-ipfs-datasize',
+  'x-content-type-options'
+]
 
 if (cluster.isPrimary) {
   debug('Saturn L1 Node')
@@ -87,8 +100,7 @@ if (cluster.isPrimary) {
     debug(`Cache miss for ${req.path}`)
 
     res.set({
-      'Content-Type': mimeTypes.lookup(path) || 'application/octet-stream',
-      'Cache-Control': 'public, max-age=31536000, immutable',
+      'Content-Type': mimeTypes.lookup(req.path) || 'application/octet-stream',
       'Saturn-Node-Id': nodeId,
       'Saturn-Node-Version': NODE_VERSION
     })
@@ -128,13 +140,12 @@ if (cluster.isPrimary) {
     }, async fetchRes => {
       clearTimeout(timeout)
       const { statusCode } = fetchRes
-      if (statusCode !== 200) {
+      if (statusCode >= 400) {
         debug.extend('error')(`Invalid response from IPFS gateway (${statusCode}) for ${cid}`)
-        fetchRes.resume()
-        return res.sendStatus(502)
       }
 
-      res.set('Content-Type', fetchRes.headers['content-type'])
+      res.status(statusCode)
+      proxyResponseHeaders(res, fetchRes)
 
       if (format === 'car') {
         streamCAR(fetchRes, res).catch(() => {})
@@ -171,6 +182,15 @@ if (cluster.isPrimary) {
   })
 
   trapServer(server)
+}
+
+// https://github.com/ipfs/specs/blob/main/http-gateways/PATH_GATEWAY.md#response-headers
+function proxyResponseHeaders (nodeRes, ipfsRes) {
+  for (const key of PROXY_RESPONSE_HEADERS) {
+    if (key in ipfsRes.headers) {
+      nodeRes.set(key, ipfsRes.headers[key])
+    }
+  }
 }
 
 function getResponseFormat (req) {
