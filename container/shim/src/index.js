@@ -75,15 +75,16 @@ if (cluster.isPrimary) {
   })
 
   // Whenever nginx doesn't have a CAR file in cache, this is called
+  app.get('/ipns/:cid', handleCID)
+  app.get('/ipns/:cid/:path*', handleCID)
   app.get('/ipfs/:cid', handleCID)
   app.get('/ipfs/:cid/:path*', handleCID)
 
   async function handleCID (req, res) {
     const cid = req.params.cid
-    const path = req.params.path ? (req.params.path + req.params[0]) : null
     const format = getResponseFormat(req)
 
-    debug(`Cache miss for ${cid}` + (path ? `/${path}` : ''))
+    debug(`Cache miss for ${req.path}`)
 
     res.set({
       'Content-Type': mimeTypes.lookup(path) || 'application/octet-stream',
@@ -109,10 +110,7 @@ if (cluster.isPrimary) {
       return res.send(testCAR)
     }
 
-    let ipfsUrl = `https://ipfs.io/ipfs/${cid}`
-    if (path) {
-      ipfsUrl += `/${path}`
-    }
+    let ipfsUrl = 'https://ipfs.io' + req.path
     if (format) {
       ipfsUrl += `?format=${format}`
     }
