@@ -20,6 +20,8 @@ const NGINX_LOG_KEYS_MAP = {
   ua: 'userAgent',
   ucs: 'cacheHit'
 }
+const IPFS_PREFIX = '/ipfs/'
+const IPNS_PREFIX = '/ipns/'
 
 const ONE_GIGABYTE = 1073741823
 
@@ -89,9 +91,16 @@ async function parseLogs () {
         return Object.assign(varsAgg, { [NGINX_LOG_KEYS_MAP[name] || name]: parsedValue })
       }, {})
 
-      if (vars.request?.startsWith('/ipfs/')) {
-        const { clientAddress, numBytesSent, request, requestId, localTime, requestDuration, args, range, cacheHit, referrer, userAgent, status } = vars
-        const cidPath = request.replace('/ipfs/', '')
+      const isIPFS = vars.request?.startsWith(IPFS_PREFIX)
+      const isIPNS = vars.request?.startsWith(IPNS_PREFIX)
+
+      if (isIPFS || isIPNS) {
+        const {
+          clientAddress, numBytesSent, request, requestId, localTime,
+          requestDuration, args, range, cacheHit, referrer, userAgent, status
+        } = vars
+
+        const cidPath = request.replace(IPFS_PREFIX, '').replace(IPNS_PREFIX, '')
         const [cid, ...rest] = cidPath.split('/')
         const filePath = rest.join('/')
 
@@ -100,6 +109,7 @@ async function parseLogs () {
 
         pending.push({
           cacheHit,
+          pathPrefix: isIPFS ? IPFS_PREFIX : IPNS_PREFIX,
           cid,
           filePath,
           clientAddress,
