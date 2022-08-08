@@ -59,7 +59,7 @@ server {
         proxy_buffering         on;
         proxy_http_version      1.1;
 
-        proxy_read_timeout          125s;
+        proxy_read_timeout          3m;
         proxy_connect_timeout       125s;
         proxy_ignore_client_abort   on;
 
@@ -68,14 +68,15 @@ server {
         proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header        Connection      "";
 
-        proxy_cache             my_cache;
-        proxy_cache_key         $uri$format_final$arg_filename$arg_download;
-        proxy_cache_lock        on;
-        proxy_cache_valid       200 301 302 410     365d;
-        proxy_cache_lock_age    2m;
-        proxy_cache_use_stale   error timeout invalid_header updating http_502 http_503 http_504 http_429;
-        proxy_cache_bypass      $arg_nocache;
-        proxy_no_cache          $arg_nocache;
+        proxy_cache                 my_cache;
+        proxy_cache_key             $uri$format_final$arg_filename$arg_download;
+        proxy_cache_lock            on;
+        proxy_cache_valid           200 301 302 410     365d;
+        proxy_cache_lock_age        2m;
+        proxy_cache_lock_timeout    2m;
+        proxy_cache_use_stale       error timeout invalid_header updating http_502 http_503 http_504 http_429;
+        proxy_cache_bypass          $arg_nocache;
+        proxy_no_cache              $arg_nocache;
 
         add_header 'Saturn-Cache-Status'            $upstream_cache_status;
         add_header 'Saturn-Transfer-Id'             $request_id;
