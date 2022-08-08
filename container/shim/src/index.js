@@ -150,7 +150,7 @@ if (cluster.isPrimary) {
       }
 
       res.status(statusCode)
-      proxyResponseHeaders(res, fetchRes)
+      proxyResponseHeaders(fetchRes, res)
 
       if (format === 'car') {
         streamCAR(fetchRes, res).catch(() => {})
@@ -190,7 +190,7 @@ if (cluster.isPrimary) {
 }
 
 // https://github.com/ipfs/specs/blob/main/http-gateways/PATH_GATEWAY.md#response-headers
-function proxyResponseHeaders (nodeRes, ipfsRes) {
+function proxyResponseHeaders (ipfsRes, nodeRes) {
   for (const key of PROXY_RESPONSE_HEADERS) {
     if (key in ipfsRes.headers) {
       nodeRes.set(key, ipfsRes.headers[key])
