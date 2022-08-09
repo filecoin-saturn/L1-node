@@ -3,6 +3,7 @@ import { cpus } from 'node:os'
 import express from 'express'
 import mimeTypes from 'mime-types'
 import followRedirects from 'follow-redirects'
+import timers from 'node:timers/promises'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
 import {
@@ -179,6 +180,15 @@ if (cluster.isPrimary) {
       }
     })
   }
+
+  app.get('/register/:l2id', async function (req, res) {
+    res.write(`${JSON.stringify({ requestId: 1, cid: 'abc' })}\n`)
+    await timers.setTimeout(2000)
+    res.write(`${JSON.stringify({ requestId: 2, cid: 'def' })}\n`)
+    await timers.setTimeout(2000)
+    res.write(`${JSON.stringify({ requestId: 2, cid: 'ghi' })}\n`)
+    await timers.setTimeout(2000)
+  })
 
   addRegisterCheckRoute(app)
 
