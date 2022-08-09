@@ -52,9 +52,9 @@ if (cluster.isPrimary) {
   debug.extend('important')(NODE_OPERATOR_EMAIL ? `Payment notifications and important update will be sent to: ${NODE_OPERATOR_EMAIL}` : 'NO OPERATOR EMAIL SET, WE HIGHLY RECOMMEND SETTING ONE')
   debug.extend('important')('===== IMPORTANT =====')
 
-  //for (let i = 0; i < cpus().length; i++) {
-    cluster.fork()
-  //}
+  // for (let i = 0; i < cpus().length; i++) {
+  cluster.fork()
+  // }
 
   cluster.on('exit', () => {
     if (Object.keys(cluster.workers).length === 0) {
