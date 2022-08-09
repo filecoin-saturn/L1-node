@@ -51,10 +51,6 @@ server {
     }
 
     location / {
-        if ($arg_clientId = "") {
-            return 403;
-        }
-
         proxy_pass              http://node_backend;
         proxy_buffering         on;
         proxy_http_version      1.1;
