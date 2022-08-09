@@ -3,7 +3,11 @@ import { cpus } from 'node:os'
 import express from 'express'
 import mimeTypes from 'mime-types'
 import followRedirects from 'follow-redirects'
-import timers from 'node:timers/promises'
+import crypto from 'node:crypto'
+import xorDistance from 'xor-distance'
+import { pipeline } from 'node:stream/promises'
+import pDefer from 'p-defer'
+import pTimeout from 'p-timeout'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
 import {
@@ -48,9 +52,9 @@ if (cluster.isPrimary) {
   debug.extend('important')(NODE_OPERATOR_EMAIL ? `Payment notifications and important update will be sent to: ${NODE_OPERATOR_EMAIL}` : 'NO OPERATOR EMAIL SET, WE HIGHLY RECOMMEND SETTING ONE')
   debug.extend('important')('===== IMPORTANT =====')
 
-  for (let i = 0; i < cpus().length; i++) {
+  //for (let i = 0; i < cpus().length; i++) {
     cluster.fork()
-  }
+  //}
 
   cluster.on('exit', () => {
     if (Object.keys(cluster.workers).length === 0) {
@@ -80,6 +84,13 @@ if (cluster.isPrimary) {
   const app = express()
 
   const testCAR = await fsPromises.readFile('./public/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car')
+  const connectedL2Nodes = new Map()
+  function removeConnectedL2Node (id) {
+    connectedL2Nodes.get(id).res.end()
+    connectedL2Nodes.delete(id)
+  }
+
+  const openCARRequests = new Map()
 
   app.disable('x-powered-by')
   app.set('trust proxy', true)
@@ -123,6 +134,46 @@ if (cluster.isPrimary) {
       return res.send(testCAR)
     }
 
+    debug(`Fetch ${req.path} from L2s`)
+    const cidHash = crypto.createHash('sha512').update(cid).digest()
+    const l2NodeIDs = [...connectedL2Nodes.keys()]
+    const l2NodesWithDistance = l2NodeIDs.map(l2NodeID => ({
+      id: l2NodeID,
+      distance: xorDistance(
+        cidHash,
+        crypto.createHash('sha512').update(l2NodeID).digest()
+      )
+    }))
+    l2NodesWithDistance
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 3)
+      .forEach(({ id }) => {
+        const payload = {
+          requestId: crypto.randomUUID(),
+          cid
+        }
+        const { res } = connectedL2Nodes.get(id)
+        res.write(`${JSON.stringify(payload)}\n`)
+      })
+
+    const onResponse = pDefer()
+    openCARRequests.set(cid, onResponse)
+
+    let carResponse
+    try {
+      carResponse = await pTimeout(onResponse.promise, {
+        milliseconds: 10_000
+      })
+    } catch {}
+    if (carResponse) {
+      try {
+        await pipeline(carResponse.req, res)
+      } finally {
+        carResponse.res.end()
+      }
+    }
+
+    debug(`Fetch ${req.path} from IPFS`)
     const ipfsUrl = new URL('https://ipfs.io' + req.path)
     if (format) {
       ipfsUrl.searchParams.set('format', format)
@@ -181,13 +232,30 @@ if (cluster.isPrimary) {
     })
   }
 
-  app.get('/register/:l2id', async function (req, res) {
-    res.write(`${JSON.stringify({ requestId: 1, cid: 'abc' })}\n`)
-    await timers.setTimeout(2000)
-    res.write(`${JSON.stringify({ requestId: 2, cid: 'def' })}\n`)
-    await timers.setTimeout(2000)
-    res.write(`${JSON.stringify({ requestId: 2, cid: 'ghi' })}\n`)
-    await timers.setTimeout(2000)
+  app.get('/register/:l2id', function (req, res) {
+    const { l2id } = req.params
+    if (connectedL2Nodes.has(l2id)) {
+      removeConnectedL2Node(l2id)
+    }
+    connectedL2Nodes.set(l2id, { res })
+    const heartbeatInterval = setInterval(() => {
+      res.write('{}\n')
+    }, 5_000)
+    req.on('close', () => {
+      clearInterval(heartbeatInterval)
+      removeConnectedL2Node(l2id)
+    })
+  })
+
+  app.post('/data/:cid', async function (req, res) {
+    const { cid } = req.params
+    const openCARRequest = openCARRequests.get(cid)
+    if (!openCARRequest) {
+      res.end()
+      return
+    }
+    openCARRequests.delete(cid)
+    openCARRequest.resolve(req)
   })
 
   addRegisterCheckRoute(app)
