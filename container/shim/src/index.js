@@ -255,7 +255,7 @@ if (cluster.isPrimary) {
       return
     }
     openCARRequests.delete(cid)
-    openCARRequest.resolve(req)
+    openCARRequest.resolve({ req, res })
   })
 
   addRegisterCheckRoute(app)
