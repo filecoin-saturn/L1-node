@@ -88,8 +88,6 @@ if (cluster.isPrimary) {
   })
 
   // Whenever nginx doesn't have a CAR file in cache, this is called
-  app.get('/ipns/:cid', handleCID)
-  app.get('/ipns/:cid/:path*', handleCID)
   app.get('/ipfs/:cid', handleCID)
   app.get('/ipfs/:cid/:path*', handleCID)
 
