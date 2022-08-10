@@ -240,6 +240,9 @@ if (cluster.isPrimary) {
   }
 
   app.get('/register/:l2id', function (req, res) {
+    res.writeHead(200, {
+      'Cache-Control': 'no-cache'
+    })
     const { l2id } = req.params
     if (connectedL2Nodes.has(l2id)) {
       removeConnectedL2Node(l2id)
