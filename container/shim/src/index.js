@@ -250,24 +250,6 @@ if (cluster.isPrimary) {
     if (connectedL2Nodes.has(l2id)) {
       removeConnectedL2Node(l2id)
     }
-    connectedL2Nodes.set(l2id, { res })
-    const heartbeatInterval = setInterval(() => {
-      res.write('{}\n')
-    }, 1_000)
-    req.on('close', () => {
-      clearInterval(heartbeatInterval)
-      removeConnectedL2Node(l2id)
-    })
-  })
-
-  app.get('/register/:l2id', function (req, res) {
-    res.writeHead(200, {
-      'Cache-Control': 'no-cache'
-    })
-    const { l2id } = req.params
-    if (connectedL2Nodes.has(l2id)) {
-      removeConnectedL2Node(l2id)
-    }
     const cleanedUp = { value: false }
     connectedL2Nodes.set(l2id, { res, cleanedUp })
     const heartbeatInterval = setInterval(() => {
