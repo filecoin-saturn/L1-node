@@ -74,10 +74,10 @@ const app = express()
 
 const testCAR = await fsPromises.readFile('./public/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car')
 const connectedL2Nodes = new Map()
-function maybeRemoveConnectedL2Node (id) {
-  if (!connectedL2Nodes.has(id)) return
-  const { res } = connectedL2Nodes.get(id)
-  res.cleanedUp = true // TODO Find a cleaner solution
+
+function removeConnectedL2Node (id) {
+  const { res, cleanedUp } = connectedL2Nodes.get(id)
+  cleanedUp.value = true
   res.end()
   connectedL2Nodes.delete(id)
 }
@@ -234,14 +234,19 @@ app.get('/register/:l2id', function (req, res) {
     'Cache-Control': 'no-cache'
   })
   const { l2id } = req.params
-  maybeRemoveConnectedL2Node(l2id)
-  connectedL2Nodes.set(l2id, { res })
+  if (connectedL2Nodes.has(l2id)) {
+    removeConnectedL2Node(l2id)
+  }
+  const cleanedUp = { value: false }
+  connectedL2Nodes.set(l2id, { res, cleanedUp })
   const heartbeatInterval = setInterval(() => {
     res.write('{}\n')
   }, 1_000)
   req.on('close', () => {
     clearInterval(heartbeatInterval)
-    if (!res.cleanedUp) maybeRemoveConnectedL2Node(l2id)
+    if (!cleanedUp.value) {
+      removeConnectedL2Node(l2id)
+    }
   })
 })
 
