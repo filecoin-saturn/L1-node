@@ -75,6 +75,7 @@ const app = express()
 const testCAR = await fsPromises.readFile('./public/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car')
 const connectedL2Nodes = new Map()
 function removeConnectedL2Node (id) {
+  if (!connectedL2Nodes.has(id)) return
   connectedL2Nodes.get(id).res.end()
   connectedL2Nodes.delete(id)
 }
