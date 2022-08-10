@@ -16,7 +16,6 @@ import {
   NODE_UA,
   NODE_VERSION,
   nodeId,
-  PORT,
   TESTING_CID
 } from './config.js'
 import { streamCAR } from './utils/car.js'
@@ -26,6 +25,7 @@ import { debug } from './utils/logging.js'
 import { submitRetrievals, initLogIngestor } from './modules/log_ingestor.js'
 
 const { https } = followRedirects
+const PORT = process.argv[2] || 10361
 
 const GATEWAY_TIMEOUT = 120_000
 const PROXY_RESPONSE_HEADERS = [
@@ -74,9 +74,11 @@ const app = express()
 
 const testCAR = await fsPromises.readFile('./public/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car')
 const connectedL2Nodes = new Map()
-function removeConnectedL2Node (id) {
+function maybeRemoveConnectedL2Node (id) {
   if (!connectedL2Nodes.has(id)) return
-  connectedL2Nodes.get(id).res.end()
+  const { res } = connectedL2Nodes.get(id)
+  res.cleanedUp = true // TODO Find a cleaner solution
+  res.end()
   connectedL2Nodes.delete(id)
 }
 
@@ -232,16 +234,14 @@ app.get('/register/:l2id', function (req, res) {
     'Cache-Control': 'no-cache'
   })
   const { l2id } = req.params
-  if (connectedL2Nodes.has(l2id)) {
-    removeConnectedL2Node(l2id)
-  }
+  maybeRemoveConnectedL2Node(l2id)
   connectedL2Nodes.set(l2id, { res })
   const heartbeatInterval = setInterval(() => {
     res.write('{}\n')
   }, 1_000)
   req.on('close', () => {
     clearInterval(heartbeatInterval)
-    removeConnectedL2Node(l2id)
+    if (!res.cleanedUp) maybeRemoveConnectedL2Node(l2id)
   })
 })
 

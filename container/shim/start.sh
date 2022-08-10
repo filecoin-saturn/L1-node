@@ -21,4 +21,6 @@ else
 fi
 
 nginx -g "daemon off;" &
-exec node src/index.js
+node src/index.js 10361 &
+node src/index.js 10362 &
+for job in $(jobs -p); do wait "$job" || exit 1; done
