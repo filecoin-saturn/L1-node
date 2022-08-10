@@ -247,7 +247,7 @@ if (cluster.isPrimary) {
     connectedL2Nodes.set(l2id, { res })
     const heartbeatInterval = setInterval(() => {
       res.write('{}\n')
-    }, 5_000)
+    }, 1_000)
     req.on('close', () => {
       clearInterval(heartbeatInterval)
       removeConnectedL2Node(l2id)
