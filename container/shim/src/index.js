@@ -168,6 +168,7 @@ if (cluster.isPrimary) {
     if (carResponse) {
       try {
         await pipeline(carResponse.req, res)
+        return
       } finally {
         carResponse.res.end()
       }
