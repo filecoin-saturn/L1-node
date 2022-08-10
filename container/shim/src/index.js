@@ -16,6 +16,7 @@ import {
   NODE_UA,
   NODE_VERSION,
   nodeId,
+  PORT,
   TESTING_CID
 } from './config.js'
 import { streamCAR } from './utils/car.js'
@@ -25,7 +26,6 @@ import { debug } from './utils/logging.js'
 import { submitRetrievals, initLogIngestor } from './modules/log_ingestor.js'
 
 const { https } = followRedirects
-const PORT = process.argv[2] || 10361
 
 const GATEWAY_TIMEOUT = 120_000
 const PROXY_RESPONSE_HEADERS = [
