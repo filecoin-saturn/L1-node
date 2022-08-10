@@ -23,6 +23,7 @@ import { streamCAR } from './utils/car.js'
 import { trapServer } from './utils/trap.js'
 import { debug } from './utils/logging.js'
 
+import cluster from 'node:cluster'
 import { submitRetrievals, initLogIngestor } from './modules/log_ingestor.js'
 
 const { https } = followRedirects
@@ -42,232 +43,263 @@ const PROXY_RESPONSE_HEADERS = [
   'x-content-type-options'
 ]
 
-debug('Saturn L1 Node')
-debug.extend('id')(nodeId)
-debug.extend('version')(NODE_VERSION)
-debug.extend('important')('===== IMPORTANT =====')
-debug.extend('important')(`Earnings will be sent to Filecoin wallet address: ${FIL_WALLET_ADDRESS}`)
-debug.extend('important')(NODE_OPERATOR_EMAIL ? `Payment notifications and important update will be sent to: ${NODE_OPERATOR_EMAIL}` : 'NO OPERATOR EMAIL SET, WE HIGHLY RECOMMEND SETTING ONE')
-debug.extend('important')('===== IMPORTANT =====')
+if (cluster.isPrimary) {
+  debug('Saturn L1 Node')
+  debug.extend('id')(nodeId)
+  debug.extend('version')(NODE_VERSION)
+  debug.extend('important')('===== IMPORTANT =====')
+  debug.extend('important')(`Earnings will be sent to Filecoin wallet address: ${FIL_WALLET_ADDRESS}`)
+  debug.extend('important')(NODE_OPERATOR_EMAIL ? `Payment notifications and important update will be sent to: ${NODE_OPERATOR_EMAIL}` : 'NO OPERATOR EMAIL SET, WE HIGHLY RECOMMEND SETTING ONE')
+  debug.extend('important')('===== IMPORTANT =====')
 
-process.on('SIGQUIT', shutdown)
-process.on('SIGINT', shutdown)
+  for (let i = 0; i < cpus().length; i++) {
+    cluster.fork()
+  }
 
-setTimeout(async function () {
-  await register(true).catch(err => {
-    debug(`Failed to register ${err.name} ${err.message}`)
-    process.exit(1)
+  cluster.on('exit', () => {
+    if (Object.keys(cluster.workers).length === 0) {
+      debug('All servers closed')
+      shutdownCluster()
+    }
   })
 
-  // Start log ingestor
-  await initLogIngestor()
-}, 500)
+  process.on('SIGQUIT', shutdownCluster)
+  process.on('SIGINT', shutdownCluster)
 
-const id = Math.random().toString(16).slice(2)
+  setTimeout(async function () {
+    await register(true).catch(err => {
+      debug(`Failed to register ${err.name} ${err.message}`)
+      process.exit(1)
+    })
 
-const ipfsAgent = new https.Agent({
-  keepAlive: true,
-  maxSockets: Math.floor(256 / cpus().length)
-})
+    // Start log ingestor
+    await initLogIngestor()
+  }, 500)
+} else {
+  const id = Math.random().toString(16).slice(2)
 
-const app = express()
-
-const testCAR = await fsPromises.readFile('./public/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car')
-const connectedL2Nodes = new Map()
-
-function removeConnectedL2Node (id) {
-  const { res, cleanedUp } = connectedL2Nodes.get(id)
-  cleanedUp.value = true
-  res.end()
-  connectedL2Nodes.delete(id)
-}
-
-const openCARRequests = new Map()
-
-app.use((req, res, next) => {
-  debug('request', { id, url: req.url })
-  next()
-})
-app.disable('x-powered-by')
-app.set('trust proxy', true)
-
-app.get('/favicon.ico', (req, res) => {
-  res.sendStatus(404)
-})
-
-// Whenever nginx doesn't have a CAR file in cache, this is called
-app.get('/ipns/:cid', handleCID)
-app.get('/ipns/:cid/:path*', handleCID)
-app.get('/ipfs/:cid', handleCID)
-app.get('/ipfs/:cid/:path*', handleCID)
-
-async function handleCID (req, res) {
-  const cid = req.params.cid
-  const format = getResponseFormat(req)
-
-  debug(`Cache miss for ${req.path}`)
-
-  res.set({
-    'Content-Type': mimeTypes.lookup(req.path) || 'application/octet-stream',
-    'Saturn-Node-Id': nodeId,
-    'Saturn-Node-Version': NODE_VERSION
+  const ipfsAgent = new https.Agent({
+    keepAlive: true,
+    maxSockets: Math.floor(256 / cpus().length)
   })
 
-  if (req.headers.range) {
-    let [start, end] = req.headers.range.split('=')[1].split('-')
-    start = parseInt(start, 10)
-    end = parseInt(end, 10)
+  const app = express()
+
+  const testCAR = await fsPromises.readFile('./public/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car')
+  const connectedL2Nodes = new Map()
+
+  function removeConnectedL2Node (id) {
+    const { res, cleanedUp } = connectedL2Nodes.get(id)
+    cleanedUp.value = true
+    res.end()
+    connectedL2Nodes.delete(id)
+  }
+
+  const openCARRequests = new Map()
+
+  app.use((req, res, next) => {
+    debug('request', { id, url: req.url })
+    next()
+  })
+  app.disable('x-powered-by')
+  app.set('trust proxy', true)
+
+  app.get('/favicon.ico', (req, res) => {
+    res.sendStatus(404)
+  })
+
+  // Whenever nginx doesn't have a CAR file in cache, this is called
+  app.get('/ipns/:cid', handleCID)
+  app.get('/ipns/:cid/:path*', handleCID)
+  app.get('/ipfs/:cid', handleCID)
+  app.get('/ipfs/:cid/:path*', handleCID)
+
+  async function handleCID (req, res) {
+    const cid = req.params.cid
+    const format = getResponseFormat(req)
+
+    debug(`Cache miss for ${req.path}`)
 
     res.set({
-      'Accept-Ranges': 'bytes',
-      'Content-Range': `bytes ${start}-${end}/${testCAR.length}`
-    })
-    return res.status(206).end(testCAR.slice(start, end + 1))
-  }
-
-  // Testing CID
-  if (cid === TESTING_CID) {
-    return res.send(testCAR)
-  }
-
-  debug(`Fetch ${req.path} from L2s`)
-  const cidHash = crypto.createHash('sha512').update(cid).digest()
-  const l2NodeIDs = [...connectedL2Nodes.keys()]
-  const l2NodesWithDistance = l2NodeIDs.map(l2NodeID => ({
-    id: l2NodeID,
-    distance: xorDistance(
-      cidHash,
-      crypto.createHash('sha512').update(l2NodeID).digest()
-    )
-  }))
-  l2NodesWithDistance
-    .sort((a, b) => a.distance - b.distance)
-    .slice(0, 3)
-    .forEach(({ id }) => {
-      const payload = {
-        requestId: crypto.randomUUID(),
-        cid
-      }
-      const { res } = connectedL2Nodes.get(id)
-      res.write(`${JSON.stringify(payload)}\n`)
+      'Content-Type': mimeTypes.lookup(req.path) || 'application/octet-stream',
+      'Saturn-Node-Id': nodeId,
+      'Saturn-Node-Version': NODE_VERSION
     })
 
-  const onResponse = pDefer()
-  openCARRequests.set(cid, onResponse)
+    if (req.headers.range) {
+      let [start, end] = req.headers.range.split('=')[1].split('-')
+      start = parseInt(start, 10)
+      end = parseInt(end, 10)
 
-  let carResponse
-  try {
-    carResponse = await pTimeout(onResponse.promise, {
-      milliseconds: 10_000
-    })
-  } catch {}
-  if (carResponse) {
+      res.set({
+        'Accept-Ranges': 'bytes',
+        'Content-Range': `bytes ${start}-${end}/${testCAR.length}`
+      })
+      return res.status(206).end(testCAR.slice(start, end + 1))
+    }
+
+    // Testing CID
+    if (cid === TESTING_CID) {
+      return res.send(testCAR)
+    }
+
+    debug(`Fetch ${req.path} from L2s`)
+    const cidHash = crypto.createHash('sha512').update(cid).digest()
+    const l2NodeIDs = [...connectedL2Nodes.keys()]
+    const l2NodesWithDistance = l2NodeIDs.map(l2NodeID => ({
+      id: l2NodeID,
+      distance: xorDistance(
+        cidHash,
+        crypto.createHash('sha512').update(l2NodeID).digest()
+      )
+    }))
+    l2NodesWithDistance
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 3)
+      .forEach(({ id }) => {
+        const payload = {
+          requestId: crypto.randomUUID(),
+          cid
+        }
+        const { res } = connectedL2Nodes.get(id)
+        res.write(`${JSON.stringify(payload)}\n`)
+      })
+
+    const onResponse = pDefer()
+    openCARRequests.set(cid, onResponse)
+
+    let carResponse
     try {
-      await pipeline(carResponse.req, res)
-      return
-    } finally {
-      carResponse.res.end()
-    }
-  }
-
-  debug(`Fetch ${req.path} from IPFS`)
-  const ipfsUrl = new URL('https://ipfs.io' + req.path)
-  if (format) {
-    ipfsUrl.searchParams.set('format', format)
-  }
-  for (const key of ['filename', 'download']) {
-    if (key in req.query) {
-      ipfsUrl.searchParams.set(key, req.query[key])
-    }
-  }
-
-  const controller = new AbortController()
-  const timeout = setTimeout(() => {
-    controller.abort()
-  }, GATEWAY_TIMEOUT)
-
-  const ipfsReq = https.get(ipfsUrl, {
-    agent: ipfsAgent,
-    timeout: GATEWAY_TIMEOUT,
-    headers: { 'User-Agent': NODE_UA },
-    signal: controller.signal
-  }, async fetchRes => {
-    clearTimeout(timeout)
-    const { statusCode } = fetchRes
-    if (statusCode >= 400) {
-      debug.extend('error')(`Invalid response from IPFS gateway (${statusCode}) for ${cid}`)
+      carResponse = await pTimeout(onResponse.promise, {
+        milliseconds: 10_000
+      })
+    } catch {}
+    if (carResponse) {
+      try {
+        await pipeline(carResponse.req, res)
+        return
+      } finally {
+        carResponse.res.end()
+      }
     }
 
-    res.status(statusCode)
-    proxyResponseHeaders(fetchRes, res)
-
-    if (format === 'car') {
-      streamCAR(fetchRes, res).catch(() => {})
-    } else {
-      fetchRes.pipe(res)
+    debug(`Fetch ${req.path} from IPFS`)
+    const ipfsUrl = new URL('https://ipfs.io' + req.path)
+    if (format) {
+      ipfsUrl.searchParams.set('format', format)
     }
-  }).on('error', err => {
-    clearTimeout(timeout)
-    debug.extend('error')(`Error fetching from IPFS gateway for ${cid}: ${err.name} ${err.message}`)
-    if (controller.signal.aborted) {
-      return res.sendStatus(504)
+    for (const key of ['filename', 'download']) {
+      if (key in req.query) {
+        ipfsUrl.searchParams.set(key, req.query[key])
+      }
     }
-    res.sendStatus(502)
-  }).on('timeout', () => {
-    clearTimeout(timeout)
-    debug.extend('error')(`Timeout from IPFS gateway for ${cid}`)
-    ipfsReq.destroy()
-    res.destroy()
-  })
 
-  req.on('close', () => {
-    clearTimeout(timeout)
-    if (!res.writableEnded) {
-      debug.extend('error')('Client aborted early, terminating gateway request')
+    const controller = new AbortController()
+    const timeout = setTimeout(() => {
+      controller.abort()
+    }, GATEWAY_TIMEOUT)
+
+    const ipfsReq = https.get(ipfsUrl, {
+      agent: ipfsAgent,
+      timeout: GATEWAY_TIMEOUT,
+      headers: { 'User-Agent': NODE_UA },
+      signal: controller.signal
+    }, async fetchRes => {
+      clearTimeout(timeout)
+      const { statusCode } = fetchRes
+      if (statusCode >= 400) {
+        debug.extend('error')(`Invalid response from IPFS gateway (${statusCode}) for ${cid}`)
+      }
+
+      res.status(statusCode)
+      proxyResponseHeaders(fetchRes, res)
+
+      if (format === 'car') {
+        streamCAR(fetchRes, res).catch(() => {})
+      } else {
+        fetchRes.pipe(res)
+      }
+    }).on('error', err => {
+      clearTimeout(timeout)
+      debug.extend('error')(`Error fetching from IPFS gateway for ${cid}: ${err.name} ${err.message}`)
+      if (controller.signal.aborted) {
+        return res.sendStatus(504)
+      }
+      res.sendStatus(502)
+    }).on('timeout', () => {
+      clearTimeout(timeout)
+      debug.extend('error')(`Timeout from IPFS gateway for ${cid}`)
       ipfsReq.destroy()
-    }
-  })
-}
+      res.destroy()
+    })
 
-app.get('/register/:l2id', function (req, res) {
-  res.writeHead(200, {
-    'Cache-Control': 'no-cache'
-  })
-  const { l2id } = req.params
-  if (connectedL2Nodes.has(l2id)) {
-    removeConnectedL2Node(l2id)
+    req.on('close', () => {
+      clearTimeout(timeout)
+      if (!res.writableEnded) {
+        debug.extend('error')('Client aborted early, terminating gateway request')
+        ipfsReq.destroy()
+      }
+    })
   }
-  const cleanedUp = { value: false }
-  connectedL2Nodes.set(l2id, { res, cleanedUp })
-  const heartbeatInterval = setInterval(() => {
-    res.write('{}\n')
-  }, 1_000)
-  req.on('close', () => {
-    clearInterval(heartbeatInterval)
-    if (!cleanedUp.value) {
+
+  app.get('/register/:l2id', function (req, res) {
+    res.writeHead(200, {
+      'Cache-Control': 'no-cache'
+    })
+    const { l2id } = req.params
+    if (connectedL2Nodes.has(l2id)) {
       removeConnectedL2Node(l2id)
     }
+    connectedL2Nodes.set(l2id, { res })
+    const heartbeatInterval = setInterval(() => {
+      res.write('{}\n')
+    }, 1_000)
+    req.on('close', () => {
+      clearInterval(heartbeatInterval)
+      removeConnectedL2Node(l2id)
+    })
   })
-})
 
-app.post('/data/:cid', async function (req, res) {
-  const { cid } = req.params
-  const openCARRequest = openCARRequests.get(cid)
-  if (!openCARRequest) {
-    res.end()
-    return
-  }
-  openCARRequests.delete(cid)
-  openCARRequest.resolve({ req, res })
-})
+  app.get('/register/:l2id', function (req, res) {
+    res.writeHead(200, {
+      'Cache-Control': 'no-cache'
+    })
+    const { l2id } = req.params
+    if (connectedL2Nodes.has(l2id)) {
+      removeConnectedL2Node(l2id)
+    }
+    const cleanedUp = { value: false }
+    connectedL2Nodes.set(l2id, { res, cleanedUp })
+    const heartbeatInterval = setInterval(() => {
+      res.write('{}\n')
+    }, 1_000)
+    req.on('close', () => {
+      clearInterval(heartbeatInterval)
+      if (!cleanedUp.value) {
+        removeConnectedL2Node(l2id)
+      }
+    })
+  })
 
-addRegisterCheckRoute(app)
+  app.post('/data/:cid', async function (req, res) {
+    const { cid } = req.params
+    const openCARRequest = openCARRequests.get(cid)
+    if (!openCARRequest) {
+      res.end()
+      return
+    }
+    openCARRequests.delete(cid)
+    openCARRequest.resolve({ req, res })
+  })
 
-const server = app.listen(PORT, '127.0.0.1', async () => {
-  debug.extend('server')('shim process running')
-})
+  addRegisterCheckRoute(app)
 
-trapServer(server)
+  const server = app.listen(PORT, '127.0.0.1', async () => {
+    debug.extend('server')('shim process running')
+  })
+
+  trapServer(server)
+}
 
 // https://github.com/ipfs/specs/blob/main/http-gateways/PATH_GATEWAY.md#response-headers
 function proxyResponseHeaders (ipfsRes, nodeRes) {
@@ -291,7 +323,7 @@ function getResponseFormat (req) {
   }
 }
 
-async function shutdown () {
+async function shutdownCluster () {
   try {
     await Promise.allSettled([
       submitRetrievals(),
@@ -300,7 +332,9 @@ async function shutdown () {
   } catch (err) {
     debug(`Failed during shutdown: ${err.name} ${err.message}`)
   } finally {
-    debug('Exiting...')
-    process.exit(0)
+    if (Object.keys(cluster.workers).length === 0) {
+      debug('Exiting...')
+      process.exit(0)
+    }
   }
 }
