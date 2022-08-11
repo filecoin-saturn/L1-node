@@ -50,6 +50,14 @@ server {
         return 302 https://strn.network;
     }
 
+    location /ws {
+        proxy_pass              http://node_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+    }
+
     location / {
 
 

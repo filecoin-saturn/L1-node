@@ -5,9 +5,9 @@ import mimeTypes from 'mime-types'
 import followRedirects from 'follow-redirects'
 import crypto from 'node:crypto'
 import xorDistance from 'xor-distance'
-import { pipeline } from 'node:stream/promises'
 import pDefer from 'p-defer'
 import pTimeout from 'p-timeout'
+import { WebSocketServer } from 'ws'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
 import {
@@ -76,8 +76,6 @@ if (cluster.isPrimary) {
     await initLogIngestor()
   }, 500)
 } else {
-  const id = Math.random().toString(16).slice(2)
-
   const ipfsAgent = new https.Agent({
     keepAlive: true,
     maxSockets: Math.floor(256 / cpus().length)
@@ -89,18 +87,14 @@ if (cluster.isPrimary) {
   const connectedL2Nodes = new Map()
 
   function removeConnectedL2Node (id) {
-    const { res, cleanedUp } = connectedL2Nodes.get(id)
+    const { ws, cleanedUp } = connectedL2Nodes.get(id)
     cleanedUp.value = true
-    res.end()
+    ws.close()
     connectedL2Nodes.delete(id)
   }
 
   const openCARRequests = new Map()
 
-  app.use((req, res, next) => {
-    debug('request', { id, url: req.url })
-    next()
-  })
   app.disable('x-powered-by')
   app.set('trust proxy', true)
 
@@ -153,33 +147,30 @@ if (cluster.isPrimary) {
         crypto.createHash('sha512').update(l2NodeID).digest()
       )
     }))
+    const requestId = crypto.randomUUID()
     l2NodesWithDistance
       .sort((a, b) => a.distance - b.distance)
       .slice(0, 3)
       .forEach(({ id }) => {
-        const payload = {
-          requestId: crypto.randomUUID(),
-          cid
-        }
-        const { res } = connectedL2Nodes.get(id)
-        res.write(`${JSON.stringify(payload)}\n`)
+        const { ws } = connectedL2Nodes.get(id)
+        ws.send(Buffer.from(`${requestId}${cid}`))
       })
 
     const onResponse = pDefer()
-    openCARRequests.set(cid, onResponse)
+    openCARRequests.set(requestId, {
+      res,
+      promise: onResponse
+    })
 
-    let carResponse
     try {
-      carResponse = await pTimeout(onResponse.promise, {
+      await pTimeout(onResponse.promise, {
         milliseconds: 10_000
       })
-    } catch {}
-    if (carResponse) {
-      try {
-        await pipeline(carResponse.req, res)
-        return
-      } finally {
-        carResponse.res.end()
+      debug('got car response')
+      return
+    } catch (err) {
+      if (!(err instanceof pTimeout.TimeoutError)) {
+        debug(err)
       }
     }
 
@@ -242,42 +233,58 @@ if (cluster.isPrimary) {
     })
   }
 
-  app.get('/register/:l2id', function (req, res) {
-    res.writeHead(200, {
-      'Cache-Control': 'no-cache'
-    })
-    const { l2id } = req.params
-    if (connectedL2Nodes.has(l2id)) {
-      removeConnectedL2Node(l2id)
-    }
-    const cleanedUp = { value: false }
-    connectedL2Nodes.set(l2id, { res, cleanedUp })
-    const heartbeatInterval = setInterval(() => {
-      res.write('{}\n')
-    }, 1_000)
-    req.on('close', () => {
-      clearInterval(heartbeatInterval)
-      if (!cleanedUp.value) {
-        removeConnectedL2Node(l2id)
+  addRegisterCheckRoute(app)
+
+  const wss = new WebSocketServer({ noServer: true })
+
+  wss.on('connection', ws => {
+    debug('WS: connection')
+    ws.on('message', msg => {
+      const type = msg[0]
+      const blob = msg.slice(1).toString()
+      if (type === 0) {
+        const l2id = blob
+        debug('WS: register (%s)', l2id)
+        if (connectedL2Nodes.has(l2id)) {
+          removeConnectedL2Node(l2id)
+        }
+        const cleanedUp = { value: false }
+        connectedL2Nodes.set(l2id, { ws, cleanedUp })
+        ws.on('close', () => {
+          debug('WS: close')
+          if (!cleanedUp.value) {
+            removeConnectedL2Node(l2id)
+          }
+        })
+      } else if (type === 1) {
+        const requestId = blob.slice(0, 36).toString()
+        const chunk = blob.slice(36)
+        debug('WS: chunk: (%s %sb)', requestId, chunk.length)
+        const openCARRequest = openCARRequests.get(requestId)
+        if (!openCARRequest) return
+
+        openCARRequest.promise.resolve()
+
+        if (chunk.length > 0) {
+          debug('WS: push chunk')
+          openCARRequest.res.write(chunk)
+        } else {
+          debug('WS: end response')
+          openCARRequest.res.end()
+          openCARRequests.delete(requestId)
+        }
       }
     })
   })
 
-  app.post('/data/:cid', async function (req, res) {
-    const { cid } = req.params
-    const openCARRequest = openCARRequests.get(cid)
-    if (!openCARRequest) {
-      res.end()
-      return
-    }
-    openCARRequests.delete(cid)
-    openCARRequest.resolve({ req, res })
-  })
-
-  addRegisterCheckRoute(app)
-
   const server = app.listen(PORT, '127.0.0.1', async () => {
     debug.extend('server')('shim process running')
+  })
+
+  server.on('upgrade', (req, socket, head) => {
+    wss.handleUpgrade(req, socket, head, ws => {
+      wss.emit('connection', ws, req)
+    })
   })
 
   trapServer(server)
