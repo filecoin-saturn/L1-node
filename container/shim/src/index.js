@@ -6,7 +6,7 @@ import followRedirects from 'follow-redirects'
 import crypto from 'node:crypto'
 import xorDistance from 'xor-distance'
 import pDefer from 'p-defer'
-import pTimeout from 'p-timeout'
+import pTimeout, { TimeoutError } from 'p-timeout'
 import { WebSocketServer } from 'ws'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
@@ -169,7 +169,7 @@ if (cluster.isPrimary) {
       debug('got car response')
       return
     } catch (err) {
-      if (!(err instanceof pTimeout.TimeoutError)) {
+      if (!(err instanceof TimeoutError)) {
         debug(err)
       }
     }
