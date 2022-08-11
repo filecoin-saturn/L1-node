@@ -149,7 +149,7 @@ if (cluster.isPrimary) {
     }))
     const requestId = crypto.randomUUID()
     l2NodesWithDistance
-      .sort((a, b) => a.distance - b.distance)
+      .sort((a, b) => xorDistance.compare(a.distance, b.distance))
       .slice(0, 3)
       .forEach(({ id }) => {
         const { ws } = connectedL2Nodes.get(id)
