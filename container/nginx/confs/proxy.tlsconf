@@ -50,7 +50,7 @@ server {
         return 302 https://strn.network;
     }
 
-    location /ipns/ {
+    location ~ ^/(ipns|api)/ {
         proxy_pass  https://ipfs.io;
 
         if ($request_method = 'OPTIONS') {
