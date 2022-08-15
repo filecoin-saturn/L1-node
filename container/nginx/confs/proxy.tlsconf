@@ -63,10 +63,11 @@ server {
         proxy_connect_timeout       125s;
         proxy_ignore_client_abort   on;
 
-        proxy_set_header        Host            $host;
-        proxy_set_header        X-Real-IP       $remote_addr;
-        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header        Connection      "";
+        proxy_set_header        Host                $host;
+        proxy_set_header        X-Real-IP           $remote_addr;
+        proxy_set_header        X-Forwarded-For     $proxy_add_x_forwarded_for;
+        proxy_set_header        Connection          "";
+        proxy_set_header        Saturn-Transfer-Id  $request_id;
 
         proxy_cache                 my_cache;
         proxy_cache_key             $uri$format_final$arg_filename$arg_download;
