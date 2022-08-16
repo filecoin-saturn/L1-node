@@ -3,6 +3,7 @@ import { cpus } from 'node:os'
 import express from 'express'
 import mimeTypes from 'mime-types'
 import followRedirects from 'follow-redirects'
+import parseArgs from 'minimist'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
 import {
@@ -38,6 +39,8 @@ const PROXY_RESPONSE_HEADERS = [
   'x-content-type-options'
 ]
 
+const argv = parseArgs(process.argv.slice(2))
+
 if (cluster.isPrimary) {
   debug('Saturn L1 Node')
   debug.extend('id')(nodeId)
@@ -62,10 +65,12 @@ if (cluster.isPrimary) {
   process.on('SIGINT', shutdownCluster)
 
   setTimeout(async function () {
+    if (argv.register !== false) {
     await register(true).catch(err => {
       debug(`Failed to register ${err.name} ${err.message}`)
       process.exit(1)
     })
+    }
 
     // Start log ingestor
     await initLogIngestor()
