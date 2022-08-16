@@ -33,8 +33,9 @@ server {
     ssl_stapling                on;
     ssl_stapling_verify         on;
     ssl_trusted_certificate     /usr/src/app/shared/ssl/node.crt;
+    ssl_early_data              on;
 
-    resolver    8.8.8.8 8.8.4.4 valid=600s ipv4=off;
+    resolver    8.8.8.8 8.8.4.4 valid=600s ipv6=off;
 
     server_name _; # This is just an invalid value which will never trigger on a real hostname
     server_name_in_redirect off;
