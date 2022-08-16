@@ -77,8 +77,6 @@ if (cluster.isPrimary) {
     await initLogIngestor()
   }, 500)
 } else {
-  const id = Math.random().toString(16).slice(2)
-
   const ipfsAgent = new https.Agent({
     keepAlive: true,
     maxSockets: Math.floor(256 / cpus().length)
@@ -98,10 +96,6 @@ if (cluster.isPrimary) {
 
   const openCARRequests = new Map()
 
-  app.use((req, res, next) => {
-    debug('request', { id, url: req.url })
-    next()
-  })
   app.disable('x-powered-by')
   app.set('trust proxy', true)
 
