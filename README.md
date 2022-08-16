@@ -1,8 +1,9 @@
 # Saturn L1 Node 🪐
 
-Saturn L1 node is the outermost layer of the Saturn Network.
-It allows retrieval clients to request CIDs and byte ranges of CIDs.
-The node returns CAR files from cache or falls back to inner level nodes.
+Saturn L1 node are CDN edge caches in the outermost layer of the
+[Filecoin Saturn Network](https://strn.network/). L1 nodes serve CIDs
+and CID byte ranges to retrieval clients. Cache misses are served by
+Saturn [L2 nodes](https://github.com/filecoin-saturn/L2-node).
 
 **Saturn is under active development and not yet in production, but you
   can still download and run a Saturn L1 to try it out for yourself in
