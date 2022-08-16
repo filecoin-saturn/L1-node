@@ -13,7 +13,8 @@ import {
   NODE_VERSION,
   nodeId,
   PORT,
-  TESTING_CID
+  TESTING_CID,
+  IPFS_GATEWAY_ORIGIN
 } from './config.js'
 import { streamCAR } from './utils/car.js'
 import { trapServer } from './utils/trap.js'
@@ -66,10 +67,10 @@ if (cluster.isPrimary) {
 
   setTimeout(async function () {
     if (argv.register !== false) {
-    await register(true).catch(err => {
-      debug(`Failed to register ${err.name} ${err.message}`)
-      process.exit(1)
-    })
+      await register(true).catch(err => {
+        debug(`Failed to register ${err.name} ${err.message}`)
+        process.exit(1)
+      })
     }
 
     // Start log ingestor
@@ -128,7 +129,7 @@ if (cluster.isPrimary) {
       return res.send(testCAR)
     }
 
-    const ipfsUrl = new URL('https://ipfs.io' + req.path)
+    const ipfsUrl = new URL(IPFS_GATEWAY_ORIGIN + req.path)
     if (format) {
       ipfsUrl.searchParams.set('format', format)
     }
