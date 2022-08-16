@@ -237,9 +237,9 @@ app.get('/register/:l2NodeID', function (req, res) {
     cleanedUp,
     idHash: crypto.createHash('sha512').update(l2NodeID).digest()
   })
-  const heartbeatInterval = setInterval(() => {
-    res.write('\n')
-  }, 5_000)
+  const sendHeartbeat = () => res.write('{}\n')
+  sendHeartbeat()
+  const heartbeatInterval = setInterval(sendHeartbeat, 5_000)
   const onEnd = function () {
     clearInterval(heartbeatInterval)
     if (!cleanedUp.value) {
