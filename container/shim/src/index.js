@@ -187,6 +187,8 @@ if (cluster.isPrimary) {
     debug.extend('server')('shim process running')
   })
 
+  server.keepAliveTimeout = 60 * 60 * 1000
+
   trapServer(server)
 }
 

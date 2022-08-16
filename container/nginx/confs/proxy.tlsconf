@@ -26,8 +26,8 @@ server {
     ssl_protocols               TLSv1.2 TLSv1.3;
     ssl_ciphers                 HIGH:!aNULL:!MD5;
     ssl_prefer_server_ciphers   on;
-    ssl_session_cache           shared:SSL:50m;
-    ssl_session_timeout         1d;
+    ssl_session_cache           shared:SSL:100m;
+    ssl_session_timeout         365d;
     ssl_session_tickets         off;
     ssl_buffer_size             4k;
     ssl_stapling                on;
@@ -73,7 +73,7 @@ server {
         proxy_cache_key             $uri$format_final$arg_filename$arg_download;
         proxy_cache_lock            on;
         proxy_cache_valid           200 301 302 410     365d;
-        proxy_cache_valid           any                 10m;
+        proxy_cache_valid           any                 1m;
         proxy_cache_lock_age        30m;
         proxy_cache_lock_timeout    30m;
         proxy_cache_use_stale       error timeout invalid_header updating http_502 http_503 http_504 http_429;
