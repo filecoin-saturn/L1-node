@@ -24,7 +24,7 @@ server {
     ssl_certificate             /usr/src/app/shared/ssl/node.crt;
     ssl_certificate_key         /usr/src/app/shared/ssl/node.key;
     ssl_protocols               TLSv1.2 TLSv1.3;
-    ssl_ciphers                 HIGH:!aNULL:!SHA:!CAMELLIA:!RSA;
+    ssl_ciphers                 HIGH:!aNULL:!SHA:!SHA256:!SHA384:!CAMELLIA:!RSA;
     ssl_prefer_server_ciphers   on;
     ssl_session_cache           shared:SSL:100m;
     ssl_session_timeout         365d;
