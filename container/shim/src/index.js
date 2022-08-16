@@ -71,7 +71,9 @@ const ipfsAgent = new https.Agent({
 const app = express()
 
 const testCAR = await fsPromises.readFile('./public/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car')
+
 const connectedL2Nodes = new Map()
+const openCARRequests = new Map()
 
 function removeConnectedL2Node (id) {
   const { res, cleanedUp } = connectedL2Nodes.get(id)
@@ -79,8 +81,6 @@ function removeConnectedL2Node (id) {
   res.end()
   connectedL2Nodes.delete(id)
 }
-
-const openCARRequests = new Map()
 
 app.disable('x-powered-by')
 app.set('trust proxy', true)
@@ -127,23 +127,21 @@ async function handleCID (req, res) {
 
   debug(`Fetch ${req.path} from L2s`)
   const cidHash = crypto.createHash('sha512').update(cid).digest()
-  const l2NodeIDs = [...connectedL2Nodes.keys()]
-  const l2NodesWithDistance = l2NodeIDs.map(l2NodeID => ({
-    id: l2NodeID,
-    distance: xorDistance(
-      cidHash,
-      crypto.createHash('sha512').update(l2NodeID).digest()
-    )
-  }))
-  l2NodesWithDistance
+  Array.from(connectedL2Nodes.values())
+    .map(l2Node => ({
+      ...l2Node,
+      distance: xorDistance(
+        cidHash,
+        l2Node.idHash
+      )
+    }))
     .sort((a, b) => xorDistance.compare(a.distance, b.distance))
     .slice(0, 3)
-    .forEach(({ id }) => {
+    .forEach(({ res }) => {
       const payload = {
         requestId: req.get('saturn-transfer-id'),
         cid
       }
-      const { res } = connectedL2Nodes.get(id)
       res.write(`${JSON.stringify(payload)}\n`)
     })
 
@@ -225,24 +223,33 @@ async function handleCID (req, res) {
   })
 }
 
-app.get('/register/:l2id', function (req, res) {
+app.get('/register/:l2NodeID', function (req, res) {
   res.writeHead(200, {
     'Cache-Control': 'no-cache'
   })
-  const { l2id } = req.params
-  if (connectedL2Nodes.has(l2id)) {
-    removeConnectedL2Node(l2id)
+  const { l2NodeID } = req.params
+  if (connectedL2Nodes.has(l2NodeID)) {
+    removeConnectedL2Node(l2NodeID)
   }
   const cleanedUp = { value: false }
-  connectedL2Nodes.set(l2id, { res, cleanedUp })
+  connectedL2Nodes.set(l2NodeID, {
+    res,
+    cleanedUp,
+    idHash: crypto.createHash('sha512').update(l2NodeID).digest()
+  })
   const heartbeatInterval = setInterval(() => {
     res.write('\n')
-  }, 1_000)
-  req.on('close', () => {
+  }, 5_000)
+  const onEnd = function () {
     clearInterval(heartbeatInterval)
     if (!cleanedUp.value) {
-      removeConnectedL2Node(l2id)
+      removeConnectedL2Node(l2NodeID)
     }
+  }
+  req.on('close', onEnd)
+  req.on('error', err => {
+    debug('request error %s', err.stack)
+    onEnd()
   })
 })
 
