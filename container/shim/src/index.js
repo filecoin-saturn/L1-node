@@ -123,6 +123,7 @@ if (cluster.isPrimary) {
 
     res.set({
       'Content-Type': mimeTypes.lookup(req.path) || 'application/octet-stream',
+      'Cache-Control': 'public, max-age=31536000, immutable',
       'Saturn-Node-Id': nodeId,
       'Saturn-Node-Version': NODE_VERSION
     })
