@@ -52,7 +52,8 @@ if (cluster.isPrimary) {
   debug.extend('important')(NODE_OPERATOR_EMAIL ? `Payment notifications and important update will be sent to: ${NODE_OPERATOR_EMAIL}` : 'NO OPERATOR EMAIL SET, WE HIGHLY RECOMMEND SETTING ONE')
   debug.extend('important')('===== IMPORTANT =====')
 
-  for (let i = 0; i < cpus().length; i++) {
+  const NUM_WORKERS = 1 // cpus().length
+  for (let i = 0; i < NUM_WORKERS; i++) {
     cluster.fork()
   }
 
