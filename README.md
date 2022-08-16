@@ -4,7 +4,13 @@ Saturn L1 node is the outermost layer of the Saturn Network.
 It allows retrieval clients to request CIDs and byte ranges of CIDs.
 The node returns CAR files from cache or falls back to inner level nodes.
 
-**Saturn is still in v0, but you can run a test-network node to help test Saturn today, we appreciate any and all feedback**
+**Saturn is under active development and not yet in production, but you
+  can still download and run a Saturn L1 to try it out for yourself in
+  Saturn's [test
+  network](https://orchestrator.saturn-test.network/). We'd love your
+  feedback in
+  [#filecoin-saturn](https://filecoinproject.slack.com/archives/C03DH0BL02E)
+  on [Filecoin Slack](https://filecoinproject.slack.com/).**
 
 
 ## Requirements
