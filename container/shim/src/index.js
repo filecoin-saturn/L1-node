@@ -154,7 +154,7 @@ if (cluster.isPrimary) {
       .slice(0, 3)
       .forEach(({ id }) => {
         const payload = {
-          requestId: crypto.randomUUID(),
+          requestId: req.get('saturn-transfer-id'),
           cid
         }
         const { res } = connectedL2Nodes.get(id)
