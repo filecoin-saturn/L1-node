@@ -1,6 +1,6 @@
 # Saturn L1 Node 🪐
 
-Saturn L1 node are CDN edge caches in the outermost layer of the
+Saturn L1 nodes are CDN edge caches in the outermost layer of the
 [Filecoin Saturn Network](https://strn.network/). L1 nodes serve CIDs
 and CID byte ranges to retrieval clients. Cache misses are served by
 Saturn [L2 nodes](https://github.com/filecoin-saturn/L2-node).
