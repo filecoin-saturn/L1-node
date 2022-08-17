@@ -223,19 +223,19 @@ async function handleCID (req, res) {
   })
 }
 
-app.get('/register/:l2NodeID', function (req, res) {
+app.get('/register/:l2NodeId', function (req, res) {
   res.writeHead(200, {
     'Cache-Control': 'no-cache'
   })
-  const { l2NodeID } = req.params
-  if (connectedL2Nodes.has(l2NodeID)) {
-    removeConnectedL2Node(l2NodeID)
+  const { l2NodeId } = req.params
+  if (connectedL2Nodes.has(l2NodeId)) {
+    removeConnectedL2Node(l2NodeId)
   }
   const cleanedUp = { value: false }
-  connectedL2Nodes.set(l2NodeID, {
+  connectedL2Nodes.set(l2NodeId, {
     res,
     cleanedUp,
-    idHash: crypto.createHash('sha512').update(l2NodeID).digest()
+    idHash: crypto.createHash('sha512').update(l2NodeId).digest()
   })
   const sendHeartbeat = () => res.write('{}\n')
   sendHeartbeat()
@@ -243,7 +243,7 @@ app.get('/register/:l2NodeID', function (req, res) {
   const onEnd = function () {
     clearInterval(heartbeatInterval)
     if (!cleanedUp.value) {
-      removeConnectedL2Node(l2NodeID)
+      removeConnectedL2Node(l2NodeId)
     }
   }
   req.on('close', onEnd)
