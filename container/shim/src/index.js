@@ -9,6 +9,7 @@ import { pipeline } from 'node:stream/promises'
 import pDefer from 'p-defer'
 import pTimeout from 'p-timeout'
 import timers from 'node:timers/promises'
+import parseArgs from 'minimist'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
 import {
@@ -18,7 +19,8 @@ import {
   NODE_VERSION,
   nodeId,
   PORT,
-  TESTING_CID
+  TESTING_CID,
+  IPFS_GATEWAY_ORIGIN
 } from './config.js'
 import { streamCAR } from './utils/car.js'
 import { trapServer } from './utils/trap.js'
@@ -43,6 +45,8 @@ const PROXY_RESPONSE_HEADERS = [
   'x-content-type-options'
 ]
 
+const argv = parseArgs(process.argv.slice(2))
+
 debug('Saturn L1 Node')
 debug.extend('id')(nodeId)
 debug.extend('version')(NODE_VERSION)
@@ -55,10 +59,12 @@ process.on('SIGQUIT', shutdown)
 process.on('SIGINT', shutdown)
 
 setTimeout(async function () {
-  await register(true).catch(err => {
-    debug(`Failed to register ${err.name} ${err.message}`)
-    process.exit(1)
-  })
+  if (argv.register !== false) {
+    await register(true).catch(err => {
+      debug(`Failed to register ${err.name} ${err.message}`)
+      process.exit(1)
+    })
+  }
 
   // Start log ingestor
   await initLogIngestor()
@@ -165,7 +171,7 @@ async function handleCID (req, res) {
   }
 
   debug(`Fetch ${req.path} from IPFS`)
-  const ipfsUrl = new URL('https://ipfs.io' + req.path)
+  const ipfsUrl = new URL(IPFS_GATEWAY_ORIGIN + req.path)
   if (format) {
     ipfsUrl.searchParams.set('format', format)
   }
@@ -262,6 +268,8 @@ addRegisterCheckRoute(app)
 const server = app.listen(PORT, '127.0.0.1', async () => {
   debug.extend('server')('shim process running')
 })
+
+server.keepAliveTimeout = 60 * 60 * 1000
 
 trapServer(server)
 

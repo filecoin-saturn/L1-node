@@ -24,17 +24,18 @@ server {
     ssl_certificate             /usr/src/app/shared/ssl/node.crt;
     ssl_certificate_key         /usr/src/app/shared/ssl/node.key;
     ssl_protocols               TLSv1.2 TLSv1.3;
-    ssl_ciphers                 HIGH:!aNULL:!MD5;
+    ssl_ciphers                 HIGH:!aNULL:!SHA:!SHA256:!SHA384:!CAMELLIA:!RSA;
     ssl_prefer_server_ciphers   on;
-    ssl_session_cache           shared:SSL:50m;
-    ssl_session_timeout         1d;
+    ssl_session_cache           shared:SSL:100m;
+    ssl_session_timeout         365d;
     ssl_session_tickets         off;
     ssl_buffer_size             4k;
     ssl_stapling                on;
     ssl_stapling_verify         on;
     ssl_trusted_certificate     /usr/src/app/shared/ssl/node.crt;
+    ssl_early_data              on;
 
-    resolver    8.8.8.8 8.8.4.4 valid=600s;
+    resolver    8.8.8.8 8.8.4.4 valid=600s ipv6=off;
 
     server_name _; # This is just an invalid value which will never trigger on a real hostname
     server_name_in_redirect off;
@@ -51,7 +52,10 @@ server {
     }
 
     location / {
-
+        # TODO: This param is only required for untrusted 3rd party L1 operators.
+        # if ($arg_clientId = "") {
+        #     return 403;
+        # }
 
         proxy_pass              http://node_backend;
         proxy_buffering         on;
@@ -71,7 +75,7 @@ server {
         proxy_cache_key             $uri$format_final$arg_filename$arg_download;
         proxy_cache_lock            on;
         proxy_cache_valid           200 301 302 410     365d;
-        proxy_cache_valid           any                 10m;
+        proxy_cache_valid           any                 1m;
         proxy_cache_lock_age        30m;
         proxy_cache_lock_timeout    30m;
         proxy_cache_use_stale       error timeout invalid_header updating http_502 http_503 http_504 http_429;
