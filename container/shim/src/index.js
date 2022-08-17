@@ -158,7 +158,6 @@ async function handleCID (req, res) {
   if (carResponse) {
     try {
       await pipeline(carResponse.req, res)
-      debug('got car response')
       return
     } finally {
       carResponse.res.end()
