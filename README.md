@@ -51,7 +51,7 @@ Saturn [L2 nodes](https://github.com/filecoin-saturn/L2-node).
       -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS \
       -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL \
       --network host \
-      ghcr.io/filecoin-project/saturn-node:test
+      ghcr.io/filecoin-saturn/l1-node:test
     ```
 
    **Main network (invitation only):**
@@ -61,7 +61,7 @@ Saturn [L2 nodes](https://github.com/filecoin-saturn/L2-node).
       -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS \
       -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL \
       --network host \
-      ghcr.io/filecoin-project/saturn-node:main
+      ghcr.io/filecoin-saturn/l1-node:main
     ```
     
 5. Check logs with `docker logs -f saturn-node`
