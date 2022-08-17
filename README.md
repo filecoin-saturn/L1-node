@@ -69,7 +69,7 @@ Saturn [L2 nodes](https://github.com/filecoin-saturn/L2-node).
 7. Download the [`update.sh`](update.sh) script
 
    ```shell
-   wget -O $HOME/update.sh https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh && chmod +x $HOME/update.sh
+   wget -O $HOME/update.sh https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh && chmod +x $HOME/update.sh
    ```
 8. Setup the cron to run every 5 minutes:
 
@@ -143,4 +143,4 @@ git commit -m "my commit message [skip ci]"
 
 ## License
 
-Dual-licensed under [MIT](https://github.com/filecoin-project/saturn-node/blob/master/LICENSE-MIT) + [Apache 2.0](https://github.com/filecoin-project/saturn-node/blob/master/LICENSE-APACHE)
+Dual-licensed under [MIT](https://github.com/filecoin-saturn/L1-node/blob/master/LICENSE-MIT) + [Apache 2.0](https://github.com/filecoin-saturn/L1-node/blob/master/LICENSE-APACHE)
