@@ -3,6 +3,7 @@ import { cpus } from 'node:os'
 import express from 'express'
 import mimeTypes from 'mime-types'
 import followRedirects from 'follow-redirects'
+import parseArgs from 'minimist'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
 import {
@@ -12,7 +13,8 @@ import {
   NODE_VERSION,
   nodeId,
   PORT,
-  TESTING_CID
+  TESTING_CID,
+  IPFS_GATEWAY_ORIGIN
 } from './config.js'
 import { streamCAR } from './utils/car.js'
 import { trapServer } from './utils/trap.js'
@@ -38,6 +40,8 @@ const PROXY_RESPONSE_HEADERS = [
   'x-content-type-options'
 ]
 
+const argv = parseArgs(process.argv.slice(2))
+
 if (cluster.isPrimary) {
   debug('Saturn L1 Node')
   debug.extend('id')(nodeId)
@@ -62,10 +66,12 @@ if (cluster.isPrimary) {
   process.on('SIGINT', shutdownCluster)
 
   setTimeout(async function () {
-    await register(true).catch(err => {
-      debug(`Failed to register ${err.name} ${err.message}`)
-      process.exit(1)
-    })
+    if (argv.register !== false) {
+      await register(true).catch(err => {
+        debug(`Failed to register ${err.name} ${err.message}`)
+        process.exit(1)
+      })
+    }
 
     // Start log ingestor
     await initLogIngestor()
@@ -123,7 +129,7 @@ if (cluster.isPrimary) {
       return res.send(testCAR)
     }
 
-    const ipfsUrl = new URL('https://ipfs.io' + req.path)
+    const ipfsUrl = new URL(IPFS_GATEWAY_ORIGIN + req.path)
     if (format) {
       ipfsUrl.searchParams.set('format', format)
     }

@@ -52,9 +52,10 @@ server {
     }
 
     location / {
-        if ($arg_clientId = "") {
-            return 403;
-        }
+        # TODO: This param is only required for untrusted 3rd party L1 operators.
+        # if ($arg_clientId = "") {
+        #     return 403;
+        # }
 
         proxy_pass              http://node_backend;
         proxy_buffering         on;
