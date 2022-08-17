@@ -8,6 +8,7 @@ import xorDistance from 'xor-distance'
 import { pipeline } from 'node:stream/promises'
 import pDefer from 'p-defer'
 import pTimeout from 'p-timeout'
+import timers from 'node:timers/promises'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
 import {
@@ -223,7 +224,7 @@ async function handleCID (req, res) {
   })
 }
 
-app.get('/register/:l2NodeId', function (req, res) {
+app.get('/register/:l2NodeId', async function (req, res) {
   res.writeHead(200, {
     'Cache-Control': 'no-cache'
   })
@@ -237,23 +238,16 @@ app.get('/register/:l2NodeId', function (req, res) {
     cleanedUp,
     idHash: crypto.createHash('sha512').update(l2NodeId).digest()
   })
-  const sendHeartbeat = () => res.write('{}\n')
-  sendHeartbeat()
-  const heartbeatInterval = setInterval(sendHeartbeat, 5_000)
-  const onEnd = function () {
-    clearInterval(heartbeatInterval)
-    if (!cleanedUp.value) {
-      removeConnectedL2Node(l2NodeId)
-    }
+  while (!res.destroyed) {
+    res.write('\n')
+    await timers.setTimeout(5_000)
   }
-  req.on('close', onEnd)
-  req.on('error', err => {
-    debug('request error %s', err.stack)
-    onEnd()
-  })
+  if (!cleanedUp.value) {
+    removeConnectedL2Node(l2NodeId)
+  }
 })
 
-app.post('/data/:cid', async function (req, res) {
+app.post('/data/:cid', function (req, res) {
   const { cid } = req.params
   const openCARRequest = openCARRequests.get(cid)
   if (!openCARRequest) {
