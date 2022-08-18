@@ -90,9 +90,9 @@ server {
         proxy_cache_key             $uri$format_final$arg_filename$arg_download;
         proxy_cache_lock            on;
         proxy_cache_valid           200 301 302 410     365d;
-        proxy_cache_valid           any                 1m;
+        proxy_cache_valid           any                 10s;
         proxy_cache_lock_age        30m;
-        proxy_cache_lock_timeout    30m;
+        proxy_cache_lock_timeout    10s;
         proxy_cache_use_stale       error timeout invalid_header updating http_502 http_503 http_504 http_429;
         proxy_cache_bypass          $arg_nocache;
         proxy_no_cache              $arg_nocache;
