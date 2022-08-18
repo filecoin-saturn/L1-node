@@ -40,7 +40,7 @@ Saturn [L2 nodes](https://github.com/filecoin-saturn/L2-node).
 
 1. Install docker ([Instructions here](https://docs.docker.com/engine/install/#server))
 2. Authenticate docker with the GitHub Container Registry ([Instructions here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry))
-3. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `/etc/environment` (global) and load them
+3. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `.bashrc` (user) and `/etc/environment` (global), and load them
    - If **Main network:** Set `SATURN_NETWORK` to `main` too
 4. Run the docker image:
 
