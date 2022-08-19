@@ -24,7 +24,7 @@ server {
     ssl_certificate             /usr/src/app/shared/ssl/node.crt;
     ssl_certificate_key         /usr/src/app/shared/ssl/node.key;
     ssl_protocols               TLSv1.2 TLSv1.3;
-    ssl_ciphers                 HIGH:!aNULL:!SHA:!SHA256:!CAMELLIA:!RSA; # SHA384 enabled for compat
+    ssl_ciphers                 HIGH:!aNULL:!SHA:!RSA; # SHA256/384 and CAMELLIA enabled for compat
     ssl_prefer_server_ciphers   on;
     ssl_session_cache           shared:SSL:100m;
     ssl_session_timeout         365d;
@@ -35,7 +35,7 @@ server {
     ssl_trusted_certificate     /usr/src/app/shared/ssl/node.crt;
     ssl_early_data              on;
 
-    resolver    8.8.8.8 8.8.4.4 valid=600s ipv6=off;
+    resolver    8.8.8.8 8.8.4.4 valid=600s;
 
     server_name _; # This is just an invalid value which will never trigger on a real hostname
     server_name_in_redirect off;
