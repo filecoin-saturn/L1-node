@@ -24,7 +24,7 @@ server {
     ssl_certificate             /usr/src/app/shared/ssl/node.crt;
     ssl_certificate_key         /usr/src/app/shared/ssl/node.key;
     ssl_protocols               TLSv1.2 TLSv1.3;
-    ssl_ciphers                 HIGH:!aNULL:!SHA:!SHA256:!SHA384:!CAMELLIA:!RSA;
+    ssl_ciphers                 HIGH:!aNULL:!SHA:!SHA256:!CAMELLIA:!RSA; # SHA384 enabled for compat
     ssl_prefer_server_ciphers   on;
     ssl_session_cache           shared:SSL:100m;
     ssl_session_timeout         365d;
@@ -40,7 +40,7 @@ server {
     server_name _; # This is just an invalid value which will never trigger on a real hostname
     server_name_in_redirect off;
 
-    access_log  /var/log/nginx/node-access.log node buffer=128k;
+    access_log  /var/log/nginx/node-access.log node buffer=256k;
 
     limit_req   zone=one burst=200 nodelay;
 
@@ -77,7 +77,7 @@ server {
         proxy_http_version      1.1;
 
         proxy_read_timeout          30m;
-        proxy_connect_timeout       125s;
+        proxy_connect_timeout       121s;
         proxy_ignore_client_abort   on;
 
         proxy_set_header        Host                $host;
@@ -90,9 +90,9 @@ server {
         proxy_cache_key             $uri$format_final$arg_filename$arg_download;
         proxy_cache_lock            on;
         proxy_cache_valid           200 301 302 410     365d;
-        proxy_cache_valid           any                 10s;
+        proxy_cache_valid           any                 1m;
         proxy_cache_lock_age        30m;
-        proxy_cache_lock_timeout    10s;
+        proxy_cache_lock_timeout    30m;
         proxy_cache_use_stale       error timeout invalid_header updating http_502 http_503 http_504 http_429;
         proxy_cache_bypass          $arg_nocache;
         proxy_no_cache              $arg_nocache;

@@ -79,7 +79,7 @@ if (cluster.isPrimary) {
 } else {
   const ipfsAgent = new https.Agent({
     keepAlive: true,
-    maxSockets: Math.floor(256 / cpus().length)
+    maxSockets: Math.floor(128 / cpus().length)
   })
 
   const app = express()
