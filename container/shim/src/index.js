@@ -130,10 +130,11 @@ async function handleCID (req, res) {
     return res.send(testCAR)
   }
 
-  if (SATURN_NETWORK !== 'main') {
-    if (await maybeRespondFromL2(req, res, cid)) {
-      return
-    }
+  if (
+    SATURN_NETWORK !== 'main' &&
+    await maybeRespondFromL2(req, res, cid)
+  ) {
+    return
   }
 
   debug(`Fetch ${req.path} from IPFS`)
