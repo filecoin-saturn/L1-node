@@ -71,7 +71,7 @@ setTimeout(async function () {
 
 const ipfsAgent = new https.Agent({
   keepAlive: true,
-  maxSockets: Math.floor(256 / cpus().length)
+  maxSockets: Math.floor(128 / cpus().length)
 })
 
 const app = express()
@@ -96,8 +96,6 @@ app.get('/favicon.ico', (req, res) => {
 })
 
 // Whenever nginx doesn't have a CAR file in cache, this is called
-app.get('/ipns/:cid', handleCID)
-app.get('/ipns/:cid/:path*', handleCID)
 app.get('/ipfs/:cid', handleCID)
 app.get('/ipfs/:cid/:path*', handleCID)
 

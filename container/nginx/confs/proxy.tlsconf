@@ -24,7 +24,7 @@ server {
     ssl_certificate             /usr/src/app/shared/ssl/node.crt;
     ssl_certificate_key         /usr/src/app/shared/ssl/node.key;
     ssl_protocols               TLSv1.2 TLSv1.3;
-    ssl_ciphers                 HIGH:!aNULL:!SHA:!SHA256:!SHA384:!CAMELLIA:!RSA;
+    ssl_ciphers                 HIGH:!aNULL:!SHA:!RSA; # SHA256/384 and CAMELLIA enabled for compat
     ssl_prefer_server_ciphers   on;
     ssl_session_cache           shared:SSL:100m;
     ssl_session_timeout         365d;
@@ -35,12 +35,12 @@ server {
     ssl_trusted_certificate     /usr/src/app/shared/ssl/node.crt;
     ssl_early_data              on;
 
-    resolver    8.8.8.8 8.8.4.4 valid=600s ipv6=off;
+    resolver    8.8.8.8 8.8.4.4 valid=600s;
 
     server_name _; # This is just an invalid value which will never trigger on a real hostname
     server_name_in_redirect off;
 
-    access_log  /var/log/nginx/node-access.log node buffer=128k;
+    access_log  /var/log/nginx/node-access.log node buffer=256k;
 
     limit_req   zone=one burst=200 nodelay;
 
@@ -49,6 +49,21 @@ server {
     location = / {
         add_header 'Strict-Transport-Security'      'max-age=63072000; includeSubDomains; preload' always;
         return 302 https://strn.network;
+    }
+
+    location ~ ^/(ipns|api)/ {
+        proxy_pass  https://ipfs.io;
+
+        if ($request_method = 'OPTIONS') {
+            add_header 'Timing-Allow-Origin'            '*';
+            add_header 'Access-Control-Allow-Origin'    '*';
+            add_header 'Access-Control-Allow-Methods'   'GET, POST, OPTIONS';
+            add_header 'Access-Control-Allow-Headers'   'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+            add_header 'Access-Control-Max-Age'         1728000;
+            add_header 'Content-Type'                   'text/plain; charset=utf-8';
+            add_header 'Content-Length'                 0;
+            return 204;
+        }
     }
 
     location / {
@@ -62,7 +77,7 @@ server {
         proxy_http_version      1.1;
 
         proxy_read_timeout          30m;
-        proxy_connect_timeout       125s;
+        proxy_connect_timeout       121s;
         proxy_ignore_client_abort   on;
 
         proxy_set_header        Host                $host;
@@ -103,7 +118,7 @@ server {
         }
     }
 
-    location ~* ^.*(QmPgVA4M2EGijWDtH59EYPSPXQhahsVUUytrs1wPJwpgBh|bafybeidgnebuxvarpnw2grmkgnamu6cv6|bafkreibk3n7kxz6ep4g6z6wr737jbd3upibwkzskp6olu7at7qa6bhrrc4|QmTuWjNEmtUd2HGqH5UJzBJ83EFE1yVLxsfgQvUmnFDdan|QmXg6yZZaehZuCzUmBQgfXQqsYF1vb1fJxaypXBPHPEXM7|bafkreibbogdqa6ikxpx56m2rcun3h5ygkrujhhqk6jgj3apwii6cgjpa4i).*$ {
+    location ~* ^.*(QmPgVA4M2EGijWDtH59EYPSPXQhahsVUUytrs1wPJwpgBh|bafybeidgnebuxvarpnw2grmkgnamu6cv6|bafkreibk3n7kxz6ep4g6z6wr737jbd3upibwkzskp6olu7at7qa6bhrrc4|QmTuWjNEmtUd2HGqH5UJzBJ83EFE1yVLxsfgQvUmnFDdan|QmXg6yZZaehZuCzUmBQgfXQqsYF1vb1fJxaypXBPHPEXM7|bafkreibbogdqa6ikxpx56m2rcun3h5ygkrujhhqk6jgj3apwii6cgjpa4i|bafybeicp3x52jgy3qhsrwaioemeck7vhnryq2i2dgodkakkixuzruo54wa|bafybeigyoslufnbi5haonpc3yiktbpdyvas7mqprpvb7wx2jsqyyn65oau|bafybeiaywbhyg43vdl3kkgybpbczcijr2cy4me7tozmc23asq3q4l7znqi).*$ {
         return 410;
     }
 

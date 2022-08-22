@@ -11,7 +11,7 @@ export const SATURN_NETWORK = process.env.SATURN_NETWORK
 export const ORCHESTRATOR_URL = process.env.ORCHESTRATOR_URL || networkToOrchestrator()
 export const LOG_INGESTOR_URL = process.env.LOG_INGESTOR_URL || networkToIngestor()
 export const FIL_WALLET_ADDRESS = process.env.FIL_WALLET_ADDRESS || error('FIL_WALLET_ADDRESS')
-export const NODE_OPERATOR_EMAIL = process.env.NODE_OPERATOR_EMAIL || null
+export const NODE_OPERATOR_EMAIL = process.env.NODE_OPERATOR_EMAIL || error('NODE_OPERATOR_EMAIL')
 export const IPFS_GATEWAY_ORIGIN = process.env.IPFS_GATEWAY_ORIGIN || 'https://ipfs.io'
 export const TESTING_CID = 'QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF'
 export const nodeId = await readFile(NODE_ID_FILE_PATH, 'utf-8').catch(() => false) || createNodeId()

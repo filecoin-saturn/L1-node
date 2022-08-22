@@ -1,6 +1,6 @@
 # Saturn L1 Node 🪐
 
-Saturn L1 node are CDN edge caches in the outermost layer of the
+Saturn L1 nodes are CDN edge caches in the outermost layer of the
 [Filecoin Saturn Network](https://strn.network/). L1 nodes serve CIDs
 and CID byte ranges to retrieval clients. Cache misses are served by
 Saturn [L2 nodes](https://github.com/filecoin-saturn/L2-node).
@@ -40,7 +40,7 @@ Saturn [L2 nodes](https://github.com/filecoin-saturn/L2-node).
 
 1. Install docker ([Instructions here](https://docs.docker.com/engine/install/#server))
 2. Authenticate docker with the GitHub Container Registry ([Instructions here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry))
-3. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `/etc/environment` (global) and load them
+3. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `.bashrc` (user) and `/etc/environment` (global), and load them
    - If **Main network:** Set `SATURN_NETWORK` to `main` too
 4. Run the docker image:
 
@@ -51,7 +51,7 @@ Saturn [L2 nodes](https://github.com/filecoin-saturn/L2-node).
       -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS \
       -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL \
       --network host \
-      ghcr.io/filecoin-project/saturn-node:test
+      ghcr.io/filecoin-saturn/l1-node:test
     ```
 
    **Main network (invitation only):**
@@ -61,7 +61,7 @@ Saturn [L2 nodes](https://github.com/filecoin-saturn/L2-node).
       -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS \
       -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL \
       --network host \
-      ghcr.io/filecoin-project/saturn-node:main
+      ghcr.io/filecoin-saturn/l1-node:main
     ```
     
 5. Check logs with `docker logs -f saturn-node`
@@ -69,7 +69,7 @@ Saturn [L2 nodes](https://github.com/filecoin-saturn/L2-node).
 7. Download the [`update.sh`](update.sh) script
 
    ```shell
-   wget -O $HOME/update.sh https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh && chmod +x $HOME/update.sh
+   wget -O $HOME/update.sh https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh && chmod +x $HOME/update.sh
    ```
 8. Setup the cron to run every 5 minutes:
 
@@ -143,4 +143,4 @@ git commit -m "my commit message [skip ci]"
 
 ## License
 
-Dual-licensed under [MIT](https://github.com/filecoin-project/saturn-node/blob/master/LICENSE-MIT) + [Apache 2.0](https://github.com/filecoin-project/saturn-node/blob/master/LICENSE-APACHE)
+Dual-licensed under [MIT](https://github.com/filecoin-saturn/L1-node/blob/master/LICENSE-MIT) + [Apache 2.0](https://github.com/filecoin-saturn/L1-node/blob/master/LICENSE-APACHE)
