@@ -57,7 +57,7 @@ export async function streamCAR (streamIn, streamOut) {
     // Note that this step is sufficient if you just want to safely verify the CAR's reported CIDs
     const hash = await hashes[cid.multihash.code].digest(bytes)
     if (toHex(hash.digest) !== toHex(cid.multihash.digest)) {
-      debug(`\nMismatch: digest of bytes (${toHex(hash)}) does not match digest in CID (${toHex(cid.multihash.digest)})`)
+      debug(`\nMismatch: digest of bytes (${toHex(hash.digest)}) does not match digest in CID (${toHex(cid.multihash.digest)})`)
       streamOut.status(502)
       break
     }
