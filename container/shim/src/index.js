@@ -4,6 +4,7 @@ import express from 'express'
 import mimeTypes from 'mime-types'
 import followRedirects from 'follow-redirects'
 import parseArgs from 'minimist'
+import asyncHandler from 'express-async-handler'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
 import {
@@ -93,11 +94,7 @@ if (cluster.isPrimary) {
     res.sendStatus(404)
   })
 
-  // Whenever nginx doesn't have a CAR file in cache, this is called
-  app.get('/ipfs/:cid', handleCID)
-  app.get('/ipfs/:cid/:path*', handleCID)
-
-  async function handleCID (req, res) {
+  const handleCID = asyncHandler(async (req, res) => {
     const cid = req.params.cid
     const format = getResponseFormat(req)
 
@@ -183,7 +180,11 @@ if (cluster.isPrimary) {
         ipfsReq.destroy()
       }
     })
-  }
+  })
+
+  // Whenever nginx doesn't have a CAR file in cache, this is called
+  app.get('/ipfs/:cid', handleCID)
+  app.get('/ipfs/:cid/:path*', handleCID)
 
   addRegisterCheckRoute(app)
 
