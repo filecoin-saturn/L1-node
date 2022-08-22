@@ -1,4 +1,5 @@
-import { Readable } from 'node:stream'
+import { Readable, pipeline } from 'node:stream'
+import { promisify } from 'node:util'
 import { CarBlockIterator, CarWriter } from '@ipld/car'
 import { bytes } from 'multiformats'
 import * as dagCbor from '@ipld/dag-cbor'
@@ -40,17 +41,23 @@ export async function streamCAR (streamIn, streamOut) {
   const carBlockIterator = await CarBlockIterator.fromIterable(streamIn)
   const { writer, out } = await CarWriter.create(await carBlockIterator.getRoots())
 
-  Readable.from(out).pipe(streamOut)
+  await Promise.all([
+    promisify(pipeline)(
+      Readable.from(out),
+      streamOut
+    ),
+    (async () => {
+      for await (const { cid, bytes } of carBlockIterator) {
+        if (!validateCarBlock(cid, bytes)) {
+          streamOut.status(502)
+          break
+        }
 
-  for await (const { cid, bytes } of carBlockIterator) {
-    if (!validateCarBlock(cid, bytes)) {
-      streamOut.status(502)
-      break
-    }
-
-    await writer.put({ cid, bytes })
-  }
-  await writer.close()
+        await writer.put({ cid, bytes })
+      }
+      await writer.close()
+    })()
+  ])
 }
 
 /**
