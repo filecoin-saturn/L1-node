@@ -1,10 +1,17 @@
 # Saturn L1 Node 🪐
 
-Saturn L1 node is the outermost layer of the Saturn Network.
-It allows retrieval clients to request CIDs and byte ranges of CIDs.
-The node returns CAR files from cache or falls back to inner level nodes.
+Saturn L1 nodes are CDN edge caches in the outermost layer of the
+[Filecoin Saturn Network](https://strn.network/). L1 nodes serve CIDs
+and CID byte ranges to retrieval clients. Cache misses are served by
+Saturn [L2 nodes](https://github.com/filecoin-saturn/L2-node).
 
-**Saturn is still in v0, but you can run a test-network node to help test Saturn today, we appreciate any and all feedback**
+**Saturn is under active development and not yet in production, but you
+  can still download and run a Saturn L1 to try it out for yourself in
+  Saturn's [test
+  network](https://orchestrator.saturn-test.network/). We'd love your
+  feedback in
+  [#filecoin-saturn](https://filecoinproject.slack.com/archives/C03DH0BL02E)
+  on [Filecoin Slack](https://filecoinproject.slack.com/).**
 
 
 ## Requirements
@@ -20,8 +27,8 @@ The node returns CAR files from cache or falls back to inner level nodes.
 - Docker installed ([Instructions here](https://docs.docker.com/engine/install/#server))
 - Modern CPU with 4 cores (8+ cores recommended)
 - 1Gbps upload bandwidth minimum (10Gbps+ recommended)<sup>1</sup>
-- 16GB RAM minimum (64GB+ recommended)
-- 1TB SSD minimum (4TB+ NVMe SSD in RAID0 recommended)<sup>2</sup>
+- 8GB RAM minimum (32GB+ recommended)
+- 1TB SSD minimum (4x1TB+ NVMe SSD in RAID 5 or RAID 10 recommended)<sup>2</sup>
 
 <sub>
 <sup>1</sup> The more you can serve &rarr; greater FIL earnings<br>
@@ -33,7 +40,7 @@ The node returns CAR files from cache or falls back to inner level nodes.
 
 1. Install docker ([Instructions here](https://docs.docker.com/engine/install/#server))
 2. Authenticate docker with the GitHub Container Registry ([Instructions here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry))
-3. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `/etc/environment` (global) and load them
+3. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `.bashrc` (user) and `/etc/environment` (global), and load them
    - If **Main network:** Set `SATURN_NETWORK` to `main` too
 4. Run the docker image:
 
@@ -44,7 +51,7 @@ The node returns CAR files from cache or falls back to inner level nodes.
       -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS \
       -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL \
       --network host \
-      ghcr.io/filecoin-project/saturn-node:test
+      ghcr.io/filecoin-saturn/l1-node:test
     ```
 
    **Main network (invitation only):**
@@ -54,7 +61,7 @@ The node returns CAR files from cache or falls back to inner level nodes.
       -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS \
       -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL \
       --network host \
-      ghcr.io/filecoin-project/saturn-node:main
+      ghcr.io/filecoin-saturn/l1-node:main
     ```
     
 5. Check logs with `docker logs -f saturn-node`
@@ -62,7 +69,7 @@ The node returns CAR files from cache or falls back to inner level nodes.
 7. Download the [`update.sh`](update.sh) script
 
    ```shell
-   wget -O $HOME/update.sh https://raw.githubusercontent.com/filecoin-project/saturn-node/main/update.sh && chmod +x $HOME/update.sh
+   wget -O $HOME/update.sh https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh && chmod +x $HOME/update.sh
    ```
 8. Setup the cron to run every 5 minutes:
 
@@ -136,4 +143,4 @@ git commit -m "my commit message [skip ci]"
 
 ## License
 
-Dual-licensed under [MIT](https://github.com/filecoin-project/saturn-node/blob/master/LICENSE-MIT) + [Apache 2.0](https://github.com/filecoin-project/saturn-node/blob/master/LICENSE-APACHE)
+Dual-licensed under [MIT](https://github.com/filecoin-saturn/L1-node/blob/master/LICENSE-MIT) + [Apache 2.0](https://github.com/filecoin-saturn/L1-node/blob/master/LICENSE-APACHE)

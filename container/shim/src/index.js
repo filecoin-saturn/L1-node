@@ -1,8 +1,9 @@
-import https from 'node:https'
 import fsPromises from 'node:fs/promises'
 import { cpus } from 'node:os'
 import express from 'express'
 import mimeTypes from 'mime-types'
+import followRedirects from 'follow-redirects'
+import parseArgs from 'minimist'
 
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
 import {
@@ -12,7 +13,8 @@ import {
   NODE_VERSION,
   nodeId,
   PORT,
-  TESTING_CID
+  TESTING_CID,
+  IPFS_GATEWAY_ORIGIN
 } from './config.js'
 import { streamCAR } from './utils/car.js'
 import { trapServer } from './utils/trap.js'
@@ -21,7 +23,24 @@ import { debug } from './utils/logging.js'
 import cluster from 'node:cluster'
 import { submitRetrievals, initLogIngestor } from './modules/log_ingestor.js'
 
+const { https } = followRedirects
+
 const GATEWAY_TIMEOUT = 120_000
+const PROXY_RESPONSE_HEADERS = [
+  'content-disposition',
+  'content-type',
+  'content-length',
+  'cache-control',
+  'etag',
+  'last-modified',
+  'location',
+  'x-ipfs-path',
+  'x-ipfs-roots',
+  'x-ipfs-datasize',
+  'x-content-type-options'
+]
+
+const argv = parseArgs(process.argv.slice(2))
 
 if (cluster.isPrimary) {
   debug('Saturn L1 Node')
@@ -47,10 +66,12 @@ if (cluster.isPrimary) {
   process.on('SIGINT', shutdownCluster)
 
   setTimeout(async function () {
-    await register(true).catch(err => {
-      debug(`Failed to register ${err.name} ${err.message}`)
-      process.exit(1)
-    })
+    if (argv.register !== false) {
+      await register(true).catch(err => {
+        debug(`Failed to register ${err.name} ${err.message}`)
+        process.exit(1)
+      })
+    }
 
     // Start log ingestor
     await initLogIngestor()
@@ -58,7 +79,7 @@ if (cluster.isPrimary) {
 } else {
   const ipfsAgent = new https.Agent({
     keepAlive: true,
-    maxSockets: Math.floor(256 / cpus().length)
+    maxSockets: Math.floor(128 / cpus().length)
   })
 
   const app = express()
@@ -78,13 +99,12 @@ if (cluster.isPrimary) {
 
   async function handleCID (req, res) {
     const cid = req.params.cid
-    const path = req.params.path ? (req.params.path + req.params[0]) : null
     const format = getResponseFormat(req)
 
-    debug(`Cache miss for ${cid}` + (path ? `/${path}` : ''))
+    debug(`Cache miss for ${req.path}`)
 
     res.set({
-      'Content-Type': mimeTypes.lookup(path) || 'application/octet-stream',
+      'Content-Type': mimeTypes.lookup(req.path) || 'application/octet-stream',
       'Cache-Control': 'public, max-age=31536000, immutable',
       'Saturn-Node-Id': nodeId,
       'Saturn-Node-Version': NODE_VERSION
@@ -107,12 +127,14 @@ if (cluster.isPrimary) {
       return res.send(testCAR)
     }
 
-    let ipfsUrl = `https://ipfs.io/ipfs/${cid}`
-    if (path) {
-      ipfsUrl += `/${path}`
-    }
+    const ipfsUrl = new URL(IPFS_GATEWAY_ORIGIN + req.path)
     if (format) {
-      ipfsUrl += `?format=${format}`
+      ipfsUrl.searchParams.set('format', format)
+    }
+    for (const key of ['filename', 'download']) {
+      if (key in req.query) {
+        ipfsUrl.searchParams.set(key, req.query[key])
+      }
     }
 
     const controller = new AbortController()
@@ -128,13 +150,12 @@ if (cluster.isPrimary) {
     }, async fetchRes => {
       clearTimeout(timeout)
       const { statusCode } = fetchRes
-      if (statusCode !== 200) {
+      if (statusCode >= 400) {
         debug.extend('error')(`Invalid response from IPFS gateway (${statusCode}) for ${cid}`)
-        fetchRes.resume()
-        return res.sendStatus(502)
       }
 
-      res.set('Content-Type', fetchRes.headers['content-type'])
+      res.status(statusCode)
+      proxyResponseHeaders(fetchRes, res)
 
       if (format === 'car') {
         streamCAR(fetchRes, res).catch(() => {})
@@ -170,7 +191,18 @@ if (cluster.isPrimary) {
     debug.extend('server')('shim process running')
   })
 
+  server.keepAliveTimeout = 60 * 60 * 1000
+
   trapServer(server)
+}
+
+// https://github.com/ipfs/specs/blob/main/http-gateways/PATH_GATEWAY.md#response-headers
+function proxyResponseHeaders (ipfsRes, nodeRes) {
+  for (const key of PROXY_RESPONSE_HEADERS) {
+    if (key in ipfsRes.headers) {
+      nodeRes.set(key, ipfsRes.headers[key])
+    }
+  }
 }
 
 function getResponseFormat (req) {

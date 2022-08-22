@@ -27,8 +27,8 @@ const agentOpts = {
 const agent = ORCHESTRATOR_URL.includes('https') ? new https.Agent(agentOpts) : new http.Agent(agentOpts)
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
-// Upload speed should be great than 200 Mbps
-const MAIN_NET_MINIMUM_UPLOAD_BW_BYTES = 200 * 1000 * 1000 / 8
+// Upload speed should be great than 100 Mbps
+const MAIN_NET_MINIMUM_UPLOAD_BW_BYTES = 100 * 1000 * 1000 / 8
 
 export async function register (initial) {
   const body = {
@@ -44,19 +44,20 @@ export async function register (initial) {
   }
 
   if (NODE_VERSION !== DEV_VERSION && (initial || Math.random() < 0.005)) {
+    let speedtest
     try {
-      const speedtest = await getSpeedtest()
-      if (speedtest.upload.bandwidth < MAIN_NET_MINIMUM_UPLOAD_BW_BYTES) {
-        if (SATURN_NETWORK === 'main') {
-          throw new Error(`Node's upload speed is not enough, ${SATURN_NETWORK} network requirement is 1 Gbps`)
-        } else {
-          debug('WARNING: This node\'s upload speed is not enough for main network')
-        }
-      }
-      Object.assign(body, { speedtest })
+      speedtest = await getSpeedtest()
     } catch (err) {
       debug(`Error while performing speedtest: ${err.name} ${err.message}`)
     }
+    if (speedtest?.upload.bandwidth < MAIN_NET_MINIMUM_UPLOAD_BW_BYTES) {
+      if (SATURN_NETWORK === 'main') {
+        throw new Error(`Node's upload speed is not enough, ${SATURN_NETWORK} network requirement is 1 Gbps`)
+      } else {
+        debug('WARNING: This node\'s upload speed is not enough for main network')
+      }
+    }
+    Object.assign(body, { speedtest })
   }
 
   const registerOptions = postOptions(body)

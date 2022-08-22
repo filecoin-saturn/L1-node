@@ -51,6 +51,8 @@ jobs:
           push: true
           tags: ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
+          cache-to: type=inline
           build-args: |
             GIT_COMMIT_HASH=${{ github.sha }}
             RUN_NUMBER=${{ github.run_number }}
