@@ -23,7 +23,7 @@ import {
   SATURN_NETWORK,
   TESTING_CID
 } from './config.js'
-import { streamCAR } from './utils/car.js'
+import { streamCAR, streamRawFromCAR } from './utils/car.js'
 import { trapServer } from './utils/trap.js'
 import { debug } from './utils/logging.js'
 
@@ -133,7 +133,7 @@ async function handleCID (req, res) {
 
   if (
     SATURN_NETWORK !== 'main' &&
-    await maybeRespondFromL2(req, res, cid)
+    await maybeRespondFromL2(req, res, { cid, format })
   ) {
     return
   }
@@ -197,7 +197,7 @@ async function handleCID (req, res) {
   })
 }
 
-async function maybeRespondFromL2 (req, res, cid) {
+async function maybeRespondFromL2 (req, res, { cid, format }) {
   debug(`Fetch ${req.path} from L2s`)
   const cidHash = crypto.createHash('sha512').update(cid).digest()
   Array.from(connectedL2Nodes.values())
@@ -232,7 +232,11 @@ async function maybeRespondFromL2 (req, res, cid) {
   } catch {}
   if (carResponse) {
     try {
-      await streamCAR(carResponse.req, res)
+      if (format === 'car') {
+        await streamCAR(carResponse.req, res)
+      } else {
+        await streamRawFromCAR(carResponse.req, res)
+      }
       return true
     } finally {
       carResponse.res.end()
