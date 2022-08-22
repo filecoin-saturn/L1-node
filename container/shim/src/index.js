@@ -5,7 +5,6 @@ import mimeTypes from 'mime-types'
 import followRedirects from 'follow-redirects'
 import crypto from 'node:crypto'
 import xorDistance from 'xor-distance'
-import { pipeline } from 'node:stream/promises'
 import pDefer from 'p-defer'
 import pTimeout from 'p-timeout'
 import timers from 'node:timers/promises'
@@ -163,7 +162,7 @@ async function handleCID (req, res) {
   } catch {}
   if (carResponse) {
     try {
-      await pipeline(carResponse.req, res)
+      await streamCAR(carResponse.req, res)
       return
     } finally {
       carResponse.res.end()
