@@ -13,13 +13,14 @@ import parseArgs from 'minimist'
 import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
 import {
   FIL_WALLET_ADDRESS,
+  IPFS_GATEWAY_ORIGIN,
   NODE_OPERATOR_EMAIL,
   NODE_UA,
   NODE_VERSION,
   nodeId,
   PORT,
-  TESTING_CID,
-  IPFS_GATEWAY_ORIGIN
+  SATURN_NETWORK,
+  TESTING_CID
 } from './config.js'
 import { streamCAR } from './utils/car.js'
 import { trapServer } from './utils/trap.js'
@@ -129,41 +130,43 @@ async function handleCID (req, res) {
     return res.send(testCAR)
   }
 
-  debug(`Fetch ${req.path} from L2s`)
-  const cidHash = crypto.createHash('sha512').update(cid).digest()
-  Array.from(connectedL2Nodes.values())
-    .map(l2Node => ({
-      ...l2Node,
-      distance: xorDistance(
-        cidHash,
-        l2Node.idHash
-      )
-    }))
-    .sort((a, b) => xorDistance.compare(a.distance, b.distance))
-    .slice(0, 3)
-    .forEach(({ res }) => {
-      const payload = {
-        requestId: req.get('saturn-transfer-id'),
-        cid
-      }
-      res.write(`${JSON.stringify(payload)}\n`)
-    })
+  if (SATURN_NETWORK !== 'main') {
+    debug(`Fetch ${req.path} from L2s`)
+    const cidHash = crypto.createHash('sha512').update(cid).digest()
+    Array.from(connectedL2Nodes.values())
+      .map(l2Node => ({
+        ...l2Node,
+        distance: xorDistance(
+          cidHash,
+          l2Node.idHash
+        )
+      }))
+      .sort((a, b) => xorDistance.compare(a.distance, b.distance))
+      .slice(0, 3)
+      .forEach(({ res }) => {
+        const payload = {
+          requestId: req.get('saturn-transfer-id'),
+          cid
+        }
+        res.write(`${JSON.stringify(payload)}\n`)
+      })
 
-  const onResponse = pDefer()
-  openCARRequests.set(cid, onResponse)
+    const onResponse = pDefer()
+    openCARRequests.set(cid, onResponse)
 
-  let carResponse
-  try {
-    carResponse = await pTimeout(onResponse.promise, {
-      milliseconds: 10_000
-    })
-  } catch {}
-  if (carResponse) {
+    let carResponse
     try {
-      await streamCAR(carResponse.req, res)
-      return
-    } finally {
-      carResponse.res.end()
+      carResponse = await pTimeout(onResponse.promise, {
+        milliseconds: 10_000
+      })
+    } catch {}
+    if (carResponse) {
+      try {
+        await streamCAR(carResponse.req, res)
+        return
+      } finally {
+        carResponse.res.end()
+      }
     }
   }
 
