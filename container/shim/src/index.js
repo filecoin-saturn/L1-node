@@ -131,42 +131,8 @@ async function handleCID (req, res) {
   }
 
   if (SATURN_NETWORK !== 'main') {
-    debug(`Fetch ${req.path} from L2s`)
-    const cidHash = crypto.createHash('sha512').update(cid).digest()
-    Array.from(connectedL2Nodes.values())
-      .map(l2Node => ({
-        ...l2Node,
-        distance: xorDistance(
-          cidHash,
-          l2Node.idHash
-        )
-      }))
-      .sort((a, b) => xorDistance.compare(a.distance, b.distance))
-      .slice(0, 3)
-      .forEach(({ res }) => {
-        const payload = {
-          requestId: req.get('saturn-transfer-id'),
-          cid
-        }
-        res.write(`${JSON.stringify(payload)}\n`)
-      })
-
-    const onResponse = pDefer()
-    openCARRequests.set(cid, onResponse)
-
-    let carResponse
-    try {
-      carResponse = await pTimeout(onResponse.promise, {
-        milliseconds: 10_000
-      })
-    } catch {}
-    if (carResponse) {
-      try {
-        await streamCAR(carResponse.req, res)
-        return
-      } finally {
-        carResponse.res.end()
-      }
+    if (await maybeRespondFromL2(req, res, cid)) {
+      return
     }
   }
 
@@ -227,6 +193,47 @@ async function handleCID (req, res) {
       ipfsReq.destroy()
     }
   })
+}
+
+async function maybeRespondFromL2 (req, res, cid) {
+  debug(`Fetch ${req.path} from L2s`)
+  const cidHash = crypto.createHash('sha512').update(cid).digest()
+  Array.from(connectedL2Nodes.values())
+    .map(l2Node => ({
+      ...l2Node,
+      distance: xorDistance(
+        cidHash,
+        l2Node.idHash
+      )
+    }))
+    .sort((a, b) => xorDistance.compare(a.distance, b.distance))
+    .slice(0, 3)
+    .forEach(({ res }) => {
+      const payload = {
+        requestId: req.get('saturn-transfer-id'),
+        cid
+      }
+      res.write(`${JSON.stringify(payload)}\n`)
+    })
+
+  const onResponse = pDefer()
+  openCARRequests.set(cid, onResponse)
+
+  let carResponse
+  try {
+    carResponse = await pTimeout(onResponse.promise, {
+      milliseconds: 10_000
+    })
+  } catch {}
+  if (carResponse) {
+    try {
+      await streamCAR(carResponse.req, res)
+      return true
+    } finally {
+      carResponse.res.end()
+    }
+  }
+  return false
 }
 
 app.get('/register/:l2NodeId', async function (req, res) {
