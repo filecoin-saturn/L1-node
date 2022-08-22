@@ -14,6 +14,7 @@ import { addRegisterCheckRoute, deregister, register } from './modules/registrat
 import {
   FIL_WALLET_ADDRESS,
   IPFS_GATEWAY_ORIGIN,
+  L2_FIRE_AND_FORGET,
   NODE_OPERATOR_EMAIL,
   NODE_UA,
   NODE_VERSION,
@@ -216,6 +217,9 @@ async function maybeRespondFromL2 (req, res, cid) {
       }
       res.write(`${JSON.stringify(payload)}\n`)
     })
+  if (L2_FIRE_AND_FORGET) {
+    return false
+  }
 
   const onResponse = pDefer()
   openCARRequests.set(cid, onResponse)
