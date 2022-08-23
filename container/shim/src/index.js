@@ -133,6 +133,7 @@ async function handleCID (req, res) {
 
   if (
     SATURN_NETWORK !== 'main' &&
+    !req.params.path &&
     await maybeRespondFromL2(req, res, { cid, format })
   ) {
     return
