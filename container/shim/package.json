@@ -13,13 +13,13 @@
     "@multiformats/blake2": "^1.0.10",
     "blockstore-core": "^1.0.5",
     "debug": "^4.3.4",
-    "express": "^4.18.1",
     "follow-redirects": "^1.15.1",
+    "http-assert": "^1.5.0",
     "ipfs-unixfs-exporter": "^7.0.11",
     "mime-types": "^2.1.35",
     "minimist": "^1.2.6",
     "multiformats": "^9.7.0",
-    "node-fetch": "^3.2.6",
+    "node-fetch": "^3.2.10",
     "pretty-bytes": "^6.0.0"
   },
   "devDependencies": {

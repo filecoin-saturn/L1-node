@@ -3,6 +3,7 @@ import http from 'http'
 import https from 'node:https'
 import fsPromises from 'node:fs/promises'
 import fetch from 'node-fetch'
+import httpAssert from 'http-assert'
 
 import {
   DEV_VERSION,
@@ -160,16 +161,17 @@ async function _deregister () {
   }
 }
 
-export const addRegisterCheckRoute = (app) => app.get('/register-check', (req, res) => {
-  const ip = req.ip.replace('::ffff:', '')
-  const { nodeId: receivedNodeId } = req.query
+export const handleRegisterCheck = (req, res) => {
+  const remoteAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+  const ip = remoteAddress.replace('::ffff:', '')
+  const receivedNodeId = new URL(req.url).searchParams.get('nodeId')
   if (receivedNodeId !== nodeId) {
     debug.extend('check')(`Check failed, nodeId mismatch. Received: ${receivedNodeId} from IP ${ip}`)
-    return res.sendStatus(403)
+    return httpAssert.fail(403)
   }
   debug.extend('check')('Successful')
-  res.sendStatus(200)
-})
+  res.end('ok')
+}
 
 function postOptions (body) {
   return {
