@@ -23,8 +23,6 @@ else
   rm -f "$target.tmp"
 fi
 
-grep "504 Gateway Timeout" -lr $SATURN_HOME/shared/nginx_cache | xargs rm
-
 echo -n $(date -u) "Checking for Saturn L1 node updates... "
 
 out=$(sudo docker pull ghcr.io/filecoin-saturn/l1-node:$SATURN_NETWORK)
