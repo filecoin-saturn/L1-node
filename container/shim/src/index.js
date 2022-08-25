@@ -2,12 +2,12 @@ import fs from 'node:fs'
 import http from 'node:http'
 import { cpus } from 'node:os'
 import { promisify } from 'node:util'
-import { once } from 'node:events'
 import { pipeline } from 'node:stream/promises'
 import mimeTypes from 'mime-types'
 import followRedirects from 'follow-redirects'
 import parseArgs from 'minimist'
 import httpAssert from 'http-assert'
+import fetch, { AbortError } from 'node-fetch'
 
 import { handleRegisterCheck, deregister, register } from './modules/registration.js'
 import {
@@ -146,54 +146,40 @@ class L1Node {
       controller.abort()
     }, GATEWAY_TIMEOUT)
 
-    const ipfsReq = https.get(ipfsUrl, {
-      agent: this.ipfsAgent,
-      timeout: GATEWAY_TIMEOUT,
-      headers: { 'User-Agent': NODE_UA },
-      signal: controller.signal
-    })
-
     let fetchRes
-
     try {
-      [fetchRes] = await Promise.race([
-        once(ipfsReq, 'response'),
-        (async () => {
-          await once(ipfsReq, 'timeout')
-          debug.extend('error')(`Timeout from IPFS gateway for ${cid}`)
-          ipfsReq.destroy()
-          res.destroy()
-        })(),
-        (async () => {
-          await once(req, 'close')
-          if (!res.writableEnded) {
-            debug.extend('error')('Client aborted early, terminating gateway request')
-            ipfsReq.destroy()
-          }
-        })()
-      ])
+      fetchRes = await fetch(ipfsUrl, {
+        agent: this.ipfsAgent,
+        timeout: GATEWAY_TIMEOUT,
+        headers: { 'User-Agent': NODE_UA },
+        signal: controller.signal
+      })
     } catch (err) {
-      debug.extend('error')(`Error fetching from IPFS gateway for ${cid}: ${err.name} ${err.message}`)
-      httpAssert(!controller.signal.aborted, 504)
-      httpAssert.fail(502)
+      if (err instanceof AbortError) {
+        debug.extend('error')(`Timeout from IPFS gateway for ${cid}`)
+        res.destroy()
+      } else {
+        debug.extend('error')(`Error fetching from IPFS gateway for ${cid}: ${err.name} ${err.message}`)
+        httpAssert(!controller.signal.aborted, 504)
+        httpAssert.fail(502)
+      }
+      return
     } finally {
       clearTimeout(timeout)
     }
 
-    if (fetchRes) {
-      const { statusCode } = fetchRes
-      if (statusCode >= 400) {
-        debug.extend('error')(`Invalid response from IPFS gateway (${statusCode}) for ${cid}`)
-      }
+    const { status } = fetchRes
+    if (status >= 400) {
+      debug.extend('error')(`Invalid response from IPFS gateway (${status}) for ${cid}`)
+    }
 
-      res.statusCode = statusCode
-      proxyResponseHeaders(fetchRes, res)
+    res.statusCode = status
+    proxyResponseHeaders(fetchRes, res)
 
-      if (format === 'car') {
-        await streamCAR(fetchRes, res)
-      } else {
-        await pipeline(fetchRes, res)
-      }
+    if (format === 'car') {
+      await streamCAR(fetchRes.body, res)
+    } else {
+      await pipeline(fetchRes.body, res)
     }
   }
 }
