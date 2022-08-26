@@ -50,7 +50,7 @@ export async function register (initial) {
     } catch (err) {
       debug(`Error while performing speedtest: ${err.name} ${err.message}`)
     }
-    if (speedtest?.upload.bandwidth < MAIN_NET_MINIMUM_UPLOAD_BW_BYTES) {
+    if (initial && speedtest?.upload.bandwidth < MAIN_NET_MINIMUM_UPLOAD_BW_BYTES) {
       if (SATURN_NETWORK === 'main') {
         throw new Error(`Node's upload speed is not enough, ${SATURN_NETWORK} network requirement is 1 Gbps`)
       } else {
