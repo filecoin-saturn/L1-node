@@ -1,5 +1,7 @@
 import fsPromises from 'node:fs/promises'
 import { cpus } from 'node:os'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import express from 'express'
 import mimeTypes from 'mime-types'
 import followRedirects from 'follow-redirects'
@@ -78,7 +80,12 @@ const ipfsAgent = new https.Agent({
 
 const app = express()
 
-const testCAR = await fsPromises.readFile('./public/QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car')
+const testCAR = await fsPromises.readFile(join(
+  dirname(fileURLToPath(import.meta.url)),
+  '..',
+  'public',
+  'QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car'
+))
 
 const connectedL2Nodes = new Map()
 const openCARRequests = new Map()
@@ -165,6 +172,7 @@ async function handleCID (req, res) {
     const { statusCode } = fetchRes
     if (statusCode >= 400) {
       debug.extend('error')(`Invalid response from IPFS gateway (${statusCode}) for ${cid}`)
+      res.removeHeader('Cache-Control')
     }
 
     res.status(statusCode)
