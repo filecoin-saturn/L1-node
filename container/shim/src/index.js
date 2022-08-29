@@ -114,6 +114,7 @@ async function handleCID (req, res) {
     const { statusCode } = fetchRes
     if (statusCode >= 400) {
       debug.extend('error')(`Invalid response from IPFS gateway (${statusCode}) for ${cid}`)
+      res.removeHeader('Cache-Control')
     }
 
     res.status(statusCode)
