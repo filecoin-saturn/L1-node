@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import express from 'express'
 import mimeTypes from 'mime-types'
 import followRedirects from 'follow-redirects'
+import asyncHandler from 'express-async-handler'
 
 import { addRegisterCheckRoute } from './modules/registration.js'
 import {
@@ -55,11 +56,7 @@ app.get('/favicon.ico', (req, res) => {
   res.sendStatus(404)
 })
 
-// Whenever nginx doesn't have a CAR file in cache, this is called
-app.get('/ipfs/:cid', handleCID)
-app.get('/ipfs/:cid/:path*', handleCID)
-
-async function handleCID (req, res) {
+const handleCID = asyncHandler(async (req, res) => {
   const cid = req.params.cid
   const format = getResponseFormat(req)
 
@@ -146,7 +143,11 @@ async function handleCID (req, res) {
       ipfsReq.destroy()
     }
   })
-}
+})
+
+// Whenever nginx doesn't have a CAR file in cache, this is called
+app.get('/ipfs/:cid', handleCID)
+app.get('/ipfs/:cid/:path*', handleCID)
 
 addRegisterCheckRoute(app)
 
