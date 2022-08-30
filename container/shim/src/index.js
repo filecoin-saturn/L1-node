@@ -5,17 +5,24 @@ import { fileURLToPath } from 'node:url'
 import express from 'express'
 import mimeTypes from 'mime-types'
 import followRedirects from 'follow-redirects'
+import crypto from 'node:crypto'
+import xorDistance from 'xor-distance'
+import pDefer from 'p-defer'
+import pTimeout from 'p-timeout'
+import timers from 'node:timers/promises'
 import asyncHandler from 'express-async-handler'
 
 import { addRegisterCheckRoute } from './modules/registration.js'
 import {
+  IPFS_GATEWAY_ORIGIN,
+  L2_FIRE_AND_FORGET,
   NODE_UA,
   NODE_VERSION,
   nodeId,
-  TESTING_CID,
-  IPFS_GATEWAY_ORIGIN
+  SATURN_NETWORK,
+  TESTING_CID
 } from './config.js'
-import { streamCAR } from './utils/car.js'
+import { streamCAR, streamRawFromCAR } from './utils/car.js'
 import { debug } from './utils/logging.js'
 
 const { https } = followRedirects
@@ -48,6 +55,16 @@ const testCAR = await fsPromises.readFile(join(
   'public',
   `${TESTING_CID}.car`
 ))
+
+const connectedL2Nodes = new Map()
+const openCARRequests = new Map()
+
+function removeConnectedL2Node (id) {
+  const { res, cleanedUp } = connectedL2Nodes.get(id)
+  cleanedUp.value = true
+  res.end()
+  connectedL2Nodes.delete(id)
+}
 
 app.disable('x-powered-by')
 app.set('trust proxy', true)
@@ -85,6 +102,16 @@ const handleCID = asyncHandler(async (req, res) => {
   if (cid === TESTING_CID) {
     return res.send(testCAR)
   }
+
+  if (
+    SATURN_NETWORK !== 'main' &&
+    !req.params.path &&
+    await maybeRespondFromL2(req, res, { cid, format })
+  ) {
+    return
+  }
+
+  debug(`Fetch ${req.path} from IPFS`)
 
   const ipfsUrl = new URL(IPFS_GATEWAY_ORIGIN + req.path)
   if (format) {
@@ -148,6 +175,88 @@ const handleCID = asyncHandler(async (req, res) => {
 // Whenever nginx doesn't have a CAR file in cache, this is called
 app.get('/ipfs/:cid', handleCID)
 app.get('/ipfs/:cid/:path*', handleCID)
+
+async function maybeRespondFromL2 (req, res, { cid, format }) {
+  debug(`Fetch ${req.path} from L2s`)
+  const cidHash = crypto.createHash('sha512').update(cid).digest()
+  Array.from(connectedL2Nodes.values())
+    .map(l2Node => ({
+      ...l2Node,
+      distance: xorDistance(
+        cidHash,
+        l2Node.idHash
+      )
+    }))
+    .sort((a, b) => xorDistance.compare(a.distance, b.distance))
+    .slice(0, 3)
+    .forEach(({ res }) => {
+      const payload = {
+        requestId: req.get('saturn-transfer-id'),
+        cid
+      }
+      res.write(`${JSON.stringify(payload)}\n`)
+    })
+  if (L2_FIRE_AND_FORGET) {
+    return false
+  }
+
+  const onResponse = pDefer()
+  openCARRequests.set(cid, onResponse)
+
+  let carResponse
+  try {
+    carResponse = await pTimeout(onResponse.promise, {
+      milliseconds: 10_000
+    })
+  } catch {}
+  if (carResponse) {
+    try {
+      if (format === 'car') {
+        await streamCAR(carResponse.req, res)
+      } else {
+        await streamRawFromCAR(carResponse.req, res)
+      }
+      return true
+    } finally {
+      carResponse.res.end()
+    }
+  }
+  return false
+}
+
+app.get('/register/:l2NodeId', asyncHandler(async function (req, res) {
+  res.writeHead(200, {
+    'Cache-Control': 'no-cache'
+  })
+  const { l2NodeId } = req.params
+  if (connectedL2Nodes.has(l2NodeId)) {
+    removeConnectedL2Node(l2NodeId)
+  }
+  const cleanedUp = { value: false }
+  connectedL2Nodes.set(l2NodeId, {
+    res,
+    cleanedUp,
+    idHash: crypto.createHash('sha512').update(l2NodeId).digest()
+  })
+  while (!res.destroyed) {
+    res.write('\n')
+    await timers.setTimeout(5_000)
+  }
+  if (!cleanedUp.value) {
+    removeConnectedL2Node(l2NodeId)
+  }
+}))
+
+app.post('/data/:cid', function (req, res) {
+  const { cid } = req.params
+  const openCARRequest = openCARRequests.get(cid)
+  if (!openCARRequest) {
+    res.end()
+    return
+  }
+  openCARRequests.delete(cid)
+  openCARRequest.resolve({ req, res })
+})
 
 addRegisterCheckRoute(app)
 

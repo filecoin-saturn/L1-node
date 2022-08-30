@@ -15,6 +15,7 @@ export const NODE_OPERATOR_EMAIL = process.env.NODE_OPERATOR_EMAIL || error('NOD
 export const IPFS_GATEWAY_ORIGIN = process.env.IPFS_GATEWAY_ORIGIN || 'https://ipfs.io'
 export const TESTING_CID = 'QmXjYBY478Cno4jzdCcPy4NcJYFrwHZ51xaCP8vUwN9MGm'
 export const nodeId = await readFile(NODE_ID_FILE_PATH, 'utf-8').catch(() => false) || createNodeId()
+export const L2_FIRE_AND_FORGET = SATURN_NETWORK === 'test'
 
 export let nodeToken = ''
 export const updateNodeToken = (newToken) => { nodeToken = newToken }
