@@ -10,26 +10,20 @@ import xorDistance from 'xor-distance'
 import pDefer from 'p-defer'
 import pTimeout from 'p-timeout'
 import timers from 'node:timers/promises'
-import parseArgs from 'minimist'
+import asyncHandler from 'express-async-handler'
 
-import { addRegisterCheckRoute, deregister, register } from './modules/registration.js'
+import { addRegisterCheckRoute } from './modules/registration.js'
 import {
-  FIL_WALLET_ADDRESS,
   IPFS_GATEWAY_ORIGIN,
   L2_FIRE_AND_FORGET,
-  NODE_OPERATOR_EMAIL,
   NODE_UA,
   NODE_VERSION,
   nodeId,
-  PORT,
   SATURN_NETWORK,
   TESTING_CID
 } from './config.js'
 import { streamCAR, streamRawFromCAR } from './utils/car.js'
-import { trapServer } from './utils/trap.js'
 import { debug } from './utils/logging.js'
-
-import { submitRetrievals, initLogIngestor } from './modules/log_ingestor.js'
 
 const { https } = followRedirects
 
@@ -47,31 +41,6 @@ const PROXY_RESPONSE_HEADERS = [
   'x-ipfs-datasize',
   'x-content-type-options'
 ]
-
-const argv = parseArgs(process.argv.slice(2))
-
-debug('Saturn L1 Node')
-debug.extend('id')(nodeId)
-debug.extend('version')(NODE_VERSION)
-debug.extend('important')('===== IMPORTANT =====')
-debug.extend('important')(`Earnings will be sent to Filecoin wallet address: ${FIL_WALLET_ADDRESS}`)
-debug.extend('important')(NODE_OPERATOR_EMAIL ? `Payment notifications and important update will be sent to: ${NODE_OPERATOR_EMAIL}` : 'NO OPERATOR EMAIL SET, WE HIGHLY RECOMMEND SETTING ONE')
-debug.extend('important')('===== IMPORTANT =====')
-
-process.on('SIGQUIT', shutdown)
-process.on('SIGINT', shutdown)
-
-setTimeout(async function () {
-  if (argv.register !== false) {
-    await register(true).catch(err => {
-      debug(`Failed to register ${err.name} ${err.message}`)
-      process.exit(1)
-    })
-  }
-
-  // Start log ingestor
-  await initLogIngestor()
-}, 500)
 
 const ipfsAgent = new https.Agent({
   keepAlive: true,
@@ -104,11 +73,7 @@ app.get('/favicon.ico', (req, res) => {
   res.sendStatus(404)
 })
 
-// Whenever nginx doesn't have a CAR file in cache, this is called
-app.get('/ipfs/:cid', handleCID)
-app.get('/ipfs/:cid/:path*', handleCID)
-
-async function handleCID (req, res) {
+const handleCID = asyncHandler(async (req, res) => {
   const cid = req.params.cid
   const format = getResponseFormat(req)
 
@@ -147,6 +112,7 @@ async function handleCID (req, res) {
   }
 
   debug(`Fetch ${req.path} from IPFS`)
+
   const ipfsUrl = new URL(IPFS_GATEWAY_ORIGIN + req.path)
   if (format) {
     ipfsUrl.searchParams.set('format', format)
@@ -204,7 +170,11 @@ async function handleCID (req, res) {
       ipfsReq.destroy()
     }
   })
-}
+})
+
+// Whenever nginx doesn't have a CAR file in cache, this is called
+app.get('/ipfs/:cid', handleCID)
+app.get('/ipfs/:cid/:path*', handleCID)
 
 async function maybeRespondFromL2 (req, res, { cid, format }) {
   debug(`Fetch ${req.path} from L2s`)
@@ -290,13 +260,7 @@ app.post('/data/:cid', function (req, res) {
 
 addRegisterCheckRoute(app)
 
-const server = app.listen(PORT, '127.0.0.1', async () => {
-  debug.extend('server')('shim process running')
-})
-
-server.keepAliveTimeout = 60 * 60 * 1000
-
-trapServer(server)
+export default app
 
 // https://github.com/ipfs/specs/blob/main/http-gateways/PATH_GATEWAY.md#response-headers
 function proxyResponseHeaders (ipfsRes, nodeRes) {
@@ -317,19 +281,5 @@ function getResponseFormat (req) {
     return 'raw'
   } else {
     return null
-  }
-}
-
-async function shutdown () {
-  try {
-    await Promise.allSettled([
-      submitRetrievals(),
-      deregister()
-    ])
-  } catch (err) {
-    debug(`Failed during shutdown: ${err.name} ${err.message}`)
-  } finally {
-    debug('Exiting...')
-    process.exit(0)
   }
 }
