@@ -224,7 +224,7 @@ async function maybeRespondFromL2 (req, res, { cid, format }) {
   return false
 }
 
-app.get('/register/:l2NodeId', async function (req, res) {
+app.get('/register/:l2NodeId', asyncHandler(async function (req, res) {
   res.writeHead(200, {
     'Cache-Control': 'no-cache'
   })
@@ -245,7 +245,7 @@ app.get('/register/:l2NodeId', async function (req, res) {
   if (!cleanedUp.value) {
     removeConnectedL2Node(l2NodeId)
   }
-})
+}))
 
 app.post('/data/:cid', function (req, res) {
   const { cid } = req.params
