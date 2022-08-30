@@ -1,4 +1,5 @@
-import { Readable } from 'node:stream'
+import { Readable, pipeline } from 'node:stream'
+import { promisify } from 'node:util'
 import { CarBlockIterator, CarWriter } from '@ipld/car'
 import { bytes } from 'multiformats'
 import * as dagCbor from '@ipld/dag-cbor'
@@ -39,32 +40,38 @@ export async function streamCAR (streamIn, streamOut) {
   const carBlockIterator = await CarBlockIterator.fromIterable(streamIn)
   const { writer, out } = await CarWriter.create(await carBlockIterator.getRoots())
 
-  Readable.from(out).pipe(streamOut)
+  await Promise.all([
+    promisify(pipeline)(
+      Readable.from(out),
+      streamOut
+    ),
+    (async () => {
+      for await (const { cid, bytes } of carBlockIterator) {
+        if (!codecs[cid.code]) {
+          debug(`Unexpected codec: 0x${cid.code.toString(16)}`)
+          streamOut.status(502)
+          break
+        }
+        if (!hashes[cid.multihash.code]) {
+          debug(`Unexpected multihash code: 0x${cid.multihash.code.toString(16)}`)
+          streamOut.status(502)
+          break
+        }
 
-  for await (const { cid, bytes } of carBlockIterator) {
-    if (!codecs[cid.code]) {
-      debug(`Unexpected codec: 0x${cid.code.toString(16)}`)
-      streamOut.status(502)
-      break
-    }
-    if (!hashes[cid.multihash.code]) {
-      debug(`Unexpected multihash code: 0x${cid.multihash.code.toString(16)}`)
-      streamOut.status(502)
-      break
-    }
+        // Verify step 2: if we hash the bytes, do we get the same digest as reported by the CID?
+        // Note that this step is sufficient if you just want to safely verify the CAR's reported CIDs
+        const hash = await hashes[cid.multihash.code].digest(bytes)
+        if (toHex(hash.digest) !== toHex(cid.multihash.digest)) {
+          debug(`\nMismatch: digest of bytes (${toHex(hash)}) does not match digest in CID (${toHex(cid.multihash.digest)})`)
+          streamOut.status(502)
+          break
+        }
 
-    // Verify step 2: if we hash the bytes, do we get the same digest as reported by the CID?
-    // Note that this step is sufficient if you just want to safely verify the CAR's reported CIDs
-    const hash = await hashes[cid.multihash.code].digest(bytes)
-    if (toHex(hash.digest) !== toHex(cid.multihash.digest)) {
-      debug(`\nMismatch: digest of bytes (${toHex(hash)}) does not match digest in CID (${toHex(cid.multihash.digest)})`)
-      streamOut.status(502)
-      break
-    }
-
-    await writer.put({ cid, bytes })
-  }
-  await writer.close()
+        await writer.put({ cid, bytes })
+      }
+      await writer.close()
+    })()
+  ])
 }
 
 export async function extractPathFromCar (streamIn, path, res) {
