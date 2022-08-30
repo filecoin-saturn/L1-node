@@ -43,7 +43,7 @@ export async function register (initial) {
     nicStats: await getNICStats()
   }
 
-  if (NODE_VERSION !== DEV_VERSION && (initial || Math.random() < 0.005)) {
+  if (NODE_VERSION !== DEV_VERSION && (initial || Math.random() < 0.001)) {
     let speedtest
     try {
       speedtest = await getSpeedtest()
