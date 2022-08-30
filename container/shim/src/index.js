@@ -46,7 +46,7 @@ const testCAR = await fsPromises.readFile(join(
   dirname(fileURLToPath(import.meta.url)),
   '..',
   'public',
-  'QmQ2r6iMNpky5f1m4cnm3Yqw8VSvjuKpTcK1X7dBR1LkJF.car'
+  `${TESTING_CID}.car`
 ))
 
 app.disable('x-powered-by')
