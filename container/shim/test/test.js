@@ -1,7 +1,7 @@
 import test from 'test'
 import assert from 'node:assert'
 import app from '../src/index.js'
-import fetch from 'node-fetch'
+import fetch, { Headers } from 'node-fetch'
 import http from 'node:http'
 import { promisify } from 'node:util'
 import { DEV_VERSION, TESTING_CID, nodeId } from '../src/config.js'
@@ -14,6 +14,13 @@ async function createServer () {
   await promisify(server.listen.bind(server))()
   return { server, address: `http://localhost:${server.address().port}` }
 }
+
+const testCAR = await fsPromises.readFile(join(
+  dirname(fileURLToPath(import.meta.url)),
+  '..',
+  'public',
+  `${TESTING_CID}.car`
+))
 
 test('L1 node', async t => {
   const { server, address } = await createServer()
@@ -29,12 +36,7 @@ test('L1 node', async t => {
       assert.strictEqual(res.status, 200)
       assert.deepStrictEqual(
         Buffer.from(await (await res.blob()).arrayBuffer()),
-        await fsPromises.readFile(join(
-          dirname(fileURLToPath(import.meta.url)),
-          '..',
-          'public',
-          `${TESTING_CID}.car`
-        ))
+        testCAR
       )
     })
     await t.test('response headers', async t => {
@@ -43,6 +45,20 @@ test('L1 node', async t => {
       assert.strictEqual(res.headers.get('cache-control'), 'public, max-age=31536000, immutable')
       assert.strictEqual(res.headers.get('saturn-node-id'), nodeId)
       assert.strictEqual(res.headers.get('saturn-node-version'), DEV_VERSION)
+    })
+    await t.test('range request', async t => {
+      const res = await fetch(`${address}/ipfs/${TESTING_CID}`, {
+        headers: new Headers({
+          range: 'bytes=10-20'
+        })
+      })
+      assert.strictEqual(res.status, 206)
+      assert.strictEqual(res.headers.get('accept-ranges'), 'bytes')
+      assert.strictEqual(res.headers.get('content-range'), 'bytes 10-20/124')
+      assert.deepStrictEqual(
+        Buffer.from(await (await res.blob()).arrayBuffer()),
+        testCAR.subarray(10, 21)
+      )
     })
   })
 
