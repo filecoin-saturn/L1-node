@@ -192,7 +192,7 @@ async function maybeRespondFromL2 (req, res, { cid, format }) {
     .forEach(({ res }) => {
       const payload = {
         requestId: req.get('saturn-transfer-id'),
-        cid
+        root: cid
       }
       res.write(`${JSON.stringify(payload)}\n`)
     })
