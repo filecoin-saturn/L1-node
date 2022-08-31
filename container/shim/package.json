@@ -37,6 +37,7 @@
     "eslint-plugin-jsdoc": "^39.3.3",
     "eslint-plugin-promise": "^6.0.0",
     "husky": "^8.0.1",
+    "nock": "^13.2.9",
     "nodemon": "^2.0.18",
     "test": "^3.2.1"
   },

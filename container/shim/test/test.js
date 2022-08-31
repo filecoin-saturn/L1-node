@@ -8,6 +8,10 @@ import { DEV_VERSION, TESTING_CID, nodeId } from '../src/config.js'
 import fsPromises from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import nock from 'nock'
+
+nock.disableNetConnect()
+nock.enableNetConnect('localhost')
 
 async function createServer () {
   const server = http.createServer(app)
