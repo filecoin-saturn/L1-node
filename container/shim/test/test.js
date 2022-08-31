@@ -60,7 +60,12 @@ test('L1 node', async t => {
         testCAR.subarray(10, 21)
       )
     })
+    await t.todo('respond from L2')
+    await t.todo('respond from ipfs gateway')
   })
+  await t.todo('GET /ipfs/:cid/:path*')
+  await t.todo('GET /register/:l2NodeId')
+  await t.todo('POST /data/:cid')
 
   server.close()
 })
