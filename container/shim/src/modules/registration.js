@@ -89,7 +89,7 @@ export async function register (initial) {
 
       process.exit()
     } catch (err) {
-      debug(`Failed registration: ${err.name} ${err.message}`)
+      debug(`Failed initial registration: ${err.name} ${err.message}`)
       process.exit(1)
     }
   } else {
@@ -98,10 +98,20 @@ export async function register (initial) {
 
       const cert = new X509Certificate(certBuffer)
 
+      let valid = true
+      if (cert.bits && cert.bits > 256) {
+        debug('Certificate is using RSA')
+        valid = false
+      }
+
       const validTo = Date.parse(cert.validTo)
 
       if (Date.now() > (validTo - TWO_DAYS_MS)) {
         debug('Certificate is soon to expire, deleting and restarting...')
+        valid = false
+      }
+
+      if (!valid) {
         await deleteCertAndKey()
         process.exit()
       } else {
