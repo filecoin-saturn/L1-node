@@ -17,7 +17,7 @@ import {
 } from '../config.js'
 import { debug as Debug } from '../utils/logging.js'
 import { getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from '../utils/system.js'
-import { CERT_PATH, certExists, deleteCertAndKey, saveCertAndKey, SSL_PATH } from './tls.js'
+import { CERT_PATH, certExists, getNewTLSCert, SSL_PATH } from './tls.js'
 
 const debug = Debug.extend('registration')
 
@@ -72,18 +72,7 @@ export async function register (initial) {
     debug('Registering with orchestrator for the first time, requesting new TLS cert with the following config (this could take up to 20 mins)')
     debug(body)
     try {
-      const response = await fetch(`${ORCHESTRATOR_URL}/register`, registerOptions)
-      const body = await response.json()
-      const { cert, key } = body
-
-      if (!response.ok || !cert || !key) {
-        debug('Received status %d with body: %o', response.status, body)
-        throw new Error(body?.error || 'Empty cert or key received')
-      }
-
-      debug('TLS certificate and key received, persisting to shared volume...')
-
-      await saveCertAndKey(cert, key)
+      await getNewTLSCert(registerOptions)
 
       debug('Success, restarting container...')
 
@@ -99,23 +88,24 @@ export async function register (initial) {
       const cert = new X509Certificate(certBuffer)
 
       let valid = true
-      if (cert.bits && cert.bits > 256) {
-        debug('Certificate is using RSA')
+      const legacyCertObj = cert.toLegacyObject()
+      if (legacyCertObj.bits && legacyCertObj.bits > 256) {
+        debug('Certificate is using RSA, getting an ECC one...')
         valid = false
       }
 
       const validTo = Date.parse(cert.validTo)
 
       if (Date.now() > (validTo - TWO_DAYS_MS)) {
-        debug('Certificate is soon to expire, deleting and restarting...')
+        debug('Certificate is soon to expire, getting a new one...')
         valid = false
+      } else {
+        debug(`Certificate is valid until ${cert.validTo}`)
       }
 
       if (!valid) {
-        await deleteCertAndKey()
+        await getNewTLSCert(registerOptions)
         process.exit()
-      } else {
-        debug(`Certificate is valid until ${cert.validTo}`)
       }
     }
 
