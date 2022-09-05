@@ -158,6 +158,7 @@ async function _deregister () {
     debug(`Failed to de-register: ${err.name} ${err.message}`)
   } finally {
     clearTimeout(timeout)
+    deregistering = null
   }
 }
 
