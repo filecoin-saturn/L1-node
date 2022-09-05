@@ -34,6 +34,7 @@ export async function register (initial) {
   const body = {
     nodeId,
     level: 1,
+    initial,
     version: NODE_VERSION,
     filWalletAddress: FIL_WALLET_ADDRESS,
     operatorEmail: NODE_OPERATOR_EMAIL,
