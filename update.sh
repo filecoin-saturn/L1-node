@@ -30,9 +30,9 @@ out=$(sudo docker pull ghcr.io/filecoin-saturn/l1-node:$SATURN_NETWORK)
 if [[ $out != *"up to date"* ]]; then
   echo $(date -u) "New Saturn L1 node version found!"
 
-  random_sleep=$[ ( 60 + $RANDOM % 300 ) ]
+  random_sleep=$[ ( 60 + $RANDOM % 540 ) ]
   echo -n $(date -u) "Draining L1 node for $random_sleep seconds... "
-  sudo docker kill --signal=SIGPIPE saturn-node >> /dev/null
+  sudo docker kill --signal=SIGTERM saturn-node >> /dev/null
   sleep $random_sleep
   echo "restarting...."
 

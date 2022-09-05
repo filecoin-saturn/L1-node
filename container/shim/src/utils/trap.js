@@ -19,5 +19,5 @@ const drainServer = () => {
 export const trapServer = (server) => {
   process.on('SIGQUIT', shutdownServer(server))
   process.on('SIGINT', shutdownServer(server))
-  process.on('SIGPIPE', drainServer)
+  process.on('SIGTERM', drainServer)
 }
