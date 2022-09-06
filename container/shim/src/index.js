@@ -25,9 +25,13 @@ import {
 import { streamCAR, streamRawFromCAR } from './utils/car.js'
 import { debug } from './utils/logging.js'
 
-const { https } = followRedirects
+const { http, https } = followRedirects
 
 const GATEWAY_TIMEOUT = 120_000
+const PROXY_REQUEST_HEADERS = [
+  'cache-control'
+  // 'if-none-match'
+]
 const PROXY_RESPONSE_HEADERS = [
   'content-disposition',
   'content-type',
@@ -42,10 +46,12 @@ const PROXY_RESPONSE_HEADERS = [
   'x-content-type-options'
 ]
 
-const ipfsAgent = new https.Agent({
+const agentOpts = {
   keepAlive: true,
   maxSockets: Math.floor(128 / cpus().length)
-})
+}
+const httpsAgent = new https.Agent(agentOpts)
+const httpAgent = new http.Agent(agentOpts)
 
 const app = express()
 
@@ -113,14 +119,12 @@ const handleCID = asyncHandler(async (req, res) => {
 
   debug(`Fetch ${req.path} from IPFS`)
 
-  const ipfsUrl = new URL(IPFS_GATEWAY_ORIGIN + req.path)
+  const ipfsUrl = new URL(IPFS_GATEWAY_ORIGIN + toUtf8(req.path))
   if (format) {
     ipfsUrl.searchParams.set('format', format)
   }
-  for (const key of ['filename', 'download']) {
-    if (key in req.query) {
-      ipfsUrl.searchParams.set(key, req.query[key])
-    }
+  for (const [key, val] of Object.entries(req.query)) {
+    ipfsUrl.searchParams.set(key, toUtf8(val))
   }
 
   const controller = new AbortController()
@@ -128,10 +132,21 @@ const handleCID = asyncHandler(async (req, res) => {
     controller.abort()
   }, GATEWAY_TIMEOUT)
 
-  const ipfsReq = https.get(ipfsUrl, {
-    agent: ipfsAgent,
+  const headers = {
+    'User-Agent': NODE_UA
+  }
+  for (const key of PROXY_REQUEST_HEADERS) {
+    if (key in req.headers) {
+      headers[key] = req.headers[key]
+    }
+  }
+  const _http = ipfsUrl.protocol === 'https:' ? https : http
+  const agent = ipfsUrl.protocol === 'https:' ? httpsAgent : httpAgent
+
+  const ipfsReq = _http.get(ipfsUrl, {
+    agent,
     timeout: GATEWAY_TIMEOUT,
-    headers: { 'User-Agent': NODE_UA },
+    headers,
     signal: controller.signal
   }, async fetchRes => {
     clearTimeout(timeout)
@@ -260,8 +275,6 @@ app.post('/data/:cid', function (req, res) {
 
 addRegisterCheckRoute(app)
 
-export default app
-
 // https://github.com/ipfs/specs/blob/main/http-gateways/PATH_GATEWAY.md#response-headers
 function proxyResponseHeaders (ipfsRes, nodeRes) {
   for (const key of PROXY_RESPONSE_HEADERS) {
@@ -283,3 +296,12 @@ function getResponseFormat (req) {
     return null
   }
 }
+
+// HTTP Parser decodes with latin1 instead of utf8, so any unencoded chars
+// like 'тест' will be decoded into garbage.
+// https://github.com/nodejs/node/issues/17390
+function toUtf8 (str) {
+  return Buffer.from(str, 'binary').toString('utf8')
+}
+
+export default app
