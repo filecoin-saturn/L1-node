@@ -73,7 +73,9 @@ test('L1 node', async t => {
         testCAR.subarray(10, 21)
       )
     })
-    await t.todo('respond from L2')
+    await t.test('respond from L2', t => {
+      t.todo()
+    })
     await t.test('respond from ipfs gateway', async t => {
       await t.test('simple response', async t => {
         const res = await fetch(`${address}/ipfs/CID`)
@@ -83,19 +85,41 @@ test('L1 node', async t => {
           testCAR
         )
       })
-      await t.todo('formats')
-      await t.todo('?filename')
-      await t.todo('?download')
-      await t.todo('timeout')
-      await t.todo('user-agent')
-      await t.todo('bad gateway response')
-      await t.todo('proxy response headers')
-      await t.todo('premature request end')
+      await t.test('formats', t => {
+        t.todo()
+      })
+      await t.test('?filename', t => {
+        t.todo()
+      })
+      await t.test('?download', t => {
+        t.todo()
+      })
+      await t.test('timeout', t => {
+        t.todo()
+      })
+      await t.test('user-agent', t => {
+        t.todo()
+      })
+      await t.test('bad gateway response', t => {
+        t.todo()
+      })
+      await t.test('proxy response headers', t => {
+        t.todo()
+      })
+      await t.test('premature request end', t => {
+        t.todo()
+      })
     })
   })
-  await t.todo('GET /ipfs/:cid/:path*')
-  await t.todo('GET /register/:l2NodeId')
-  await t.todo('POST /data/:cid')
+  await t.test('GET /ipfs/:cid/:path*', t => {
+    t.todo()
+  })
+  await t.test('GET /register/:l2NodeId', t => {
+    t.todo()
+  })
+  await t.test('POST /data/:cid', t => {
+    t.todo()
+  })
 
   server.close()
 })
