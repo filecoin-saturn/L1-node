@@ -79,6 +79,7 @@ const handleCID = asyncHandler(async (req, res) => {
   try {
     CID.parse(cid)
   } catch (err) {
+    debug.extend('error')(`Invalid CID "${cid}"`)
     return res.status(400).end('Invalid CID')
   }
 
