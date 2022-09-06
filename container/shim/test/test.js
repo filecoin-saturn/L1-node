@@ -22,11 +22,13 @@ const testCAR = await fsPromises.readFile(join(
   `${TESTING_CID}.car`
 ))
 
+const gatewayCid = 'QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n'
+
 nock.disableNetConnect()
 nock.enableNetConnect('localhost')
 
 nock(IPFS_GATEWAY_ORIGIN)
-  .get('/ipfs/CID')
+  .get(`/ipfs/${gatewayCid}`)
   .reply(200, testCAR)
 
 async function createServer () {
@@ -78,7 +80,7 @@ test('L1 node', async t => {
     })
     await t.test('respond from ipfs gateway', async t => {
       await t.test('simple response', async t => {
-        const res = await fetch(`${address}/ipfs/CID`)
+        const res = await fetch(`${address}/ipfs/${gatewayCid}`)
         assert.strictEqual(res.status, 200)
         assert.deepStrictEqual(
           Buffer.from(await (await res.blob()).arrayBuffer()),
