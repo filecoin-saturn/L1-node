@@ -81,7 +81,7 @@ const handleCID = asyncHandler(async (req, res) => {
 
   res.set({
     'Content-Type': mimeTypes.lookup(req.path) || 'application/octet-stream',
-    'Cache-Control': 'public, max-age=31536000, immutable',
+    'Cache-Control': 'public, max-age=29030400, immutable',
     'Saturn-Node-Id': nodeId,
     'Saturn-Node-Version': NODE_VERSION
   })
