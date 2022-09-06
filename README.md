@@ -29,7 +29,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 ### Node's host requirements
 - Linux server with a public IPv4 address
 - Root access / passwordless sudo user
-- Ports 80, 8080 and 443 free
+- Ports 80 and 443 free
 - Docker installed ([Instructions here](https://docs.docker.com/engine/install/#server))
 - Modern CPU with 4 cores (8+ cores recommended)
 - 10Gbps upload bandwidth minimum (10Gbps+ recommended)<sup>1</sup>
