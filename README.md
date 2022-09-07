@@ -95,7 +95,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 
 ### Requirements
 1. Run [orchestrator](https://github.com/filecoin-saturn/orchestrator) locally
-2. Self-signed 256-bit ECC certificate ([Instructions here](https://gist.github.com/DiegoRBaquero/fb58d014e34839d64b8850e8f2a8f88e)) in `shared/ssl`
+2. Self-signed 256-bit ECC certificate ([Instructions here](docs/certificate.md)) in `shared/ssl`
 
 ### Build
 
