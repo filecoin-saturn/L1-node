@@ -28,8 +28,10 @@ import { debug } from './utils/logging.js'
 
 const GATEWAY_TIMEOUT = 120_000
 const PROXY_REQUEST_HEADERS = [
-  'cache-control'
-  // 'if-none-match'
+  'cache-control',
+  // nginx with proxy-cache does not pass the "if-none-match" request header
+  // to the origin. The fix is to pass a custom header.
+  'x-if-none-match'
 ]
 const PROXY_RESPONSE_HEADERS = [
   'content-disposition',
@@ -131,21 +133,13 @@ const handleCID = asyncHandler(async (req, res) => {
     controller.abort()
   }, GATEWAY_TIMEOUT)
 
-  const headers = {
-    'User-Agent': NODE_UA
-  }
-  for (const key of PROXY_REQUEST_HEADERS) {
-    if (key in req.headers) {
-      headers[key] = req.headers[key]
-    }
-  }
   const _http = ipfsUrl.protocol === 'https:' ? https : http
   const agent = ipfsUrl.protocol === 'https:' ? httpsAgent : httpAgent
 
   const ipfsReq = _http.get(ipfsUrl, {
     agent,
     timeout: GATEWAY_TIMEOUT,
-    headers,
+    headers: proxyRequestHeaders(req.headers),
     signal: controller.signal
   }, async fetchRes => {
     clearTimeout(timeout)
@@ -273,6 +267,22 @@ app.post('/data/:cid', function (req, res) {
 })
 
 addRegisterCheckRoute(app)
+
+function proxyRequestHeaders (reqHeaders) {
+  const headers = { 'User-Agent': NODE_UA }
+
+  for (const key of PROXY_REQUEST_HEADERS) {
+    if (key in reqHeaders) {
+      if (key === 'x-if-none-match') {
+        headers['if-none-match'] = reqHeaders[key]
+      } else {
+        headers[key] = reqHeaders[key]
+      }
+    }
+  }
+
+  return headers
+}
 
 // https://github.com/ipfs/specs/blob/main/http-gateways/PATH_GATEWAY.md#response-headers
 function proxyResponseHeaders (ipfsRes, nodeRes) {
