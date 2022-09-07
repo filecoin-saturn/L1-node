@@ -17,7 +17,6 @@
     "debug": "^4.3.4",
     "express": "^4.18.1",
     "express-async-handler": "^1.2.0",
-    "follow-redirects": "^1.15.1",
     "ipfs-unixfs-exporter": "^7.0.11",
     "mime-types": "^2.1.35",
     "multiformats": "^9.7.0",

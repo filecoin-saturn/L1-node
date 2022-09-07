@@ -1,10 +1,11 @@
+import http from 'node:http'
+import https from 'node:https'
 import fsPromises from 'node:fs/promises'
 import { cpus } from 'node:os'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import express from 'express'
 import mimeTypes from 'mime-types'
-import followRedirects from 'follow-redirects'
 import crypto from 'node:crypto'
 import xorDistance from 'xor-distance'
 import pDefer from 'p-defer'
@@ -24,8 +25,6 @@ import {
 } from './config.js'
 import { streamCAR, streamRawFromCAR } from './utils/car.js'
 import { debug } from './utils/logging.js'
-
-const { http, https } = followRedirects
 
 const GATEWAY_TIMEOUT = 120_000
 const PROXY_REQUEST_HEADERS = [
