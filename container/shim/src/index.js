@@ -46,6 +46,7 @@ const PROXY_RESPONSE_HEADERS = [
   'x-ipfs-datasize',
   'x-content-type-options'
 ]
+const rootCidRegex = /^\/ip[fn]s\/[^/]+$/
 
 const agentOpts = {
   keepAlive: true,
@@ -81,6 +82,13 @@ app.get('/favicon.ico', (req, res) => {
 })
 
 const handleCID = asyncHandler(async (req, res) => {
+  // Prevent Service Worker registration on namespace roots
+  // https://github.com/ipfs/kubo/issues/4025
+  if (req.headers['service-worker'] === 'script' && rootCidRegex.test(req.path)) {
+    const msg = 'navigator.serviceWorker: registration is not allowed for this scope'
+    return res.status(400).send(msg)
+  }
+
   const cid = req.params.cid
   const format = getResponseFormat(req)
 
