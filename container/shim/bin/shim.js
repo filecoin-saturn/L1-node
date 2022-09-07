@@ -1,5 +1,4 @@
 import app from '../src/index.js'
-import parseArgs from 'minimist'
 import http from 'node:http'
 
 import { deregister, register } from '../src/modules/registration.js'
@@ -8,14 +7,13 @@ import {
   NODE_OPERATOR_EMAIL,
   NODE_VERSION,
   nodeId,
-  PORT
+  PORT,
+  ORCHESTRATOR_REGISTRATION
 } from '../src/config.js'
 import { trapServer } from '../src/utils/trap.js'
 import { debug } from '../src/utils/logging.js'
 
 import { submitRetrievals, initLogIngestor } from '../src/modules/log_ingestor.js'
-
-const argv = parseArgs(process.argv.slice(2))
 
 debug('Saturn L1 Node')
 debug.extend('id')(nodeId)
@@ -29,7 +27,7 @@ process.on('SIGQUIT', shutdown)
 process.on('SIGINT', shutdown)
 
 setTimeout(async function () {
-  if (argv.register !== false) {
+  if (ORCHESTRATOR_REGISTRATION) {
     await register(true).catch(err => {
       debug(`Failed to register ${err.name} ${err.message}`)
       process.exit(1)
@@ -53,7 +51,7 @@ async function shutdown () {
   try {
     await Promise.allSettled([
       submitRetrievals(),
-      deregister()
+      ORCHESTRATOR_REGISTRATION ? deregister() : Promise.resolve()
     ])
   } catch (err) {
     debug(`Failed during shutdown: ${err.name} ${err.message}`)
