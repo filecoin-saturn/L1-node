@@ -11,17 +11,19 @@ echo $(date -u) "[container] Disk: $(df -h /usr/src/app/shared | awk '(NR>1)')"
 # Create if not exists
 mkdir -p /usr/src/app/shared/ssl
 
+L1_CONF_FILE=/etc/nginx/conf.d/L1.conf
+
 # If we have a cert, start the shim and nginx, else just the shim
 if [ -f "/usr/src/app/shared/ssl/node.crt" ]; then
   echo $(date -u) "[container] SSL config available, starting TLS nginx and node shim";
-  cp /etc/nginx/confs/* /etc/nginx/conf.d/;
-  
-  if [ -n "$IPFS_GATEWAY_ORIGIN" ]; then
-    sed -i "s@https://ipfs.io;@$IPFS_GATEWAY_ORIGIN;@g" /etc/nginx/conf.d/proxy.tlsconf
-  fi
+  cp /etc/nginx/confs/tls_proxy.conf $L1_CONF_FILE;
 else
-  rm /etc/nginx/conf.d/*.tlsconf
-  echo $(date -u) "[container] SSL config unavailable, starting non-TLS nginx node shim only";
+  echo $(date -u) "[container] SSL config unavailable, starting non-TLS nginx and node shim";
+  cp /etc/nginx/confs/non_tls_proxy.conf $L1_CONF_FILE;
+fi
+
+if [ -n "$IPFS_GATEWAY_ORIGIN" ]; then
+ sed -i "s@https://ipfs.io;@$IPFS_GATEWAY_ORIGIN;@g" /etc/nginx/conf.d/proxy.locations;
 fi
 
 nginx -g "daemon off;" &

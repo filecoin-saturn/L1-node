@@ -2,6 +2,8 @@
 
 : "${FIL_WALLET_ADDRESS:=f012356}"
 : "${NODE_OPERATOR_EMAIL:=dev@strn.pl}"
+: "${IPFS_GATEWAY_ORIGIN:=https://ipfs.io}"
+: "${ORCHESTRATOR_REGISTRATION:=true}"
 
 echo $(date -u) "[host] Running Saturn node dev"
 
@@ -10,5 +12,7 @@ docker run --name saturn-node -it --rm \
           -v $(pwd)/shared:/usr/src/app/shared \
           -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS \
           -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL \
-          -p 443:443 -p 8080:8080 \
+          -e IPFS_GATEWAY_ORIGIN=$IPFS_GATEWAY_ORIGIN \
+          -e ORCHESTRATOR_REGISTRATION=$ORCHESTRATOR_REGISTRATION \
+          -p 443:443 -p 8080:8080 -p 80:80 \
           saturn-node
