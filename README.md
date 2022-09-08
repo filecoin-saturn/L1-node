@@ -31,7 +31,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 - Root access / passwordless sudo user
 - Ports 80 and 443 free
 - Docker installed ([Instructions here](https://docs.docker.com/engine/install/#server))
-- Modern CPU with 4 cores (8+ cores recommended)
+- CPU with 6 cores (12+ cores recommended). [CPU Mark](https://www.cpubenchmark.net/cpu_list.php) of 8000+ (20000+ recommended)
 - 10Gbps upload bandwidth minimum (10Gbps+ recommended)<sup>1</sup>
 - 32GB RAM minimum (128GB+ recommended)
 - 1TB SSD minimum (4x1TB+ NVMe SSD in RAID 5 or RAID 10 recommended)<sup>2</sup>
