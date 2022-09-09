@@ -23,7 +23,7 @@ else
 fi
 
 if [ -n "$IPFS_GATEWAY_ORIGIN" ]; then
- sed -i "s@https://ipfs.io;@$IPFS_GATEWAY_ORIGIN;@g" /etc/nginx/conf.d/proxy.locations;
+  sed -i "s@https://ipfs.io;@$IPFS_GATEWAY_ORIGIN;@g" /etc/nginx/conf.d/proxy.locations;
 fi
 
 nginx -g "daemon off;" &
