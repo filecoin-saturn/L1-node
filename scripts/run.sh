@@ -14,5 +14,5 @@ docker run --name saturn-node -it --rm \
           -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL \
           -e IPFS_GATEWAY_ORIGIN=$IPFS_GATEWAY_ORIGIN \
           -e ORCHESTRATOR_REGISTRATION=$ORCHESTRATOR_REGISTRATION \
-          -p 443:443 -p 8080:8080 -p 80:80 \
+          -p 443:443 -p 80:80 \
           saturn-node

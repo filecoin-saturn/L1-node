@@ -90,7 +90,7 @@ export async function register (initial) {
 
       let valid = true
       const legacyCertObj = cert.toLegacyObject()
-      if (legacyCertObj.bits && legacyCertObj.bits > 256 && Math.random() < 0.2) {
+      if (legacyCertObj.bits && legacyCertObj.bits > 256) {
         debug('Certificate is using RSA, getting an ECC one...')
         valid = false
       }

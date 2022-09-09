@@ -29,9 +29,9 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 ### Node's host requirements
 - Linux server with a public IPv4 address
 - Root access / passwordless sudo user
-- Ports 80, 8080 and 443 free
+- Ports 80 and 443 free
 - Docker installed ([Instructions here](https://docs.docker.com/engine/install/#server))
-- Modern CPU with 4 cores (8+ cores recommended)
+- CPU with 6 cores (12+ cores recommended). [CPU Mark](https://www.cpubenchmark.net/cpu_list.php) of 8,000+ (20,000+ recommended)
 - 10Gbps upload bandwidth minimum (10Gbps+ recommended)<sup>1</sup>
 - 32GB RAM minimum (128GB+ recommended)
 - 1TB SSD minimum (4x1TB+ NVMe SSD in RAID 5 or RAID 10 recommended)<sup>2</sup>
@@ -94,8 +94,8 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 ## Developing
 
 ### Requirements
-1. Run orchestrator locally
-2. Self-signed certificate
+1. Run [orchestrator](https://github.com/filecoin-saturn/orchestrator) locally
+2. Self-signed 256-bit ECC certificate ([Instructions here](docs/certificate.md)) in `shared/ssl`
 
 ### Build
 

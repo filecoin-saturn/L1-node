@@ -12,6 +12,7 @@ import pDefer from 'p-defer'
 import pTimeout from 'p-timeout'
 import timers from 'node:timers/promises'
 import asyncHandler from 'express-async-handler'
+import { CID } from 'multiformats'
 
 import { addRegisterCheckRoute } from './modules/registration.js'
 import {
@@ -90,6 +91,13 @@ const handleCID = asyncHandler(async (req, res) => {
   }
 
   const cid = req.params.cid
+  try {
+    CID.parse(cid)
+  } catch (err) {
+    debug.extend('error')(`Invalid CID "${cid}"`)
+    return res.status(400).end('Invalid CID')
+  }
+
   const format = getResponseFormat(req)
 
   debug(`Cache miss for ${req.path}`)
