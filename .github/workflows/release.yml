@@ -29,6 +29,15 @@ jobs:
           ref: refs/heads/saturn
           path: kubo
 
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
       - name: Install Kubo gateway test dependencies
         run: |
           cd $GITHUB_WORKSPACE/kubo
