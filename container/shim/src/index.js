@@ -134,6 +134,14 @@ const handleCID = asyncHandler(async (req, res) => {
     return
   }
 
+  respondFromIPFSGateway(req, res, { cid, format })
+})
+
+// Whenever nginx doesn't have a CAR file in cache, this is called
+app.get('/ipfs/:cid', handleCID)
+app.get('/ipfs/:cid/:path*', handleCID)
+
+function respondFromIPFSGateway (req, res, { cid, format }) {
   debug(`Fetch ${req.path} from IPFS`)
 
   const ipfsUrl = new URL(IPFS_GATEWAY_ORIGIN + toUtf8(req.path))
@@ -194,11 +202,7 @@ const handleCID = asyncHandler(async (req, res) => {
       ipfsReq.destroy()
     }
   })
-})
-
-// Whenever nginx doesn't have a CAR file in cache, this is called
-app.get('/ipfs/:cid', handleCID)
-app.get('/ipfs/:cid/:path*', handleCID)
+}
 
 async function maybeRespondFromL2 (req, res, { cid, format }) {
   debug(`Fetch ${req.path} from L2s`)
