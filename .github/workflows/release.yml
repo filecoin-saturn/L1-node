@@ -49,7 +49,7 @@ jobs:
           export L1_NODE_LOG_FILE=/tmp/node.log
 
           cd $GITHUB_WORKSPACE/kubo/test/sharness/lib
-          ./test-saturn-L1.sh
+          bash ./test-saturn-L1.sh
 
       - name: Print L1 logs
         if: always()
