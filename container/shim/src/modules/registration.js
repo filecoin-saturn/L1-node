@@ -89,11 +89,6 @@ export async function register (initial) {
       const cert = new X509Certificate(certBuffer)
 
       let valid = true
-      const legacyCertObj = cert.toLegacyObject()
-      if (legacyCertObj.bits && legacyCertObj.bits > 256) {
-        debug('Certificate is using RSA, getting an ECC one...')
-        valid = false
-      }
 
       const validTo = Date.parse(cert.validTo)
 
