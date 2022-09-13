@@ -46,7 +46,7 @@ jobs:
       - name: Run Kubo gateway tests
         run: |
           export L1_NODE_REPO_PATH=$GITHUB_WORKSPACE/L1-node
-          #export L1_NODE_LOG_FILE=/tmp/node.log
+          export L1_NODE_LOG_FILE=/tmp/node.log
 
           cd $GITHUB_WORKSPACE/kubo/test/sharness
 
@@ -60,9 +60,9 @@ jobs:
             bash $file
           done
 
-      # - name: Print L1 logs
-      #   if: always()
-      #   run: cat /tmp/node.log
+      - name: Print L1 logs
+        if: always()
+        run: cat /tmp/node.log
 
   build-and-push-image:
     needs: [test-kubo]
