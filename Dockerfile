@@ -1,14 +1,20 @@
 ARG NGINX_VERSION="1.23.1"
 ARG NGINX_NAME="nginx-${NGINX_VERSION}"
 
-FROM debian as build
+# https://hg.nginx.org/nginx-quic/shortlog/quic
+ARG NGINX_COMMIT=98e94553ae51
 
-ARG NGINX_VERSION
-ARG NGINX_NAME
-ARG CONFIG=" --prefix=/etc/nginx \
+# https://github.com/google/ngx_brotli
+ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
+
+# https://github.com/google/boringssl
+ARG BORINGSSL_COMMIT=8ce0e1c14e48109773f1e94e5f8b020aa1e24dc5
+
+ARG CONFIG="--prefix=/etc/nginx \
  --sbin-path=/usr/sbin/nginx \
  --modules-path=/usr/lib/nginx/modules \
  --conf-path=/etc/nginx/nginx.conf \
+ --error-log-path=/var/log/nginx/error.log \
  --http-log-path=/var/log/nginx/node-access.log \
  --pid-path=/var/run/nginx.pid \
  --lock-path=/var/run/nginx.lock \
@@ -31,6 +37,8 @@ ARG CONFIG=" --prefix=/etc/nginx \
  --with-http_stub_status_module \
  --with-http_sub_module \
  --with-http_v2_module \
+ --with-http_v3_module \
+ --with-stream_quic_module \
  --with-mail \
  --with-mail_ssl_module \
  --with-stream \
@@ -40,34 +48,81 @@ ARG CONFIG=" --prefix=/etc/nginx \
  --with-compat \
  --add-dynamic-module=/usr/src/ngx_brotli"
 
+FROM debian AS build
+
+ARG NGINX_VERSION
+ARG NGINX_COMMIT
+ARG NGX_BROTLI_COMMIT
+ARG BORINGSSL_COMMIT
+ARG CONFIG
+
 # Install dependencies
-RUN apt-get update && apt-get install \
-    dpkg-dev build-essential gnupg2 \
-    git gcc cmake libpcre3 libpcre3-dev \
-    zlib1g zlib1g-dev openssl libssl-dev \
-    curl unzip wget libxslt-dev -y
+RUN apt-get update && apt-get install -y \
+    dpkg-dev \
+    build-essential \
+    mercurial \
+    golang \
+    ninja-build \
+    gnupg2 \
+    git \
+    gcc \
+    cmake \
+    libpcre3 libpcre3-dev \
+    zlib1g \
+    zlib1g-dev \
+    openssl \
+    libssl-dev \
+    curl \
+    unzip \
+    wget \
+    libxslt-dev \
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src
 
-# Install nginx + brotli module from source
-RUN wget http://nginx.org/download/${NGINX_NAME}.tar.gz \
-    && tar -xzvf ${NGINX_NAME}.tar.gz \
-    && git clone https://github.com/google/ngx_brotli.git --recursive \
-    && cd ${NGINX_NAME} \
-    && ./configure $CONFIG \
-    && make
+RUN echo "Cloning brotli $NGX_BROTLI_COMMIT" \
+  && mkdir /usr/src/ngx_brotli \
+  && cd /usr/src/ngx_brotli \
+  && git init \
+  && git remote add origin https://github.com/google/ngx_brotli.git \
+  && git fetch --depth 1 origin $NGX_BROTLI_COMMIT \
+  && git checkout --recurse-submodules -q FETCH_HEAD \
+  && git submodule update --init --depth 1
+
+RUN echo "Cloning and building boringssl $BORINGSSL_COMMIT" \
+  && cd /usr/src \
+  && git clone https://github.com/google/boringssl \
+  && cd boringssl \
+  && git checkout $BORINGSSL_COMMIT \
+  && mkdir build \
+  && cd build \
+  && cmake -GNinja .. \
+  && ninja
+
+RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from 'quic' branch)" \
+  && hg clone -b quic --rev $NGINX_COMMIT https://hg.nginx.org/nginx-quic /usr/src/nginx-$NGINX_VERSION \
+  && cd /usr/src/nginx-$NGINX_VERSION \
+  && ./auto/configure $CONFIG \
+    --with-cc-opt="-I../boringssl/include"   \
+    --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto" \
+  && make \
+  && make install
 
 FROM nginx:${NGINX_VERSION}
 
 ARG NGINX_NAME
 
+COPY --from=build /usr/sbin/nginx /usr/sbin/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_static_module.so /usr/lib/nginx/modules/
 
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 # RUN curl -fsSL https://install.speedtest.net/app/cli/install.deb.sh | bash -
 RUN curl -fsSL https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash -
-RUN apt-get install --no-install-recommends -y nodejs speedtest
+RUN apt-get install --no-install-recommends -y \
+   nodejs \
+   speedtest \
+  && rm -rf /var/lib/apt/lists/*
 
 # create the directory inside the container
 WORKDIR /usr/src/app
