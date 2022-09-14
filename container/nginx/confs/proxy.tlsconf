@@ -38,12 +38,6 @@ server {
 
     resolver    8.8.8.8 1.1.1.1 valid=600s;
 
-    # Add Alt-Svc header to negotiate HTTP/3.
-    add_header alt-svc 'h3-27=":443"; ma=86400, h3-28=":443"; ma=86400, h3-29=":443"; ma=86400, h3=":443"; ma=86400';
-
-    # Tell the client QUIC was used
-    add_header QUIC-Status $http3;
-
     server_name _; # This is just an invalid value which will never trigger on a real hostname
     server_name_in_redirect off;
 
@@ -112,6 +106,10 @@ server {
         add_header 'Access-Control-Allow-Headers'   'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range' always;
         add_header 'Access-Control-Expose-Headers'  '*' always;
         add_header 'Strict-Transport-Security'      'max-age=63072000; includeSubDomains; preload' always;
+        # Add Alt-Svc header to negotiate HTTP/3.
+        add_header Alt-Svc 'h3-27=":443"; ma=86400, h3-28=":443"; ma=86400, h3-29=":443"; ma=86400, h3=":443"; ma=86400';
+        # Tell the client QUIC was used
+        add_header QUIC-Status $http3;
 
         client_max_body_size 10g;
 
