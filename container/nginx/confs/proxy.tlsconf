@@ -39,7 +39,7 @@ server {
     resolver    8.8.8.8 1.1.1.1 valid=600s;
 
     # Add Alt-Svc header to negotiate HTTP/3.
-    add_header Alt-Svc 'h3=":443"; ma=86400';
+    add_header alt-svc 'h3-27=":443"; ma=86400, h3-28=":443"; ma=86400, h3-29=":443"; ma=86400, h3=":443"; ma=86400';
 
     # Tell the client QUIC was used
     add_header QUIC-Status $http3;
