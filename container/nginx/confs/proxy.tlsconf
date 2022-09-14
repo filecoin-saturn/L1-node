@@ -20,6 +20,7 @@ map $format_query $format_final {
 
 server {
     listen 443 default_server ssl http2 reuseport;
+    listen 443 http3 reuseport;
 
     ssl_certificate             /usr/src/app/shared/ssl/node.crt;
     ssl_certificate_key         /usr/src/app/shared/ssl/node.key;
@@ -36,6 +37,12 @@ server {
     ssl_early_data              on;
 
     resolver    8.8.8.8 1.1.1.1 valid=600s;
+
+    # Add Alt-Svc header to negotiate HTTP/3.
+    add_header Alt-Svc 'h3=":443"; ma=86400';
+
+    # Tell the client QUIC was used
+    add_header QUIC-Status $http3;
 
     server_name _; # This is just an invalid value which will never trigger on a real hostname
     server_name_in_redirect off;
