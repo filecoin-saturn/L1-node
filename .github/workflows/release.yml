@@ -22,7 +22,7 @@ jobs:
         with:
           path: L1-node
 
-      - name: Checkout Kubo fork
+      - name: Check out Kubo fork
         uses: actions/checkout@v3
         with:
           repository: filecoin-saturn/kubo
