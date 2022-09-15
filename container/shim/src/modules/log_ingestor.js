@@ -127,7 +127,7 @@ async function parseLogs () {
           httpStatusCode: status,
           // If/when "httpProtocol" eventually contains HTTP/3.0, then
           // the "http3" key can be removed.
-          httpProtocol: http3 || httpProtocol
+          httpProtocol: (http3 || httpProtocol).replace('HTTP/2.0', 'h2').replace('HTTP/1.1', 'h1.1')
         })
         valid++
         if (cacheHit) hits++
