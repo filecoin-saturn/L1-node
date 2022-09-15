@@ -18,7 +18,9 @@ const NGINX_LOG_KEYS_MAP = {
   rt: 'requestDuration',
   s: 'status',
   ua: 'userAgent',
-  ucs: 'cacheHit'
+  ucs: 'cacheHit',
+  h3: 'http3',
+  sp: 'httpProtocol'
 }
 const IPFS_PREFIX = '/ipfs/'
 const IPNS_PREFIX = '/ipns/'
@@ -96,8 +98,9 @@ async function parseLogs () {
 
       if (isIPFS || isIPNS) {
         const {
-          clientAddress, numBytesSent, request, requestId, localTime,
-          requestDuration, args, range, cacheHit, referrer, userAgent, status
+          clientAddress, numBytesSent, request, requestId, localTime, status,
+          requestDuration, args, range, cacheHit, referrer, userAgent, http3,
+          httpProtocol
         } = vars
 
         const cidPath = request.replace(IPFS_PREFIX, '').replace(IPNS_PREFIX, '')
@@ -121,7 +124,10 @@ async function parseLogs () {
           requestDuration,
           requestId,
           userAgent,
-          httpStatusCode: status
+          httpStatusCode: status,
+          // If/when "httpProtocol" eventually contains HTTP/3.0, then
+          // the "http3" key can be removed.
+          httpProtocol: http3 || httpProtocol
         })
         valid++
         if (cacheHit) hits++
