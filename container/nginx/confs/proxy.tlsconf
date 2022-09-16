@@ -21,8 +21,8 @@ map $format_query $format_final {
 # The Alt-Svc header is used to negotiate HTTP/3
 # QUIC-Status is used to report HTTP3 usage back to the client
 server {
-    listen 443 default_server ssl http2;
-    listen 443 http3 reuseport;
+    listen 443 default_server http3 reuseport;
+    listen 443 default_server ssl http2 reuseport;
 
     ssl_certificate             /usr/src/app/shared/ssl/node.crt;
     ssl_certificate_key         /usr/src/app/shared/ssl/node.key;
@@ -134,15 +134,11 @@ server {
         }
     }
 
-    location ~* ^.*(QmPgVA4M2EGijWDtH59EYPSPXQhahsVUUytrs1wPJwpgBh|bafybeidgnebuxvarpnw2grmkgnamu6cv6|bafkreibk3n7kxz6ep4g6z6wr737jbd3upibwkzskp6olu7at7qa6bhrrc4|QmTuWjNEmtUd2HGqH5UJzBJ83EFE1yVLxsfgQvUmnFDdan|QmXg6yZZaehZuCzUmBQgfXQqsYF1vb1fJxaypXBPHPEXM7|bafkreibbogdqa6ikxpx56m2rcun3h5ygkrujhhqk6jgj3apwii6cgjpa4i|bafybeicp3x52jgy3qhsrwaioemeck7vhnryq2i2dgodkakkixuzruo54wa|bafybeigyoslufnbi5haonpc3yiktbpdyvas7mqprpvb7wx2jsqyyn65oau|bafybeiaywbhyg43vdl3kkgybpbczcijr2cy4me7tozmc23asq3q4l7znqi|bafybeiaq2wlk4yrt7xpvdzdcurssnxsgamzzvtjdlqkzr7mdhtfopdsmre|bafkreidvok3ip6owxv4npbwt2ok3eljtht7fkjttwwcbfo7nsfqodrarsa|bafybeihllbqrdebl75jrgjyp3o5f4thsyhrzoquqxbisvssfl5hxnxhbey|QmU31Zr3DdDkF2czLfupdYcCkG3rfnef6BsphuCGh4LY4m|QmbksLY3TWTNZw4TBSA7gQBEDSpXDSwEdMSPedxyzAjnnE).*$ {
-        add_header Alt-Svc 'h3-27=":443"; ma=86400, h3-28=":443"; ma=86400, h3-29=":443"; ma=86400, h3=":443"; ma=86400';
-        add_header QUIC-Status $http3;
-        return 410;
-    }
-
     location = /basic_status {
         add_header Alt-Svc 'h3-27=":443"; ma=86400, h3-28=":443"; ma=86400, h3-29=":443"; ma=86400, h3=":443"; ma=86400';
         add_header QUIC-Status $http3;
         stub_status;
     }
+
+    include /etc/nginx/denylist.conf;
 }

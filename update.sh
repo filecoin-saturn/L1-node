@@ -36,11 +36,11 @@ if [[ $out != *"up to date"* ]]; then
 
   echo -n $(date -u) "Draining L1 node... "
   sudo docker kill --signal=SIGTERM saturn-node >> /dev/null
-  sleep 300
+  sleep 600
   echo "restarting...."
 
   sudo docker pull ghcr.io/filecoin-saturn/l1-node:$SATURN_NETWORK || true
-  sudo docker stop --time 30 saturn-node || true
+  sudo docker stop saturn-node || true
   sudo docker rm -f saturn-node || true
   sudo docker run --name saturn-node -it -d --restart=unless-stopped -v $SATURN_HOME/shared:/usr/src/app/shared -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL --network host ghcr.io/filecoin-saturn/l1-node:$SATURN_NETWORK
   sudo docker image prune -f
