@@ -1,10 +1,11 @@
+import http from 'node:http'
+import https from 'node:https'
 import fsPromises from 'node:fs/promises'
 import { cpus } from 'node:os'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import express from 'express'
 import mimeTypes from 'mime-types'
-import followRedirects from 'follow-redirects'
 import crypto from 'node:crypto'
 import xorDistance from 'xor-distance'
 import pDefer from 'p-defer'
@@ -26,9 +27,13 @@ import {
 import { streamCAR, streamRawFromCAR } from './utils/car.js'
 import { debug } from './utils/logging.js'
 
-const { https } = followRedirects
-
 const GATEWAY_TIMEOUT = 120_000
+const PROXY_REQUEST_HEADERS = [
+  'cache-control',
+  // nginx with proxy-cache does not pass the "if-none-match" request header
+  // to the origin. The fix is to pass a custom header.
+  'x-if-none-match'
+]
 const PROXY_RESPONSE_HEADERS = [
   'content-disposition',
   'content-type',
@@ -42,11 +47,14 @@ const PROXY_RESPONSE_HEADERS = [
   'x-ipfs-datasize',
   'x-content-type-options'
 ]
+const rootCidRegex = /^\/ip[fn]s\/[^/]+$/
 
-const ipfsAgent = new https.Agent({
+const agentOpts = {
   keepAlive: true,
   maxSockets: Math.floor(128 / cpus().length)
-})
+}
+const httpsAgent = new https.Agent(agentOpts)
+const httpAgent = new http.Agent(agentOpts)
 
 const app = express()
 
@@ -75,6 +83,13 @@ app.get('/favicon.ico', (req, res) => {
 })
 
 const handleCID = asyncHandler(async (req, res) => {
+  // Prevent Service Worker registration on namespace roots
+  // https://github.com/ipfs/kubo/issues/4025
+  if (req.headers['service-worker'] === 'script' && rootCidRegex.test(req.path)) {
+    const msg = 'navigator.serviceWorker: registration is not allowed for this scope'
+    return res.status(400).send(msg)
+  }
+
   const cid = req.params.cid
   try {
     CID.parse(cid)
@@ -89,7 +104,7 @@ const handleCID = asyncHandler(async (req, res) => {
 
   res.set({
     'Content-Type': mimeTypes.lookup(req.path) || 'application/octet-stream',
-    'Cache-Control': 'public, max-age=31536000, immutable',
+    'Cache-Control': 'public, max-age=29030400, immutable',
     'Saturn-Node-Id': nodeId,
     'Saturn-Node-Version': NODE_VERSION
   })
@@ -119,16 +134,22 @@ const handleCID = asyncHandler(async (req, res) => {
     return
   }
 
+  respondFromIPFSGateway(req, res, { cid, format })
+})
+
+// Whenever nginx doesn't have a CAR file in cache, this is called
+app.get('/ipfs/:cid', handleCID)
+app.get('/ipfs/:cid/:path*', handleCID)
+
+function respondFromIPFSGateway (req, res, { cid, format }) {
   debug(`Fetch ${req.path} from IPFS`)
 
-  const ipfsUrl = new URL(IPFS_GATEWAY_ORIGIN + req.path)
+  const ipfsUrl = new URL(IPFS_GATEWAY_ORIGIN + toUtf8(req.path))
   if (format) {
     ipfsUrl.searchParams.set('format', format)
   }
-  for (const key of ['filename', 'download']) {
-    if (key in req.query) {
-      ipfsUrl.searchParams.set(key, req.query[key])
-    }
+  for (const [key, val] of Object.entries(req.query)) {
+    ipfsUrl.searchParams.set(key, toUtf8(val))
   }
 
   const controller = new AbortController()
@@ -136,10 +157,13 @@ const handleCID = asyncHandler(async (req, res) => {
     controller.abort()
   }, GATEWAY_TIMEOUT)
 
-  const ipfsReq = https.get(ipfsUrl, {
-    agent: ipfsAgent,
+  const _http = ipfsUrl.protocol === 'https:' ? https : http
+  const agent = ipfsUrl.protocol === 'https:' ? httpsAgent : httpAgent
+
+  const ipfsReq = _http.get(ipfsUrl, {
+    agent,
     timeout: GATEWAY_TIMEOUT,
-    headers: { 'User-Agent': NODE_UA },
+    headers: proxyRequestHeaders(req.headers),
     signal: controller.signal
   }, async fetchRes => {
     clearTimeout(timeout)
@@ -178,11 +202,7 @@ const handleCID = asyncHandler(async (req, res) => {
       ipfsReq.destroy()
     }
   })
-})
-
-// Whenever nginx doesn't have a CAR file in cache, this is called
-app.get('/ipfs/:cid', handleCID)
-app.get('/ipfs/:cid/:path*', handleCID)
+}
 
 async function maybeRespondFromL2 (req, res, { cid, format }) {
   debug(`Fetch ${req.path} from L2s`)
@@ -268,7 +288,21 @@ app.post('/data/:cid', function (req, res) {
 
 addRegisterCheckRoute(app)
 
-export default app
+function proxyRequestHeaders (reqHeaders) {
+  const headers = { 'User-Agent': NODE_UA }
+
+  for (const key of PROXY_REQUEST_HEADERS) {
+    if (key in reqHeaders) {
+      if (key === 'x-if-none-match') {
+        headers['if-none-match'] = reqHeaders[key]
+      } else {
+        headers[key] = reqHeaders[key]
+      }
+    }
+  }
+
+  return headers
+}
 
 // https://github.com/ipfs/specs/blob/main/http-gateways/PATH_GATEWAY.md#response-headers
 function proxyResponseHeaders (ipfsRes, nodeRes) {
@@ -291,3 +325,12 @@ function getResponseFormat (req) {
     return null
   }
 }
+
+// HTTP Parser decodes with latin1 instead of utf8, so any unencoded chars
+// like 'тест' will be decoded into garbage.
+// https://github.com/nodejs/node/issues/17390
+function toUtf8 (str) {
+  return Buffer.from(str, 'binary').toString('utf8')
+}
+
+export default app

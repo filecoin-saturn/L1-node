@@ -18,6 +18,9 @@ export const nodeId = await readFile(NODE_ID_FILE_PATH, 'utf-8').catch(() => fal
 export const L2_FIRE_AND_FORGET = process.env.L2_FIRE_AND_FORGET
   ? process.env.L2_FIRE_AND_FORGET === 'true'
   : SATURN_NETWORK === 'test'
+export const ORCHESTRATOR_REGISTRATION = process.env.ORCHESTRATOR_REGISTRATION
+  ? process.env.ORCHESTRATOR_REGISTRATION === 'true'
+  : true
 
 export let nodeToken = ''
 export const updateNodeToken = (newToken) => { nodeToken = newToken }
