@@ -57,7 +57,7 @@ test('L1 node', async t => {
     await t.test('response headers', async t => {
       const res = await fetch(`${address}/ipfs/${TESTING_CID}`)
       assert.strictEqual(res.headers.get('content-type'), 'application/octet-stream')
-      assert.strictEqual(res.headers.get('cache-control'), 'public, max-age=31536000, immutable')
+      assert.strictEqual(res.headers.get('cache-control'), 'public, max-age=29030400, immutable')
       assert.strictEqual(res.headers.get('saturn-node-id'), nodeId)
       assert.strictEqual(res.headers.get('saturn-node-version'), DEV_VERSION)
     })
