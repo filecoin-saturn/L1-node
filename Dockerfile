@@ -7,8 +7,8 @@ ARG NGINX_COMMIT=98e94553ae51
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
 
-# https://github.com/google/boringssl
-ARG BORINGSSL_COMMIT=8ce0e1c14e48109773f1e94e5f8b020aa1e24dc5
+# https://github.com/quictls/openssl
+ARG QUICTLS_COMMIT=75e940831d0570d6b020cfebf128ae500f424867
 
 ARG CONFIG="--prefix=/etc/nginx \
  --sbin-path=/usr/sbin/nginx \
@@ -53,7 +53,7 @@ FROM debian AS build
 ARG NGINX_VERSION
 ARG NGINX_COMMIT
 ARG NGX_BROTLI_COMMIT
-ARG BORINGSSL_COMMIT
+ARG QUICTLS_COMMIT
 ARG CONFIG
 
 # Install dependencies
@@ -61,15 +61,12 @@ RUN apt-get update && apt-get install -y \
     dpkg-dev \
     build-essential \
     mercurial \
-    golang \
-    ninja-build \
     gnupg2 \
     git \
     gcc \
     cmake \
     libpcre3 libpcre3-dev \
-    zlib1g \
-    zlib1g-dev \
+    zlib1g zlib1g-dev \
     openssl \
     libssl-dev \
     curl \
@@ -89,22 +86,21 @@ RUN echo "Cloning brotli $NGX_BROTLI_COMMIT" \
   && git checkout --recurse-submodules -q FETCH_HEAD \
   && git submodule update --init --depth 1
 
-RUN echo "Cloning and building boringssl $BORINGSSL_COMMIT" \
+RUN echo "Cloning and building quictls $QUICTLS_COMMIT" \
   && cd /usr/src \
-  && git clone https://github.com/google/boringssl \
-  && cd boringssl \
-  && git checkout $BORINGSSL_COMMIT \
-  && mkdir build \
-  && cd build \
-  && cmake -GNinja .. \
-  && ninja
+  && git clone https://github.com/quictls/openssl \
+  && cd openssl \
+  && git checkout $QUICTLS_COMMIT \
+  && ./config shared --prefix=/usr/src/openssl/build --openssldir=/usr/src/openssl/build --libdir=lib \
+  && make \
+  && make install
 
 RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from 'quic' branch)" \
   && hg clone -b quic --rev $NGINX_COMMIT https://hg.nginx.org/nginx-quic /usr/src/nginx-$NGINX_VERSION \
   && cd /usr/src/nginx-$NGINX_VERSION \
   && ./auto/configure $CONFIG \
-    --with-cc-opt="-I../boringssl/include"   \
-    --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto" \
+    --with-cc-opt="-I../openssl/build/include" \
+    --with-ld-opt="-L../openssl/build/lib" \
   && make \
   && make install
 
@@ -113,6 +109,8 @@ FROM nginx:${NGINX_VERSION}
 ARG NGINX_NAME
 
 COPY --from=build /usr/sbin/nginx /usr/sbin/
+COPY --from=build /usr/src/openssl/build/lib/libssl.so.81.3 /usr/lib/nginx/modules/
+COPY --from=build /usr/src/openssl/build/lib/libcrypto.so.81.3 /usr/lib/nginx/modules/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_static_module.so /usr/lib/nginx/modules/
 
