@@ -48,48 +48,52 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 2. Authenticate docker with the GitHub Container Registry ([Instructions here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry))
 3. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `.bashrc` (user) and `/etc/environment` (global), and load them
    - If **Main network:** Set `SATURN_NETWORK` to `main` too
-4. Run the docker image:
+   - By default, shared volume is mounted from `$HOME`. But can be changed by setting `$SATURN_HOME` env variable
 
-   **Test network:**
-    ```shell
-    sudo docker run --name saturn-node -it -d --restart=unless-stopped \
-      -v $HOME/shared:/usr/src/app/shared \
-      -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS \
-      -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL \
-      --network host \
-      ghcr.io/filecoin-saturn/l1-node:test
+4. Download the [`run.sh`](run.sh) script and make it executable
+
+   ```bash
+   curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/run.sh -o run.sh
+   chmod +x run.sh
+   ```
+
+5. Run the script:
+
+    ```bash
+    ./run.sh
     ```
 
-   **Main network (invitation only):**
-    ```shell
-    sudo docker run --name saturn-node -it -d --restart=unless-stopped \
-      -v $HOME/shared:/usr/src/app/shared \
-      -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS \
-      -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL \
-      --network host \
-      ghcr.io/filecoin-saturn/l1-node:main
-    ```
-    
-5. Check logs with `docker logs -f saturn-node`
-6. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
-7. Download the [`update.sh`](update.sh) script
+6. Check logs with `docker logs -f saturn-node`
+7. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
+8. Download the [`update.sh`](update.sh) script
 
    ```shell
-   wget -O $HOME/update.sh https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh && chmod +x $HOME/update.sh
+   wget -O update.sh https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh
+   chmod +x update.sh
    ```
-8. Setup the cron to run every 5 minutes:
+
+9. Setup the cron to run every 5 minutes:
 
    ```shell
    crontab -e
    ```
 
-   Add the following text:
+   Add the following text replacing path:
    ```
-   */5 * * * * $HOME/update.sh >> $HOME/cron.log
+   */5 * * * * /path/to/update.sh >> /path/to/l1-cron.log
    ```
 
    **Make sure to have env variables set in `/etc/environment` or hardcoded in `update.sh` for auto-update to work**
 
+## Stopping a node
+
+To gracefully stop a node a not receive a penalty, run:
+
+```bash
+  sudo docker kill --signal=SIGTERM saturn-node
+  sleep 600 # wait for 10 minutes to drain all requests
+  sudo docker stop saturn-node
+```
 
 ## Developing
 
