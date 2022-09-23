@@ -114,10 +114,10 @@ COPY --from=build /usr/src/openssl/build/lib/libcrypto.so.81.3 /usr/lib/nginx/mo
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_static_module.so /usr/lib/nginx/modules/
 
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 # RUN curl -fsSL https://install.speedtest.net/app/cli/install.deb.sh | bash -
-RUN curl -fsSL https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash -
-RUN apt-get install --no-install-recommends -y \
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
+ && curl -fsSL https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash - \
+ && apt-get install --no-install-recommends -y \
    nodejs \
    speedtest \
   && rm -rf /var/lib/apt/lists/*
