@@ -1,5 +1,6 @@
 ---
 - name: Bootstrap playbook
+  tags: bootstrap
   hosts: "{{ targets }}"
   # https://stackoverflow.com/questions/32297456/how-to-ignore-ansible-ssh-authenticity-checking/54735937#54735937
   # Don't gather facts automatically because that will trigger
