@@ -1,0 +1,136 @@
+---
+- name: Bootstrap playbook
+  tags: bootstrap
+  hosts: "{{ targets }}"
+  # https://stackoverflow.com/questions/32297456/how-to-ignore-ansible-ssh-authenticity-checking/54735937#54735937
+  # Don't gather facts automatically because that will trigger
+  # a connection, which needs to check the remote host key
+  gather_facts: false
+  tasks:
+  - name: Check known_hosts for {{ inventory_hostname }}
+    delegate_to: localhost
+    command: ssh-keygen -F {{ inventory_hostname }}
+    register: has_entry_in_known_hosts_file
+    changed_when: false
+    ignore_errors: true
+  - name: Ignore host key for {{ inventory_hostname }} on first run
+    when: has_entry_in_known_hosts_file.rc == 1
+    set_fact:
+      ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+  # Now that we have resolved the issue with the host key
+  # we can "gather facts" without issue
+  - name: Set authorized keys for the host
+    authorized_key:
+      user: "{{ ansible_user }}"
+      state: present
+      key: "{{ lookup('file', '../authorized_keys') }}"
+- name: Configure playbook
+  hosts: "{{ targets }}"
+  gather_facts: true
+  vars:
+    packages:
+      docker:
+        CentOS: docker-ce
+        Ubuntu: docker.io
+      pip:
+        CentOS: python3-pip.noarch
+        Ubuntu: python3-pip
+  tasks:
+  - name: Add docker repository
+    become: true
+    become_user: root
+    # ref - https://www.ansiblepilot.com/articles/install-docker-in-redhat-like-systems-ansible-module-rpm_key-yum_repository-and-yum/
+    ansible.builtin.yum_repository:
+      name: docker
+      description: docker repository to CentOS
+      baseurl: "https://download.docker.com/linux/centos/$releasever/$basearch/stable"
+      enabled: true
+      gpgcheck: true
+      gpgkey: "https://download.docker.com/linux/centos/gpg"
+      state: present
+    when: ansible_distribution == "CentOS"
+  - name: Install OS packages
+    become: true
+    become_user: root
+    ansible.builtin.package:
+      name:
+      - wget
+      - "{{ packages.docker[ansible_distribution] }}"
+      - "{{ packages.pip[ansible_distribution] }}"
+      state: present
+      update_cache: true
+  - name: Install python packages
+    become: true
+    become_user: root
+    ansible.builtin.pip:
+      executable: pip3
+      name:
+      - docker>5.0.0
+      state: present
+  - name: Start docker
+    become: true
+    become_user: root
+    ansible.builtin.service:
+      name: docker
+      enabled: true
+      state: started
+- name: Run playbook
+  hosts: "{{ targets }}"
+  vars:
+    env_vars:
+      SATURN_NETWORK: "{{ lookup('ansible.builtin.env', 'SATURN_NETWORK', default='test') }}"
+      FIL_WALLET_ADDRESS: "{{ lookup('ansible.builtin.env', 'FIL_WALLET_ADDRESS', default=undef()) }}"
+      NODE_OPERATOR_EMAIL: "{{ lookup('ansible.builtin.env', 'NODE_OPERATOR_EMAIL', default=undef()) }}"
+    # this wasn't consistent between runs, so we need to store it
+    homedir: "{{ ansible_env.HOME }}"
+    saturn_home: "{{ volume_root if volume_root is defined else homedir }}"
+  tasks:
+  - name: Print the homedir
+    ansible.builtin.debug:
+      var: homedir
+  - name: Set L1 container env
+    become: true
+    become_user: root
+    blockinfile:
+      dest: "{{ item.0 }}"
+      block: export {{ item.1.key }}={{ item.1.value }}
+      marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.1.key }}"
+    with_nested:
+    - [/etc/environment, "{{ homedir }}/.bashrc"]
+    - "{{ env_vars | dict2items + [{'key': 'SATURN_HOME', 'value': saturn_home}] }}"
+  - name: Get the L1 run.sh script
+    become: true
+    become_user: root
+    ansible.builtin.get_url:
+      url: |
+        https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/run.sh
+      dest: "{{ homedir }}/run.sh"
+      mode: +x
+  - name: Check the L1 container
+    become: true
+    become_user: root
+    docker_container_info:
+      name: saturn-node
+    register: saturn_container
+  - name: Run the L1 container
+    become: true
+    become_user: root
+    ansible.builtin.shell: "{{ homedir }}/run.sh"
+    when: not saturn_container.exists
+  - name: Download the update.sh file
+    become: true
+    become_user: root
+    ansible.builtin.get_url:
+      url: |
+        https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh
+      dest: "{{ homedir }}/update.sh"
+      mode: +x
+  - name: Creates the L1 update cron job
+    become: true
+    become_user: root
+    ansible.builtin.cron:
+      name: l1-update
+      minute: "*/5"
+      user: root
+      job: "{{ homedir }}/update.sh >> {{ homedir }}/l1-cron.log"
+      state: present

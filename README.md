@@ -85,6 +85,22 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 
    **Make sure to have env variables set in `/etc/environment` or hardcoded in `update.sh` for auto-update to work**
 
+## Running a node with Ansible
+
+Note: these instructions are to be run in a machine where Ansible is installed.
+This should not be your L1 node target deployment machine.
+This machine should have ssh access to the target machine.
+
+1. Clone this repository and `cd` into it.
+
+2. Export the `FIL_WALLET_ADDRESS`, `NODE_OPERATOR_EMAIL,` and `SATURN_NETWORK` env variables.
+  - If **Main network:** Set `SATURN_NETWORK` to `main`
+
+3. Run `ansible-playbook -i <path_to_your_inventory> --extra-vars targets=all --skip-tags=bootstrap playbooks/l1.yaml`
+  - Make sure to specify which hosts you want to provision in your inventory file.
+  - Feel free to use labels (modify the `targets` var) to filter them or to deploy incrementally.
+  - We're skipping the bootstrap play by default, as it deals with setting authorized keys on the target machine.
+
 ## Stopping a node
 
 To gracefully stop a node a not receive a penalty, run:
