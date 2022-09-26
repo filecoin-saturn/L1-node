@@ -98,6 +98,11 @@ export async function register (initial) {
         debug(`Certificate is valid until ${cert.validTo}`)
       }
 
+      if (!cert.subjectAltName.includes('rings')) {
+        debug('Certificate is missing rings SAN, getting a new one...')
+        valid = false
+      }
+
       if (!valid) {
         await getNewTLSCert(registerOptions)
         process.exit()
