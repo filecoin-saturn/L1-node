@@ -115,7 +115,7 @@
   - name: Run the L1 container
     become: true
     become_user: root
-    command: "{{ homedir }}/run.sh"
+    ansible.builtin.shell: "{{ homedir }}/run.sh"
     when: not saturn_container.exists
   - name: Download the update.sh file
     become: true
