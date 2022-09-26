@@ -105,21 +105,17 @@
         https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/run.sh
       dest: "{{ homedir }}/run.sh"
       mode: +x
-  - name: Run the L1 container
-    docker_container:
+  - name: Check the L1 container
+    become: true
+    become_user: root
+    docker_container_info:
       name: saturn-node
-      image: "ghcr.io/filecoin-saturn/l1-node:{{ env_vars.SATURN_NETWORK }}"
-      interactive: true
-      tty: true
-      detach: true
-      restart_policy: unless-stopped
-      network_mode: host
-      env: "{{ env_vars }}"
-      volumes:
-      - "{{ saturn_home }}/shared:/usr/src/app/shared"
-      state: started
-      # ignoring this, so there are no unneeded restarts on auto-update
-      ignore_image: true
+    register: saturn_container
+  - name: Run the L1 container
+    become: true
+    become_user: root
+    command: "{{ homedir }}/run.sh"
+    when: not saturn_container.exists
   - name: Download the update.sh file
     become: true
     become_user: root
