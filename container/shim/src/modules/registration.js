@@ -71,7 +71,6 @@ export async function register (initial) {
     }
 
     debug('Registering with orchestrator for the first time, requesting new TLS cert with the following config (this could take up to 20 mins)')
-    debug(body)
     try {
       await getNewTLSCert(registerOptions)
 
