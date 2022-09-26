@@ -48,7 +48,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 2. Authenticate docker with the GitHub Container Registry ([Instructions here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry))
 3. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `.bashrc` (user) and `/etc/environment` (global), and load them
    - If **Main network:** Set `SATURN_NETWORK` to `main` too
-   - By default, shared volume is mounted from `$HOME`. But can be changed by setting `$SATURN_HOME` env variable
+   - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` env variable
 
 4. Download the [`run.sh`](run.sh) script and make it executable
 
@@ -65,16 +65,16 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 
 6. Check logs with `docker logs -f saturn-node`
 7. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
-8. Download the [`update.sh`](update.sh) script
+8. Download the [`update.sh`](update.sh) script and make it executable
 
-   ```shell
-   wget -O update.sh https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh
+   ```bash
+   wget -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh -o update.sh
    chmod +x update.sh
    ```
 
 9. Setup the cron to run every 5 minutes:
 
-   ```shell
+   ```bash
    crontab -e
    ```
 
@@ -104,20 +104,20 @@ To gracefully stop a node a not receive a penalty, run:
 ### Build
 
 Build the docker image with 
-```shell
+```bash
 ./node build
 ```
 
 ### Run
 
 Run the docker container with 
-```shell
+```bash
 ./node run
 ```
 
 ### Build and run
 
-```shell
+```bash
 ./node build run
 ```
 
@@ -127,7 +127,7 @@ Run the docker container with
 
 - To deploy to test network, just push to `main`.
 - To deploy to main network, create a tag and push it, example:
-  ```
+  ```bash
   git checkout main
   git pull
   git tag $(date +%s)
@@ -136,7 +136,7 @@ Run the docker container with
 
 In development, to avoid an automatic CI/CD deployment to the test network when any change is made to the `container/` directory, include `[skip ci]` in the `git commit` message. Like:
 
-```shell
+```bash
 git commit -m "my commit message [skip ci]"
 ```
 
