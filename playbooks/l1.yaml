@@ -77,7 +77,7 @@
   hosts: "{{ targets }}"
   vars:
     env_vars:
-      SATURN_NETWORK: "{{ lookup('ansible.builtin.env', 'SATURN_NETWORK', default=undef()) }}"
+      SATURN_NETWORK: "{{ lookup('ansible.builtin.env', 'SATURN_NETWORK', default='test') }}"
       FIL_WALLET_ADDRESS: "{{ lookup('ansible.builtin.env', 'FIL_WALLET_ADDRESS', default=undef()) }}"
       NODE_OPERATOR_EMAIL: "{{ lookup('ansible.builtin.env', 'NODE_OPERATOR_EMAIL', default=undef()) }}"
     # this wasn't consistent between runs, so we need to store it
