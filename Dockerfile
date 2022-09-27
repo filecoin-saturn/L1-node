@@ -1,15 +1,6 @@
 ARG NGINX_VERSION="1.23.1"
 ARG NGINX_NAME="nginx-${NGINX_VERSION}"
 
-# https://hg.nginx.org/nginx-quic/shortlog/quic
-ARG NGINX_COMMIT=98e94553ae51
-
-# https://github.com/google/ngx_brotli
-ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
-
-# https://github.com/quictls/openssl
-ARG QUICTLS_COMMIT=75e940831d0570d6b020cfebf128ae500f424867
-
 ARG CONFIG="--prefix=/etc/nginx \
  --sbin-path=/usr/sbin/nginx \
  --modules-path=/usr/lib/nginx/modules \
@@ -51,58 +42,61 @@ ARG CONFIG="--prefix=/etc/nginx \
 FROM debian AS build
 
 ARG NGINX_VERSION
-ARG NGINX_COMMIT
-ARG NGX_BROTLI_COMMIT
-ARG QUICTLS_COMMIT
+# https://hg.nginx.org/nginx-quic/shortlog/quic
+ARG NGINX_COMMIT=98e94553ae51
+# https://github.com/google/ngx_brotli
+ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
+# https://github.com/quictls/openssl
+ARG QUICTLS_COMMIT=75e940831d0570d6b020cfebf128ae500f424867
 ARG CONFIG
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
-    dpkg-dev \
-    build-essential \
-    mercurial \
-    gnupg2 \
-    git \
-    gcc \
-    cmake \
-    libpcre3 libpcre3-dev \
-    zlib1g zlib1g-dev \
-    openssl \
-    libssl-dev \
-    curl \
-    unzip \
-    wget \
-    libxslt-dev \
-  && rm -rf /var/lib/apt/lists/*
+  dpkg-dev \
+  build-essential \
+  mercurial \
+  gnupg2 \
+  git \
+  gcc \
+  cmake \
+  libpcre3 libpcre3-dev \
+  zlib1g zlib1g-dev \
+  openssl \
+  libssl-dev \
+  curl \
+  unzip \
+  wget \
+  libxslt-dev \
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src
 
 RUN echo "Cloning brotli $NGX_BROTLI_COMMIT" \
-  && mkdir /usr/src/ngx_brotli \
-  && cd /usr/src/ngx_brotli \
-  && git init \
-  && git remote add origin https://github.com/google/ngx_brotli.git \
-  && git fetch --depth 1 origin $NGX_BROTLI_COMMIT \
-  && git checkout --recurse-submodules -q FETCH_HEAD \
-  && git submodule update --init --depth 1
+ && mkdir /usr/src/ngx_brotli \
+ && cd /usr/src/ngx_brotli \
+ && git init \
+ && git remote add origin https://github.com/google/ngx_brotli.git \
+ && git fetch --depth 1 origin $NGX_BROTLI_COMMIT \
+ && git checkout --recurse-submodules -q FETCH_HEAD \
+ && git submodule update --init --depth 1
 
 RUN echo "Cloning and building quictls $QUICTLS_COMMIT" \
-  && cd /usr/src \
-  && git clone https://github.com/quictls/openssl \
-  && cd openssl \
-  && git checkout $QUICTLS_COMMIT \
-  && ./config shared --prefix=/usr/src/openssl/build --openssldir=/usr/src/openssl/build --libdir=lib \
-  && make \
-  && make install
+ && cd /usr/src \
+ && git clone https://github.com/quictls/openssl \
+ && cd openssl \
+ && git checkout $QUICTLS_COMMIT \
+ && ./config shared --prefix=/usr/src/openssl/build --openssldir=/usr/src/openssl/build --libdir=lib \
+ && make \
+ && make install
 
 RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from 'quic' branch)" \
-  && hg clone -b quic --rev $NGINX_COMMIT https://hg.nginx.org/nginx-quic /usr/src/nginx-$NGINX_VERSION \
-  && cd /usr/src/nginx-$NGINX_VERSION \
-  && ./auto/configure $CONFIG \
-    --with-cc-opt="-I../openssl/build/include" \
-    --with-ld-opt="-L../openssl/build/lib" \
-  && make \
-  && make install
+ && hg clone -b quic --rev $NGINX_COMMIT https://hg.nginx.org/nginx-quic /usr/src/nginx-$NGINX_VERSION \
+ && cd /usr/src/nginx-$NGINX_VERSION \
+ && ./auto/configure $CONFIG \
+  --with-cc-opt="-I../openssl/build/include" \
+  --with-ld-opt="-L../openssl/build/lib" \
+ && make \
+ && make install
 
 FROM nginx:${NGINX_VERSION}
 
