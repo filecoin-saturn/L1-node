@@ -42,6 +42,7 @@ ARG CONFIG="--prefix=/etc/nginx \
 FROM debian AS build
 
 ARG NGINX_VERSION
+ARG NGINX_BRANCH=quic
 # https://hg.nginx.org/nginx-quic/shortlog/quic
 ARG NGINX_COMMIT=98e94553ae51
 # https://github.com/google/ngx_brotli
@@ -89,8 +90,8 @@ RUN echo "Cloning and building quictls $QUICTLS_COMMIT" \
  && make \
  && make install
 
-RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from 'quic' branch)" \
- && hg clone -b quic --rev $NGINX_COMMIT https://hg.nginx.org/nginx-quic /usr/src/nginx-$NGINX_VERSION \
+RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from '$NGINX_BRANCH' branch)" \
+ && hg clone -b $NGINX_BRANCH --rev $NGINX_COMMIT https://hg.nginx.org/nginx-quic /usr/src/nginx-$NGINX_VERSION \
  && cd /usr/src/nginx-$NGINX_VERSION \
  && ./auto/configure $CONFIG \
   --with-cc-opt="-I../openssl/build/include" \
