@@ -45,34 +45,33 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 ## Running a node
 
 1. Install docker ([Instructions here](https://docs.docker.com/engine/install/#server))
-2. Authenticate docker with the GitHub Container Registry ([Instructions here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry))
-3. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `.bashrc` (user) and `/etc/environment` (global), and load them
+2. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `.bashrc` (user) and `/etc/environment` (global), and load them
    - If **Main network:** Set `SATURN_NETWORK` to `main` too
    - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` env variable
 
-4. Download the [`run.sh`](run.sh) script and make it executable
+3. Download the [`run.sh`](run.sh) script and make it executable
 
    ```bash
    curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/run.sh -o run.sh
    chmod +x run.sh
    ```
 
-5. Run the script:
+4. Run the script:
 
     ```bash
     ./run.sh
     ```
 
-6. Check logs with `docker logs -f saturn-node`
-7. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
-8. Download the [`update.sh`](update.sh) script and make it executable
+5. Check logs with `docker logs -f saturn-node`
+6. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
+7. Download the [`update.sh`](update.sh) script and make it executable
 
    ```bash
    wget -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh -o update.sh
    chmod +x update.sh
    ```
 
-9. Setup the cron to run every 5 minutes:
+8. Setup the cron to run every 5 minutes:
 
    ```bash
    crontab -e
@@ -83,7 +82,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
    */5 * * * * /path/to/update.sh >> /path/to/l1-cron.log
    ```
 
-   **Make sure to have env variables set in `/etc/environment` or hardcoded in `update.sh` for auto-update to work**
+   **Make sure to have env variables set in `/etc/environment` for auto-update to work**
 
 ## Running a node with Ansible
 
