@@ -49,29 +49,30 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
    - If **Main network:** Set `SATURN_NETWORK` to `main` too
    - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` env variable
 
-3. Download the [`run.sh`](run.sh) script and make it executable
+3. Change directory to $SATURN_HOME (default: `$HOME`) to download the `run.sh` and `update.sh` scripts in steps 4 and 8
+4. Download the [`run.sh`](run.sh) script and make it executable
 
    ```bash
    curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/run.sh -o run.sh
    chmod +x run.sh
    ```
 
-4. Run the script:
+5. Run the script:
 
     ```bash
     ./run.sh
     ```
 
-5. Check logs with `docker logs -f saturn-node`
-6. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
-7. Download the [`update.sh`](update.sh) script and make it executable
+6. Check logs with `docker logs -f saturn-node`
+7. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
+8. Download the [`update.sh`](update.sh) script and make it executable
 
    ```bash
    curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh -o update.sh
    chmod +x update.sh
    ```
 
-8. Setup the cron to run every 5 minutes:
+9. Setup the cron to run every 5 minutes:
 
    ```bash
    crontab -e
@@ -79,7 +80,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 
    Add the following text replacing path:
    ```
-   */5 * * * * /path/to/update.sh >> /path/to/l1-cron.log
+   */5 * * * * $SATURN_HOME/update.sh >> /path/to/l1-cron.log
    ```
 
    **Make sure to have env variables set in `/etc/environment` for auto-update to work**
