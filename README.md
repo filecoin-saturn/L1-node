@@ -67,7 +67,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 7. Download the [`update.sh`](update.sh) script and make it executable
 
    ```bash
-   wget -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh -o update.sh
+   curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh -o update.sh
    chmod +x update.sh
    ```
 
