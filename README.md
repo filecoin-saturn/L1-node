@@ -78,9 +78,9 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
    crontab -e
    ```
 
-   Add the following text replacing path:
+   Add the following text replacing the path:
    ```
-   */5 * * * * $SATURN_HOME/update.sh >> /path/to/l1-cron.log
+   */5 * * * * /path/to/saturn/home/update.sh >> /path/to/saturn/home/l1-cron.log
    ```
 
    **Make sure to have env variables set in `/etc/environment` for auto-update to work**
