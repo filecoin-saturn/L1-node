@@ -48,6 +48,7 @@ if [[ $out != *"up to date"* ]]; then
     -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS \
     -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL \
     --network host \
+    --ulimit nofile=1000000 \
     ghcr.io/filecoin-saturn/l1-node:$SATURN_NETWORK
   sudo docker image prune -f
 
