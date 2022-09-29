@@ -82,7 +82,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 
    Add the following text replacing the path:
    ```
-   */5 * * * * /path/to/saturn/home/update.sh >> /path/to/saturn/home/l1-cron.log
+   */5 * * * * /path/to/saturn/home/update.sh >> /path/to/saturn/home/l1-cron.log 2>&1
    ```
 
    **Make sure to have env variables set in `/etc/environment` for auto-update to work**
