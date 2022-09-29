@@ -44,6 +44,8 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 
 ## Running a node
 
+<sub>If you are switching networks, please see the [Switching networks](#switching-networks) section below.</sub>
+
 1. Install docker ([Instructions here](https://docs.docker.com/engine/install/#server))
 2. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `.bashrc` (user) and `/etc/environment` (global), and load them
    - If **Main network:** Set `SATURN_NETWORK` to `main` too
@@ -110,6 +112,15 @@ To gracefully stop a node a not receive a penalty, run:
   sleep 600 # wait for 10 minutes to drain all requests
   sudo docker stop saturn-node
 ```
+
+## Switching networks
+
+If you are switching networks, follow these steps:
+
+1. Stop the node as explained in [Stopping a node](#stopping-a-node)
+2. Set the network env variable `SATURN_NETWORK` to `main` or `test` in `/etc/environment` and `.bashrc`
+3. Delete contents in `$SATURN_HOME/shared/ssl` (default: `$HOME/shared/ssl`)
+4. Start the node again with `run.sh` script
 
 ## Developing
 
