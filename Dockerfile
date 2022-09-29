@@ -7,12 +7,8 @@ ARG NGINX_VERSION
 # https://hg.nginx.org/nginx
 ARG NGINX_BRANCH=default
 ARG NGINX_COMMIT=ba5cf8f73a2d
-# https://github.com/cloudflare/quiche
-ARG QUICHE_COMMIT=2d512e92f81d98b4369bfe67c1365de118169081
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
-# https://github.com/quictls/openssl
-ARG QUICTLS_COMMIT=75e940831d0570d6b020cfebf128ae500f424867
 ARG CONFIG="--prefix=/etc/nginx \
  --sbin-path=/usr/sbin/nginx \
  --modules-path=/usr/lib/nginx/modules \
@@ -40,9 +36,6 @@ ARG CONFIG="--prefix=/etc/nginx \
  --with-http_stub_status_module \
  --with-http_sub_module \
  --with-http_v2_module \
- --with-http_v3_module \
- --with-openssl=/usr/src/quiche/quiche/deps/boringssl \
- --with-quiche=/usr/src/quiche \
  --with-mail \
  --with-mail_ssl_module \
  --with-stream \
@@ -70,8 +63,7 @@ RUN apt-get update && apt-get install -y \
   unzip \
   wget \
   libxslt-dev \
- && rm -rf /var/lib/apt/lists/* \
- && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src
 
@@ -84,23 +76,10 @@ RUN echo "Cloning brotli $NGX_BROTLI_COMMIT" \
  && git checkout --recurse-submodules -q FETCH_HEAD \
  && git submodule update --init --depth 1
 
-# using boringssl here
-RUN echo "Cloning and getting the quiche patches $QUICHE_COMMIT" \
- && git clone --recursive https://github.com/cloudflare/quiche \
- && cd /usr/src/quiche \
- && git checkout --recurse-submodules $QUICHE_COMMIT \
- && cd /usr/src \
- && wget -q https://raw.githubusercontent.com/kn007/patch/1062e64ead7e1b21a52392cdd02d1d5bc631d231/nginx_with_quic.patch \
- && wget -q https://raw.githubusercontent.com/kn007/patch/cd03b77647c9bf7179acac0125151a0fbb4ac7c8/Enable_BoringSSL_OCSP.patch
-
-ENV PATH="/root/.cargo/bin:$PATH"
 RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from '$NGINX_BRANCH' branch)" \
  && hg clone -b $NGINX_BRANCH --rev $NGINX_COMMIT https://hg.nginx.org/nginx-quic /usr/src/nginx-$NGINX_VERSION \
  && cd /usr/src/nginx-$NGINX_VERSION \
- && patch -p01 < /usr/src/nginx_with_quic.patch \
- && patch -p01 < /usr/src/Enable_BoringSSL_OCSP.patch \
- && echo "[net]\ngit-fetch-with-cli = true" > /root/.cargo/config.toml \
- && ./auto/configure $CONFIG --build="quiche-$(git --git-dir=/usr/src/quiche/.git rev-parse --short HEAD)" \
+ && ./auto/configure $CONFIG \
  && make \
  && make install
 
