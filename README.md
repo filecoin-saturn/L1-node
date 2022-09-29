@@ -28,11 +28,11 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 
 ### Node's host requirements
 - Linux server with a public IPv4 address
-- Root access / passwordless sudo user
+- Root access / passwordless sudo user ([How to](https://askubuntu.com/questions/147241/execute-sudo-without-password))
 - Ports 80 and 443 free
 - Docker installed ([Instructions here](https://docs.docker.com/engine/install/#server))
 - CPU with 6 cores (12+ cores recommended). [CPU Mark](https://www.cpubenchmark.net/cpu_list.php) of 8,000+ (20,000+ recommended)
-- 10Gbps upload bandwidth minimum (10Gbps+ recommended)<sup>1</sup>
+- 10Gbps upload link minimum<sup>1</sup>
 - 32GB RAM minimum (128GB+ recommended)
 - 1TB SSD minimum (4x1TB+ NVMe SSD in RAID 5 or RAID 10 recommended)<sup>2</sup>
 
