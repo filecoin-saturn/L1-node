@@ -9,7 +9,7 @@
   tasks:
   - name: Check known_hosts for {{ inventory_hostname }}
     delegate_to: localhost
-    command: ssh-keygen -F {{ inventory_hostname }}
+    ansible.builtin.command: ssh-keygen -F {{ inventory_hostname }}
     register: has_entry_in_known_hosts_file
     changed_when: false
     ignore_errors: true
@@ -77,13 +77,14 @@
 - name: Run playbook
   hosts: "{{ targets }}"
   vars:
-    env_vars:
+    params:
       SATURN_NETWORK: "{{ lookup('ansible.builtin.env', 'SATURN_NETWORK', default='test') }}"
       FIL_WALLET_ADDRESS: "{{ lookup('ansible.builtin.env', 'FIL_WALLET_ADDRESS', default=undef()) }}"
       NODE_OPERATOR_EMAIL: "{{ lookup('ansible.builtin.env', 'NODE_OPERATOR_EMAIL', default=undef()) }}"
     # this wasn't consistent between runs, so we need to store it
     homedir: "{{ ansible_env.HOME }}"
     saturn_home: "{{ volume_root if volume_root is defined else homedir }}"
+    env_vars: "{{ params | dict2items + [{'key': 'SATURN_HOME', 'value': saturn_home}] }}"
   tasks:
   - name: Print the homedir
     ansible.builtin.debug:
@@ -97,7 +98,7 @@
       marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.1.key }}"
     with_nested:
     - [/etc/environment, "{{ homedir }}/.bashrc"]
-    - "{{ env_vars | dict2items + [{'key': 'SATURN_HOME', 'value': saturn_home}] }}"
+    - "{{ env_vars }}"
   - name: Get the L1 run.sh script
     become: true
     become_user: root
@@ -115,7 +116,8 @@
   - name: Run the L1 container
     become: true
     become_user: root
-    ansible.builtin.shell: "{{ homedir }}/run.sh"
+    ansible.builtin.command: "{{ homedir }}/run.sh"
+    environment: "{{ env_vars }}"
     when: not saturn_container.exists
   - name: Download the update.sh file
     become: true
