@@ -89,18 +89,20 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 
 ## Running a node with Ansible
 
-Note:
-- these instructions are to be run in a machine with Ansible installed.
+Notes:
+- these instructions are to be run in a machine with [Ansible](https://docs.ansible.com/ansible/latest/index.html) installed.
 - This machine should not be your L1 node target deployment machine.
 - This machine should have ssh access to the target machine.
 
-1. Clone this repository and `cd` into it.
+1. Make sure you have Ansible >= 2.12 installed.
 
-2. Run `export FIL_WALLET_ADDRESS=<your_fil_wallet_address>; export NODE_OPERATOR_EMAIL=<your_email>; export SATURN_NETWORK=test`
+2. Clone this repository and `cd` into it.
+
+3. Run `export FIL_WALLET_ADDRESS=<your_fil_wallet_address>; export NODE_OPERATOR_EMAIL=<your_email>; export SATURN_NETWORK=test`
   - Replace the env var values where appropriate.
   - If **Main network:** Set `SATURN_NETWORK` to `main`
 
-3. Run `ansible-playbook -i <path_to_your_inventory> --extra-vars targets=all --skip-tags=bootstrap playbooks/l1.yaml`
+4. Run `ansible-playbook -i <path_to_your_inventory> --extra-vars targets=all --skip-tags=bootstrap playbooks/l1.yaml`
   - Make sure to specify which hosts you want to provision in your inventory file.
   - Feel free to use labels (modify the `targets` var) to filter them or to deploy incrementally.
   - We're skipping the bootstrap play by default, as it deals with setting authorized keys on the target machine.
