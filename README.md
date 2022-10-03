@@ -89,7 +89,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 
 ## Running a node with [Ansible](https://docs.ansible.com/ansible/latest/index.html)
 
-This playbook is meant as a bare-bones approach to running an L1. It simply automates running the steps described [above](## Running a node).
+This playbook is meant as a bare-bones approach to running an L1. It simply automates running the steps described [above](## Running a node). A consequence of this is that when run this playbook will restart a crashed L1 node docker container.
 Note: this does not cover server hardening and you should do your own research to ensure your server follows security best practices.
 
 Currently, this playbook runs on the following Linux distros:
