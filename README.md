@@ -89,7 +89,10 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 
 ## Running a node with Ansible
 
-This playbook is meant as a bare-bones approach to running an L1. These instructions are to be run in a machine with [Ansible](https://docs.ansible.com/ansible/latest/index.html) >= 2.12 installed.
+This playbook is meant as a bare-bones approach to running an L1. It simply automates running the steps described [above](## Running a node).
+Note: this does not cover server hardening and you should do your own research to ensure your server follows security best practices.
+
+These instructions are to be run in a machine with [Ansible](https://docs.ansible.com/ansible/latest/index.html) >= 2.12 installed (aka control node).
   - This machine should not be your L1 node target deployment machine.
   - This machine should have ssh access to the said target machine.
 
