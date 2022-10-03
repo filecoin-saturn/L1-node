@@ -26,6 +26,7 @@
       key: "{{ lookup('file', '../authorized_keys') }}"
 
 - name: Configure playbook
+  tags: config
   hosts: all
   gather_facts: true
   vars:
@@ -85,6 +86,7 @@
       state: started
 
 - name: Run playbook
+  tags: run
   hosts: all
   vars:
     # this wasn't consistent between runs, so we need to store it
