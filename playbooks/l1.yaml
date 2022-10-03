@@ -87,18 +87,18 @@
 - name: Run playbook
   hosts: all
   vars:
-    params:
-      SATURN_NETWORK: "{{ lookup('ansible.builtin.env', 'SATURN_NETWORK', default='test') }}"
-      FIL_WALLET_ADDRESS: "{{ lookup('ansible.builtin.env', 'FIL_WALLET_ADDRESS', default=undef()) }}"
-      NODE_OPERATOR_EMAIL: "{{ lookup('ansible.builtin.env', 'NODE_OPERATOR_EMAIL', default=undef()) }}"
     # this wasn't consistent between runs, so we need to store it
     homedir: "{{ ansible_env.HOME }}"
     saturn_home: "{{ volume_root if volume_root is defined else homedir }}"
-    env_vars: "{{ params | dict2items + [{'key': 'SATURN_HOME', 'value': saturn_home}] }}"
+    env_vars:
+      SATURN_NETWORK: "{{ lookup('ansible.builtin.env', 'SATURN_NETWORK', default='test') }}"
+      FIL_WALLET_ADDRESS: "{{ lookup('ansible.builtin.env', 'FIL_WALLET_ADDRESS', default=undef()) }}"
+      NODE_OPERATOR_EMAIL: "{{ lookup('ansible.builtin.env', 'NODE_OPERATOR_EMAIL', default=undef()) }}"
+      SATURN_HOME: "{{ saturn_home }}"
   tasks:
-  - name: Print the homedir
+  - name: Log the run config
     ansible.builtin.debug:
-      var: homedir
+      var: env_vars
   - name: Ensure we have the right config files
     become: true
     become_user: root
@@ -119,7 +119,7 @@
       marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.1.key }}"
     with_nested:
     - [/etc/environment, "{{ homedir }}/.bashrc"]
-    - "{{ env_vars }}"
+    - "{{ env_vars | dict2items }}"
   - name: Get the L1 run.sh script
     become: true
     become_user: root
