@@ -52,6 +52,12 @@
       gpgkey: "https://download.docker.com/linux/centos/gpg"
       state: present
     when: ansible_distribution == "CentOS"
+  - name: Update OS package cache
+    become: true
+    become_user: root
+    ansible.builtin.apt:
+      update_cache: true
+    when: ansible_distribution in ["Debian", "Ubuntu"]
   - name: Install OS packages
     become: true
     become_user: root
@@ -93,6 +99,17 @@
   - name: Print the homedir
     ansible.builtin.debug:
       var: homedir
+  - name: Ensure we have the right config files
+    become: true
+    become_user: root
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: touch
+      access_time: preserve
+      modification_time: preserve
+    loop:
+    - /etc/environment
+    - "{{ homedir }}/.bashrc"
   - name: Set L1 container env
     become: true
     become_user: root
