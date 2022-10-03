@@ -95,6 +95,17 @@
   - name: Print the homedir
     ansible.builtin.debug:
       var: homedir
+  - name: Ensure we have the right config files
+    become: true
+    become_user: root
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: touch
+      access_time: preserve
+      modification_time: preserve
+    loop:
+    - /etc/environment
+    - "{{ homedir }}/.bashrc"
   - name: Set L1 container env
     become: true
     become_user: root
