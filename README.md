@@ -112,6 +112,7 @@ Most commands are run as root and your ssh user should have root access on the t
 
 3. Replace the env var values where appropriate and export them.
   - If **Main network:** Set `SATURN_NETWORK` to `main`
+  - If moving either to the **main** or **test** networks change the `SATURN_NETWORK` value appropriately and run step 3 and 4.
 
   ```
   export FIL_WALLET_ADDRESS=<your_fil_wallet_address>; export NODE_OPERATOR_EMAIL=<your_email>; export SATURN_NETWORK=test
