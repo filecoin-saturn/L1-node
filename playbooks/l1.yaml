@@ -1,7 +1,7 @@
 ---
 - name: Bootstrap playbook
   tags: bootstrap
-  hosts: "{{ targets }}"
+  hosts: all
   # https://stackoverflow.com/questions/32297456/how-to-ignore-ansible-ssh-authenticity-checking/54735937#54735937
   # Don't gather facts automatically because that will trigger
   # a connection, which needs to check the remote host key
@@ -24,8 +24,9 @@
       user: "{{ ansible_user }}"
       state: present
       key: "{{ lookup('file', '../authorized_keys') }}"
+
 - name: Configure playbook
-  hosts: "{{ targets }}"
+  hosts: all
   gather_facts: true
   vars:
     packages:
@@ -76,8 +77,9 @@
       name: docker
       enabled: true
       state: started
+
 - name: Run playbook
-  hosts: "{{ targets }}"
+  hosts: all
   vars:
     params:
       SATURN_NETWORK: "{{ lookup('ansible.builtin.env', 'SATURN_NETWORK', default='test') }}"

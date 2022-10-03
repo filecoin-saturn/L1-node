@@ -120,12 +120,12 @@ Most commands are run as root and your ssh user should have root access on the t
 
 4. Run the playbook
   - Make sure to specify which hosts you want to provision in your inventory file.
-  - Feel free to use labels (modify the `targets` var) to filter them or to deploy incrementally.
+  - Feel free to use host labels to filter them or to deploy incrementally.
   - We're skipping the bootstrap play by default, as it deals with setting authorized keys on the target machine.
   - Note that you can define a specific `SATURN_HOME` by setting `volume_root` on your inventory file.
 
   ```
-  ansible-playbook -i <path_to_your_inventory> --extra-vars targets=all --skip-tags=bootstrap playbooks/l1.yaml
+  ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=bootstrap playbooks/l1.yaml
   ```
 
 ## Stopping a node
