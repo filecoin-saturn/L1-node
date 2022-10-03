@@ -98,7 +98,9 @@ Currently, this playbook runs on the following Linux distros:
   - CentOS
 
 These instructions are to be run in a machine with [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) >= 2.12 installed.
-  - This machine is known as your control node and it should not be the one to run your L1 node.
+This machine is known as your control node and it should not be the one to run your L1 node.
+
+Most commands are run as root and your ssh user should have root access on the target machine.
 
 1. Ensure your control node has ssh access to your target machine.
 
