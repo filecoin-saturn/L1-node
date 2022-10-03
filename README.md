@@ -105,26 +105,31 @@ This machine is known as your control node and it should not be the one to run y
 
 Most commands are run as root and your ssh user should have root access on the target machine.
 
-1. Ensure your control node has ssh access to your target machine.
+1. Clone this repository and `cd` into it.
+
+2. For target host connectivity, ssh keys are recommended and this playbook can help you with that.
+    1. Make sure you have configured `ansible_user` and `ansible_ssh_pass` for your target in your inventory file.
+    1. Setup an `authorized_keys` file with your public ssh keys in the cloned repository root.
+    2. Run `ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=config,run playbooks/l1.yaml`
+
+3. Ensure your control node has ssh access to your target machine.
 
   ```
   ansible -vvv -i <path_to_your_inventory> <host_label> -m ping
   ```
 
-2. Clone this repository and `cd` into it.
-
-3. Replace the env var values where appropriate and export them.
+4. Replace the env var values where appropriate and export them.
   - If **Main network:** Set `SATURN_NETWORK` to `main`
-  - If moving either to the **main** or **test** networks change the `SATURN_NETWORK` value appropriately and run step 3 and 4.
+  - If moving either to the **main** or **test** networks change the `SATURN_NETWORK` value appropriately and run step 4 and 5.
 
   ```
   export FIL_WALLET_ADDRESS=<your_fil_wallet_address>; export NODE_OPERATOR_EMAIL=<your_email>; export SATURN_NETWORK=test
   ```
 
-4. Run the playbook
+5. Run the playbook
   - Make sure to specify which hosts you want to provision in your inventory file.
   - Feel free to use host labels to filter them or to deploy incrementally.
-  - We're skipping the bootstrap play by default, as it deals with setting authorized keys on the target machine.
+  - We're skipping the bootstrap play by default, as it deals with setting authorized ssh keys on the target machine. See 2 for more info.
   - Note that you can define a specific `SATURN_HOME` by setting `volume_root` on your inventory file.
 
   ```
