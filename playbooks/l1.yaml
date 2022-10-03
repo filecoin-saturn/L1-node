@@ -91,7 +91,7 @@
   vars:
     # this wasn't consistent between runs, so we need to store it
     homedir: "{{ ansible_env.HOME }}"
-    saturn_home: "{{ volume_root if volume_root is defined else homedir }}"
+    saturn_home: "{{ saturn_root if saturn_root is defined else homedir }}"
     env_vars:
       SATURN_NETWORK: "{{ lookup('ansible.builtin.env', 'SATURN_NETWORK', default='test') }}"
       FIL_WALLET_ADDRESS: "{{ lookup('ansible.builtin.env', 'FIL_WALLET_ADDRESS', default=undef()) }}"

@@ -108,11 +108,14 @@ Most commands are run as root and your ssh user should have root access on the t
 1. Clone this repository and `cd` into it.
 
 2. For target host connectivity, ssh keys are recommended and this playbook can help you with that.
-    1. Make sure you have configured `ansible_user` and `ansible_ssh_pass` for your target in your inventory file.
+
+    Note: Using the playbook for this is completely optional.
+    1. Make sure you have configured `ansible_user` and `ansible_ssh_pass` for your target host in your inventory file. See more [here](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#adding-variables-to-inventory).
     1. Setup an `authorized_keys` file with your public ssh keys in the cloned repository root.
     2. Run `ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=config,run playbooks/l1.yaml`
 
-3. Ensure your control node has ssh access to your target machine.
+3. Ensure your control node has ssh access to your target machine(s).
+  - Make sure to specify which hosts you want to provision in your inventory file.
 
   ```
   ansible -vvv -i <path_to_your_inventory> <host_label> -m ping
@@ -121,16 +124,15 @@ Most commands are run as root and your ssh user should have root access on the t
 4. Replace the env var values where appropriate and export them.
   - If **Main network:** Set `SATURN_NETWORK` to `main`
   - If you are switching networks check [Switching networks](#switching-networks) and rerun step 4 and 5.
+  - You can define a host-specific `SATURN_HOME` by setting a `saturn_root` variable for that host on your inventory file. See more [here](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#adding-variables-to-inventory).
 
   ```
   export FIL_WALLET_ADDRESS=<your_fil_wallet_address>; export NODE_OPERATOR_EMAIL=<your_email>; export SATURN_NETWORK=test
   ```
 
 5. Run the playbook
-  - Make sure to specify which hosts you want to provision in your inventory file.
   - Feel free to use host labels to filter them or to deploy incrementally.
   - We're skipping the bootstrap play by default, as it deals with setting authorized ssh keys on the target machine. See 2 for more info.
-  - Note that you can define a specific `SATURN_HOME` by setting `volume_root` on your inventory file.
 
   ```
   ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=bootstrap playbooks/l1.yaml
@@ -163,14 +165,14 @@ If you are switching networks, follow these steps:
 
 ### Build
 
-Build the docker image with 
+Build the docker image with
 ```bash
 ./node build
 ```
 
 ### Run
 
-Run the docker container with 
+Run the docker container with
 ```bash
 ./node run
 ```
@@ -208,7 +210,7 @@ git commit -m "my commit message [skip ci]"
 
 #### Shim
 
-`shim/` contains the necessary code to fetch CIDs and CAR files for nginx to cache 
+`shim/` contains the necessary code to fetch CIDs and CAR files for nginx to cache
 
 
 ## License
