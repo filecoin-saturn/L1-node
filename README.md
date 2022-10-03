@@ -95,6 +95,7 @@ This playbook is meant as a bare-bones approach to running an L1. These instruct
 
 Currently, this playbook runs on the following Linux distros:
   - Ubuntu
+  - Debian
   - CentOS
 
 1. Clone this repository and `cd` into it.

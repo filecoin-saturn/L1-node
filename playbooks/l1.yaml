@@ -31,9 +31,11 @@
     packages:
       docker:
         CentOS: docker-ce
+        Debian: docker.io
         Ubuntu: docker.io
       pip:
         CentOS: python3-pip.noarch
+        Debian: python3-pip
         Ubuntu: python3-pip
   tasks:
   - name: Add docker repository
