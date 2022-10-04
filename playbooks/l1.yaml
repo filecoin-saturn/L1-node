@@ -1,7 +1,7 @@
 ---
 - name: Bootstrap playbook
   tags: bootstrap
-  hosts: "{{ targets }}"
+  hosts: all
   # https://stackoverflow.com/questions/32297456/how-to-ignore-ansible-ssh-authenticity-checking/54735937#54735937
   # Don't gather facts automatically because that will trigger
   # a connection, which needs to check the remote host key
@@ -24,16 +24,20 @@
       user: "{{ ansible_user }}"
       state: present
       key: "{{ lookup('file', '../authorized_keys') }}"
+
 - name: Configure playbook
-  hosts: "{{ targets }}"
+  tags: config
+  hosts: all
   gather_facts: true
   vars:
     packages:
       docker:
         CentOS: docker-ce
+        Debian: docker.io
         Ubuntu: docker.io
       pip:
         CentOS: python3-pip.noarch
+        Debian: python3-pip
         Ubuntu: python3-pip
   tasks:
   - name: Add docker repository
@@ -80,12 +84,14 @@
       name: docker
       enabled: true
       state: started
+
 - name: Run playbook
-  hosts: "{{ targets }}"
+  tags: run
+  hosts: all
   vars:
     # this wasn't consistent between runs, so we need to store it
     homedir: "{{ ansible_env.HOME }}"
-    saturn_home: "{{ volume_root if volume_root is defined else homedir }}"
+    saturn_home: "{{ saturn_root if saturn_root is defined else homedir }}"
     env_vars:
       SATURN_NETWORK: "{{ lookup('ansible.builtin.env', 'SATURN_NETWORK', default='test') }}"
       FIL_WALLET_ADDRESS: "{{ lookup('ansible.builtin.env', 'FIL_WALLET_ADDRESS', default=undef()) }}"

@@ -87,26 +87,58 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 
    **Make sure to have env variables set in `/etc/environment` for auto-update to work**
 
-## Running a node with Ansible
+## Running a node with [Ansible](https://docs.ansible.com/ansible/latest/index.html)
 
-Notes:
-- these instructions are to be run in a machine with [Ansible](https://docs.ansible.com/ansible/latest/index.html) installed.
-- This machine should not be your L1 node target deployment machine.
-- This machine should have ssh access to the target machine.
+From [here](https://docs.ansible.com/ansible/latest/index.html#about-ansible):
+> "Ansible is an IT automation tool. It can configure systems, deploy software, and orchestrate more advanced IT tasks such as continuous deployments or zero downtime rolling updates."
 
-1. Make sure you have Ansible >= 2.12 installed.
+This playbook is meant as a bare-bones approach to running an L1. It simply automates running the steps described [above](#running-a-node). A consequence of this is that when run this playbook will restart a crashed L1 node docker container.
 
-2. Clone this repository and `cd` into it.
+Note: this does not cover server hardening and you should do your own research to ensure your server follows security best practices.
+If you want to cover server hardening, monitoring and logs check out https://github.com/hyphacoop/ansible-saturn-l1
 
-3. Run `export FIL_WALLET_ADDRESS=<your_fil_wallet_address>; export NODE_OPERATOR_EMAIL=<your_email>; export SATURN_NETWORK=test`
-  - Replace the env var values where appropriate.
-  - If **Main network:** Set `SATURN_NETWORK` to `main`
+Currently, this playbook runs on the following Linux distros:
+  - Ubuntu
+  - Debian
+  - CentOS
 
-4. Run `ansible-playbook -i <path_to_your_inventory> --extra-vars targets=all --skip-tags=bootstrap playbooks/l1.yaml`
+These instructions are to be run in a machine with [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) >= 2.12 installed.
+This machine is known as your control node and it should not be the one to run your L1 node.
+
+Most commands are run as root and your ssh user should have root access on the target machine.
+
+1. Clone this repository and `cd` into it.
+
+2. For target host connectivity, ssh keys are recommended and this playbook can help you with that.
+
+    Note: Using the playbook for this is completely optional.
+    1. Make sure you have configured `ansible_user` and `ansible_ssh_pass` for your target host in your inventory file. See more [here](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#adding-variables-to-inventory).
+    1. Setup an `authorized_keys` file with your public ssh keys in the cloned repository root.
+    2. Run `ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=config,run playbooks/l1.yaml`
+
+3. Ensure your control node has ssh access to your target machine(s).
   - Make sure to specify which hosts you want to provision in your inventory file.
-  - Feel free to use labels (modify the `targets` var) to filter them or to deploy incrementally.
-  - We're skipping the bootstrap play by default, as it deals with setting authorized keys on the target machine.
-  - Note that you can define a specific `SATURN_HOME` by setting `volume_root` on your inventory file.
+
+  ```
+  ansible -vvv -i <path_to_your_inventory> <host_label> -m ping
+  ```
+
+4. Replace the env var values where appropriate and export them.
+  - If **Main network:** Set `SATURN_NETWORK` to `main`
+  - If you are switching networks check [Switching networks](#switching-networks) and rerun step 4 and 5.
+  - You can define a host-specific `SATURN_HOME` by setting a `saturn_root` variable for that host on your inventory file. See more [here](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#adding-variables-to-inventory).
+
+  ```
+  export FIL_WALLET_ADDRESS=<your_fil_wallet_address>; export NODE_OPERATOR_EMAIL=<your_email>; export SATURN_NETWORK=test
+  ```
+
+5. Run the playbook
+  - Feel free to use host labels to filter them or to deploy incrementally.
+  - We're skipping the bootstrap play by default, as it deals with setting authorized ssh keys on the target machine. See 2 for more info.
+
+  ```
+  ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=bootstrap playbooks/l1.yaml
+  ```
 
 ## Stopping a node
 
@@ -135,14 +167,14 @@ If you are switching networks, follow these steps:
 
 ### Build
 
-Build the docker image with 
+Build the docker image with
 ```bash
 ./node build
 ```
 
 ### Run
 
-Run the docker container with 
+Run the docker container with
 ```bash
 ./node run
 ```
@@ -180,7 +212,7 @@ git commit -m "my commit message [skip ci]"
 
 #### Shim
 
-`shim/` contains the necessary code to fetch CIDs and CAR files for nginx to cache 
+`shim/` contains the necessary code to fetch CIDs and CAR files for nginx to cache
 
 
 ## License
