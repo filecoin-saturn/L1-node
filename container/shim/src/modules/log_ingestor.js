@@ -11,17 +11,16 @@ const debug = Debug.extend('log-ingestor')
 const NGINX_LOG_KEYS_MAP = {
   addr: 'clientAddress',
   b: 'numBytesSent',
+  h3: 'http3',
   lt: 'localTime',
-  r: 'request',
   ref: 'referrer',
   rid: 'requestId',
   rt: 'requestDuration',
   s: 'status',
+  sp: 'httpProtocol',
   ua: 'userAgent',
   ucs: 'cacheHit',
-  h3: 'http3',
-  sp: 'httpProtocol',
-  host: 'host'
+  url: 'url'
 }
 const IPFS_PREFIX = '/ipfs/'
 const IPNS_PREFIX = '/ipns/'
@@ -69,13 +68,6 @@ async function parseLogs () {
 
         let parsedValue
         switch (name) {
-          case 'args': {
-            parsedValue = jointValue.split('&').reduce((argsAgg, current) => {
-              const [name, ...value] = current.split('=')
-              return Object.assign(argsAgg, { [name]: value.join('=') })
-            }, {})
-            break
-          }
           case 'lt':
           case 'rid':
           case 'addr': {
@@ -94,46 +86,50 @@ async function parseLogs () {
         return Object.assign(varsAgg, { [NGINX_LOG_KEYS_MAP[name] || name]: parsedValue })
       }, {})
 
-      const isIPFS = vars.request?.startsWith(IPFS_PREFIX)
-      const isIPNS = vars.request?.startsWith(IPNS_PREFIX)
+      let urlObj
 
-      if (isIPFS || isIPNS) {
-        const {
-          clientAddress, numBytesSent, request, requestId, localTime, status,
-          requestDuration, args, range, cacheHit, referrer, userAgent, http3,
-          httpProtocol, host
-        } = vars
-
-        const cidPath = request.replace(IPFS_PREFIX, '').replace(IPNS_PREFIX, '')
-        const [cid, ...rest] = cidPath.split('/')
-        const filePath = rest.join('/')
-
-        if (cid === TESTING_CID) continue
-        const { clientId } = args
-
-        pending.push({
-          cacheHit,
-          pathPrefix: isIPFS ? IPFS_PREFIX : IPNS_PREFIX,
-          cid,
-          filePath,
-          clientAddress,
-          clientId,
-          localTime,
-          numBytesSent,
-          range,
-          referrer,
-          requestDuration,
-          requestId,
-          userAgent,
-          httpStatusCode: status,
-          // If/when "httpProtocol" eventually contains HTTP/3.0, then
-          // the "http3" key can be removed.
-          httpProtocol: (http3 || httpProtocol),
-          host
-        })
-        valid++
-        if (cacheHit) hits++
+      try {
+        urlObj = new URL(vars.url)
+      } catch (err) {
+        continue
       }
+
+      const isIPFS = urlObj.pathname.startsWith(IPFS_PREFIX)
+      const isIPNS = urlObj.pathname.startsWith(IPNS_PREFIX)
+
+      if (!isIPFS && !isIPNS) {
+        continue
+      }
+
+      const {
+        clientAddress, numBytesSent, requestId, localTime, status,
+        requestDuration, range, cacheHit, referrer, userAgent, http3,
+        httpProtocol, url
+      } = vars
+
+      const cid = urlObj.pathname.split('/')[2]
+
+      if (cid === TESTING_CID) continue
+
+      pending.push({
+        cacheHit,
+        clientAddress,
+        localTime,
+        numBytesSent,
+        range,
+        referrer,
+        requestDuration,
+        requestId,
+        userAgent,
+        httpStatusCode: status,
+        // If/when "httpProtocol" eventually contains HTTP/3.0, then
+        // the "http3" key can be removed.
+        httpProtocol: (http3 || httpProtocol),
+        url
+      })
+
+      valid++
+      if (cacheHit) hits++
     }
     if (valid > 0) {
       debug(`Parsed ${valid} valid retrievals in ${prettyBytes(read.length)} with hit rate of ${Number((hits / valid * 100).toFixed(2))}%`)
