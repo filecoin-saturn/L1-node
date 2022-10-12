@@ -27,10 +27,29 @@ const agentOpts = {
 const agent = ORCHESTRATOR_URL.includes('https') ? new https.Agent(agentOpts) : new http.Agent(agentOpts)
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
-// Upload speed should be great than 50 Mbps
-const MAIN_NET_MINIMUM_UPLOAD_BW_BYTES = 50 * 1000 * 1000 / 8
 
 export async function register (initial) {
+  const requirements = await fetch(`${ORCHESTRATOR_URL}/requirements`, { agent }).then(res => res.json())
+
+  const stats = {
+    memoryStats: await getMemoryStats(),
+    diskStats: await getDiskStats(),
+    cpuStats: await getCPUStats(),
+    nicStats: await getNICStats()
+  }
+
+  if (NODE_VERSION !== DEV_VERSION && initial) {
+    let speedtest
+    try {
+      speedtest = await getSpeedtest()
+    } catch (err) {
+      debug(`Error while performing speedtest: ${err.name} ${err.message}`)
+    }
+    Object.assign(stats, { speedtest })
+  }
+
+  verifyRequirements(requirements, stats)
+
   const body = {
     nodeId,
     level: 1,
@@ -38,27 +57,7 @@ export async function register (initial) {
     version: NODE_VERSION,
     filWalletAddress: FIL_WALLET_ADDRESS,
     operatorEmail: NODE_OPERATOR_EMAIL,
-    memoryStats: await getMemoryStats(),
-    diskStats: await getDiskStats(),
-    cpuStats: await getCPUStats(),
-    nicStats: await getNICStats()
-  }
-
-  if (NODE_VERSION !== DEV_VERSION && (initial || Math.random() < 0.001)) {
-    let speedtest
-    try {
-      speedtest = await getSpeedtest()
-    } catch (err) {
-      debug(`Error while performing speedtest: ${err.name} ${err.message}`)
-    }
-    if (initial && speedtest?.upload.bandwidth < MAIN_NET_MINIMUM_UPLOAD_BW_BYTES) {
-      if (SATURN_NETWORK === 'main') {
-        throw new Error(`Node's upload speed is not enough, ${SATURN_NETWORK} network requirement is 1 Gbps`)
-      } else {
-        debug('WARNING: This node\'s upload speed is not enough for main network')
-      }
-    }
-    Object.assign(body, { speedtest })
+    ...stats
   }
 
   const registerOptions = postOptions(body)
@@ -166,6 +165,28 @@ export const addRegisterCheckRoute = (app) => app.get('/register-check', (req, r
   debug.extend('check')('Successful')
   res.sendStatus(200)
 })
+
+function verifyRequirements (requirements, stats) {
+  const { minCPUCores, minMemoryGB, minUploadSpeedMbps, minDiskGB } = requirements
+
+  if (stats.cpuStats.numCPUs < minCPUCores) {
+    throw new Error(`Not enough CPU cores. Required: ${minCPUCores}, current: ${stats.cpuStats.numCPUs}`)
+  }
+
+  if (stats.memoryStats.totalMemory < minMemoryGB) {
+    throw new Error(`Not enough memory. Required: ${minMemoryGB} GB, available: ${stats.memoryStats.totalMemory}`)
+  }
+
+  if (stats.speedtest?.upload.bandwidth < (minUploadSpeedMbps * 1_000_000 / 8)) {
+    throw new Error(`Not enough upload speed. Required: ${minUploadSpeedMbps} Mbps, current: ${stats.speedtest.upload.bandwidth / 1_000_000 * 8} Mbps`)
+  }
+
+  if (stats.diskStats.totalDisk < minDiskGB) {
+    throw new Error(`Not enough disk space. Required: ${minDiskGB} GB, available: ${stats.diskStats.totalDisk}`)
+  }
+
+  debug('All requirements met')
+}
 
 function postOptions (body) {
   return {
