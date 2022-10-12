@@ -45,7 +45,7 @@ function networkToIngestor () {
       return 'https://twb3qukm2i654i3tnvx36char40aymqq.lambda-url.us-west-2.on.aws/'
     }
     case 'test': {
-      return 'https://mytvpqv54yawlsraubdzie5k2m0ggkjv.lambda-url.us-west-2.on.aws/'
+      return 'https://p6wofrb2zgwrf26mcxjpprivie0lshfx.lambda-url.us-west-2.on.aws/'
     }
     default: {
       return 'http://localhost:10364'
