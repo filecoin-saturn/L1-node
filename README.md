@@ -159,6 +159,30 @@ If you are switching networks, follow these steps:
 3. Delete contents in `$SATURN_HOME/shared/ssl` (default: `$HOME/shared/ssl`)
 4. Start the node again with `run.sh` script
 
+## Node Operator tips
+
+### Obtaining a Filecoin wallet address
+
+You need to create a wallet if you don't already have one.
+
+* If you have an account on a Centralized Exchange (Coinbase, Binance, etc.) that supports Filecoin,
+go through the steps to deposit Filecoin and you'll be given an wallet address. This is recommended
+if you don't want to manage your wallet's seed phrase.
+
+* Web wallets
+  * [Filfox wallet](https://wallet.filfox.info/)
+  * If you prefer using Ledger, try [Glif](https://wallet.glif.io/).
+* Desktop wallets
+  * [Exodus](https://www.exodus.com/)
+* Mobile wallets
+  * [FoxWallet](https://foxwallet.com/)
+
+⚠️ Please follow crypto wallet best practices. Never share your seed phrase with anyone or enter it into websites.
+The Saturn team will **never** DM you or ask you to verify/validate/upgrade your wallet. If you need assistance,
+please ask in public channels such as the [#filecoin-saturn](https://filecoinproject.slack.com/archives/C03DH0BL02E)
+Slack.
+
+
 ## Developing
 
 ### Requirements
