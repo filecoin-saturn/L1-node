@@ -183,6 +183,11 @@ please ask in public channels such as the [#filecoin-saturn](https://filecoinpro
 Slack.
 
 
+### Monitoring
+
+* https://dashboard.strn.network - View historical data on your bandwidth contributions, FIL earnings, and more.
+* https://orchestrator.strn.pl/stats - View detailed, realtime stats on every Saturn node.
+
 ## Developing
 
 ### Requirements
