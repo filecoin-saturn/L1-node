@@ -159,7 +159,7 @@ If you are switching networks, follow these steps:
 3. Delete contents in `$SATURN_HOME/shared/ssl` (default: `$HOME/shared/ssl`)
 4. Start the node again with `run.sh` script
 
-## Node Operator tips
+## Node operator guide
 
 ### Obtaining a Filecoin wallet address
 
@@ -171,7 +171,7 @@ if you don't want to manage your wallet's seed phrase.
 
 * Web wallets
   * [Filfox wallet](https://wallet.filfox.info/)
-  * If you prefer using Ledger, try [Glif](https://wallet.glif.io/).
+  * [Glif](https://wallet.glif.io/) - Supports Ledger
 * Desktop wallets
   * [Exodus](https://www.exodus.com/)
 * Mobile wallets
@@ -182,8 +182,11 @@ The Saturn team will **never** DM you or ask you to verify/validate/upgrade your
 please ask in public channels such as the [#filecoin-saturn](https://filecoinproject.slack.com/archives/C03DH0BL02E)
 Slack.
 
+### Receiving FIL payments
 
-### Monitoring
+When payments are scheduled to be sent out, you'll receive an email containing instructions.
+
+### Node monitoring
 
 * https://dashboard.strn.network - View historical data on your bandwidth contributions, FIL earnings, and more.
 * https://orchestrator.strn.pl/stats - View detailed, realtime stats on every Saturn node.
