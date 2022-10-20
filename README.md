@@ -92,10 +92,12 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 From [here](https://docs.ansible.com/ansible/latest/index.html#about-ansible):
 > "Ansible is an IT automation tool. It can configure systems, deploy software, and orchestrate more advanced IT tasks such as continuous deployments or zero downtime rolling updates."
 
-This playbook is meant as a bare-bones approach to running an L1. It simply automates running the steps described [above](#running-a-node). A consequence of this is that when run this playbook will restart a crashed L1 node docker container.
+This playbook is meant as a bare-bones approach to running an L1. It simply automates running the steps described [above](#running-a-node). A consequence of this is that when run it will restart a crashed L1 node docker container.
 
-Note: this does not cover server hardening and you should do your own research to ensure your server follows security best practices.
-If you want to cover server hardening, monitoring and logs check out https://github.com/hyphacoop/ansible-saturn-l1
+**Note: this playbook does not cover server hardening. The security of your servers is your responsibility.**
+
+You should do your own research to ensure your server follows security best practices.
+If you want a playbook which covers server hardening, monitoring and logging please check out https://github.com/hyphacoop/ansible-saturn-l1.
 
 Currently, this playbook runs on the following Linux distros:
   - Ubuntu
