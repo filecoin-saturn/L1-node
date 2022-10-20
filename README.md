@@ -121,7 +121,7 @@ Most commands are run as root and your ssh user should have root access on the t
 3. Ensure your control node has ssh access to your target machine(s).
   - Make sure to specify which hosts you want to provision in your inventory file.
 
-  ```
+  ```bash
   ansible -vvv -i <path_to_your_inventory> <host_label> -m ping
   ```
 
@@ -130,7 +130,7 @@ Most commands are run as root and your ssh user should have root access on the t
   - If you are switching networks check [Switching networks](#switching-networks) and rerun step 4 and 5.
   - You can define a host-specific `SATURN_HOME` by setting a `saturn_root` variable for that host on your inventory file. See more [here](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#adding-variables-to-inventory).
 
-  ```
+  ```bash
   export FIL_WALLET_ADDRESS=<your_fil_wallet_address>; export NODE_OPERATOR_EMAIL=<your_email>; export SATURN_NETWORK=test
   ```
 
@@ -138,7 +138,7 @@ Most commands are run as root and your ssh user should have root access on the t
   - Feel free to use host labels to filter them or to deploy incrementally.
   - We're skipping the bootstrap play by default, as it deals with setting authorized ssh keys on the target machine. See 2 for more info.
 
-  ```
+  ```bash
   ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=bootstrap playbooks/l1.yaml
   ```
 
