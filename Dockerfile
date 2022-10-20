@@ -1,4 +1,4 @@
-ARG NGINX_VERSION="1.23.1"
+ARG NGINX_VERSION="1.23.2"
 ARG NGINX_NAME="nginx-${NGINX_VERSION}"
 
 FROM debian AS build
@@ -6,7 +6,7 @@ FROM debian AS build
 ARG NGINX_VERSION
 # https://hg.nginx.org/nginx
 ARG NGINX_BRANCH=default
-ARG NGINX_COMMIT=ba5cf8f73a2d
+ARG NGINX_COMMIT=aa901551a7eb
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
 ARG CONFIG="--prefix=/etc/nginx \
