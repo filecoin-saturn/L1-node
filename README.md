@@ -30,7 +30,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 - Linux server with a public IPv4 address
 - Root access / passwordless sudo user ([How to](https://askubuntu.com/questions/147241/execute-sudo-without-password))
 - Ports 80 and 443 free
-- Docker installed ([Instructions here](https://docs.docker.com/engine/install/#server))
+- [Docker](https://www.docker.com/) installed ([Instructions here](https://docs.docker.com/engine/install/#server))
 - CPU with 6 cores (12+ cores recommended). [CPU Mark](https://www.cpubenchmark.net/cpu_list.php) of 8,000+ (20,000+ recommended)
 - 10Gbps upload link minimum<sup>1</sup>
 - 32GB RAM minimum (128GB+ recommended)
@@ -46,7 +46,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 
 <sub>If you are switching networks, please see the [Switching networks](#switching-networks) section below.</sub>
 
-1. Install docker ([Instructions here](https://docs.docker.com/engine/install/#server))
+1. Install [Docker](https://www.docker.com/). [Instructions here](https://docs.docker.com/engine/install/#server)
 2. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `.bashrc` (user) and `/etc/environment` (global), and load them
    - If **Main network:** Set `SATURN_NETWORK` to `main` too
    - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` env variable
