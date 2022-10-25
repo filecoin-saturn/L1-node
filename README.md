@@ -42,7 +42,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 </sub>
 
 
-## Running a node
+## Set up a node
 
 <sub>If you are switching networks, please see the [Switching networks](#switching-networks) section below.</sub>
 
@@ -87,12 +87,12 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)!
 
    **Make sure to have env variables set in `/etc/environment` for auto-update to work**
 
-## Running a node with [Ansible](https://docs.ansible.com/ansible/latest/index.html)
+## Set up a node with [Ansible](https://docs.ansible.com/ansible/latest/index.html)
 
 From [here](https://docs.ansible.com/ansible/latest/index.html#about-ansible):
 > "Ansible is an IT automation tool. It can configure systems, deploy software, and orchestrate more advanced IT tasks such as continuous deployments or zero downtime rolling updates."
 
-This playbook is meant as a bare-bones approach to running an L1. It simply automates running the steps described [above](#running-a-node). A consequence of this is that when run it will restart a crashed L1 node docker container.
+This playbook is meant as a bare-bones approach to set up an L1. It simply automates running the steps described [above](#set-up-a-node). A consequence of this is that when run it will restart a crashed L1 node docker container.
 
 **Note: this playbook does not cover server hardening. The security of your servers is your responsibility.**
 
