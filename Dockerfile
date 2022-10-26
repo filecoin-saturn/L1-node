@@ -63,6 +63,7 @@ RUN apt-get update && apt-get install -y \
   unzip \
   wget \
   libxslt-dev \
+  dnsmasq \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src
@@ -93,10 +94,10 @@ COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_static_module.so /
 
 # RUN curl -fsSL https://install.speedtest.net/app/cli/install.deb.sh | bash -
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
- && curl -fsSL https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash - \
- && apt-get install --no-install-recommends -y \
-   nodejs \
-   speedtest \
+  && curl -fsSL https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash - \
+  && apt-get install --no-install-recommends -y \
+  nodejs \
+  speedtest \
   && rm -rf /var/lib/apt/lists/*
 
 # create the directory inside the container

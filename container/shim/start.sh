@@ -2,6 +2,8 @@
 
 echo $(date -u) "[container] booting"
 
+service dnsmasq start
+
 echo $(date -u) "[container] CPUs: $(nproc)"
 echo $(date -u) "[container] Memory: $(awk '(NR<4)' /proc/meminfo | tr -d '  ' | tr '\n' ' ')"
 echo $(date -u) "[container] Disk: $(df -h /usr/src/app/shared | awk '(NR>1)')"
