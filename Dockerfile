@@ -63,7 +63,6 @@ RUN apt-get update && apt-get install -y \
   unzip \
   wget \
   libxslt-dev \
-  dnsmasq \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src
@@ -98,6 +97,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
   && apt-get install --no-install-recommends -y \
   nodejs \
   speedtest \
+  dnsmasq \
   && rm -rf /var/lib/apt/lists/*
 
 # create the directory inside the container
