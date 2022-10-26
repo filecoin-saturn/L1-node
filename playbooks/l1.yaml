@@ -101,7 +101,7 @@
   - name: Log the run config
     ansible.builtin.debug:
       var: env_vars
-  - name: Ensure we have the right config files
+  - name: Ensure we have the expected config files
     become: true
     become_user: root
     ansible.builtin.file:
@@ -130,6 +130,13 @@
         https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/run.sh
       dest: "{{ homedir }}/run.sh"
       mode: +x
+  - name: Ensure we have the right $SATURN_HOME/shared permissions
+    become: true
+    become_user: root
+    ansible.builtin.file:
+      path: "{{ saturn_home }}/shared"
+      mode: '0755'
+      state: directory
   - name: Check the L1 container
     become: true
     become_user: root
