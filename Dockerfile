@@ -97,7 +97,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
   && apt-get install --no-install-recommends -y \
   nodejs \
   speedtest \
-  dnsmasq \
   && rm -rf /var/lib/apt/lists/*
 
 # create the directory inside the container
