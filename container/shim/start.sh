@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# patch DNS to use the one the host passed to docker
+host_resolver="$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}' | tr '\n' ' ')"
+sed -i'' -e "s/resolver\s.*\s/resolver $host_resolver/" /etc/nginx/confs/tls_proxy.conf
+
 echo $(date -u) "[container] booting"
 
 echo $(date -u) "[container] CPUs: $(nproc)"
