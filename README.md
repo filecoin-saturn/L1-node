@@ -163,7 +163,9 @@ If you are switching networks, follow these steps:
 
 ### Obtaining a Filecoin wallet address
 
-You need to create a wallet if you don't already have one.
+You need to own a Filecoin wallet to receive FIL payments.
+
+* [Official Filecoin wallet documentation](https://docs.filecoin.io/get-started/overview/#wallets)
 
 * If you have an account on a Centralized Exchange (Coinbase, Binance, etc.) that supports Filecoin,
 go through the steps to deposit Filecoin and you'll be given an wallet address. This is recommended
@@ -184,7 +186,7 @@ Slack.
 
 ### Receiving FIL payments
 
-When payments are scheduled to be sent out, you'll receive an email containing instructions.
+When payments are scheduled to be sent out, your Filecoin wallet will receive a FIL payment.
 
 ### Node monitoring
 
