@@ -161,6 +161,40 @@ If you are switching networks, follow these steps:
 3. Delete contents in `$SATURN_HOME/shared/ssl` (default: `$HOME/shared/ssl`)
 4. Start the node again with `run.sh` script
 
+## Node operator guide
+
+### Obtaining a Filecoin wallet address
+
+You need to own a Filecoin wallet to receive FIL payments.
+
+* [Official Filecoin wallet documentation](https://docs.filecoin.io/get-started/overview/#wallets)
+
+* If you have an account on a Centralized Exchange (Coinbase, Binance, etc.) that supports Filecoin,
+go through the steps to deposit Filecoin and you'll be given an wallet address. This is recommended
+if you don't want to manage your wallet's seed phrase.
+
+* Web wallets
+  * [Filfox wallet](https://wallet.filfox.info/)
+  * [Glif](https://wallet.glif.io/) - Supports Ledger
+* Desktop wallets
+  * [Exodus](https://www.exodus.com/)
+* Mobile wallets
+  * [FoxWallet](https://foxwallet.com/)
+
+⚠️ Please follow crypto wallet best practices. Never share your seed phrase with anyone or enter it into websites.
+The Saturn team will **never** DM you or ask you to verify/validate/upgrade your wallet. If you need assistance,
+please ask in public channels such as the [#filecoin-saturn](https://filecoinproject.slack.com/archives/C03DH0BL02E)
+Slack.
+
+### Receiving FIL payments
+
+When payments are scheduled to be sent out, your Filecoin wallet will receive a FIL payment.
+
+### Node monitoring
+
+* https://dashboard.strn.network - View historical data on your bandwidth contributions, FIL earnings, and more.
+* https://orchestrator.strn.pl/stats - View detailed, realtime stats on every Saturn node.
+
 ## Developing
 
 ### Requirements
