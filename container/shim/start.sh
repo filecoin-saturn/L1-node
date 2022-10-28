@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # patch DNS to use the ones the host passed to docker
-host_resolver="$(grep nameserver /etc/resolv.conf | awk '{print $2}' | tr '\n' ' ')"
-sed -i'' -e "s/resolver\s.*\s/resolver $host_resolver/" /etc/nginx/confs/tls_proxy.conf
+# we grab the top two, so we don't potentially load balance over a ton of resolvers
+host_resolvers="$(grep nameserver /etc/resolv.conf | awk '{print $2}' | head -n2 | tr '\n' ' ')"
+sed -i'' -e "s/resolver\s.*\s/resolver $host_resolvers/" /etc/nginx/confs/tls_proxy.conf
 
 echo "$(date -u) [container] booting"
-
 echo "$(date -u) [container] CPUs: $(nproc)"
 echo "$(date -u) [container] Memory: $(awk '(NR<4)' /proc/meminfo | tr -d '  ' | tr '\n' ' ')"
 echo "$(date -u) [container] Disk: $(df -h /usr/src/app/shared | awk '(NR>1)')"
