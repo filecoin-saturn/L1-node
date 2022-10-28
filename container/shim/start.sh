@@ -2,8 +2,11 @@
 
 # patch DNS to use the ones the host passed to docker
 # we grab the top two, so we don't potentially load balance over a ton of resolvers
-host_resolvers="$(grep nameserver /etc/resolv.conf | awk '{print $2}' | head -n2 | tr '\n' ' ')"
-sed -i'' -e "s/resolver\s.*\s/resolver $host_resolvers/" /etc/nginx/confs/tls_proxy.conf
+# IPv4 regexp ref - https://www.shellhacks.com/regex-find-ip-addresses-file-grep/
+host_resolvers="$(grep nameserver /etc/resolv.conf | awk '{print $2}' | grep -E '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' | head -n2 | tr '\n' ' ')"
+if [ -n "$host_resolvers" ]; then
+  sed -i'' -e "s/resolver\s.*\s/resolver $host_resolvers/" /etc/nginx/confs/tls_proxy.conf
+fi
 
 echo "$(date -u) [container] booting"
 echo "$(date -u) [container] CPUs: $(nproc)"
