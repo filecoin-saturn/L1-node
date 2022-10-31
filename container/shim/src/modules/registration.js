@@ -18,6 +18,7 @@ import {
 import { debug as Debug } from '../utils/logging.js'
 import { getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from '../utils/system.js'
 import { CERT_PATH, certExists, getNewTLSCert, SSL_PATH } from './tls.js'
+import { parseVersionNumber } from '../utils/version.js'
 
 const debug = Debug.extend('registration')
 
@@ -30,6 +31,10 @@ const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
 
 export async function register (initial) {
   const requirements = await fetch(`${ORCHESTRATOR_URL}/requirements`, { agent }).then(res => res.json())
+
+  if (parseVersionNumber(NODE_VERSION) < requirements.minVersion) {
+    throw new Error(`Node version ${NODE_VERSION} is too old. Minimum version: ${requirements.minVersion}. Please update your node and set up auto-update.`)
+  }
 
   const stats = {
     memoryStats: await getMemoryStats(),
