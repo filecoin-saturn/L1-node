@@ -30,7 +30,8 @@ setTimeout(async function () {
   if (ORCHESTRATOR_REGISTRATION) {
     await register(true).catch(err => {
       debug(`Failed to register ${err.name} ${err.message}`)
-      process.exit(1)
+      // we don't try again if we fail the initial registration
+      process.exit(0)
     })
   }
 

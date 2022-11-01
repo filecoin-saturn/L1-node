@@ -7,7 +7,7 @@ const shutdownServer = (server) => () => {
   debug('Shutting down server')
   server.close(() => {
     debug('Server closed')
-    process.exit()
+    process.exit(0)
   })
 }
 
