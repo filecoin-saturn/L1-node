@@ -1,5 +1,5 @@
 import { X509Certificate } from 'node:crypto'
-import http from 'http'
+import http from 'node:http'
 import https from 'node:https'
 import fsPromises from 'node:fs/promises'
 import fetch from 'node-fetch'
@@ -32,16 +32,15 @@ const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
 export async function register (initial) {
   const requirements = await fetch(`${ORCHESTRATOR_URL}/requirements`, { agent }).then(res => res.json())
 
-  if (parseVersionNumber(NODE_VERSION) < requirements.minVersion) {
-    throw new Error(`Node version ${NODE_VERSION} is too old. Minimum version: ${requirements.minVersion}. Please update your node and set up auto-update.`)
-  }
-
   const stats = {
+    version: parseVersionNumber(NODE_VERSION),
     memoryStats: await getMemoryStats(),
     diskStats: await getDiskStats(),
     cpuStats: await getCPUStats(),
     nicStats: await getNICStats()
   }
+
+  verifyHWRequirements(requirements, stats)
 
   if (NODE_VERSION !== DEV_VERSION && initial) {
     let speedtest
@@ -50,10 +49,9 @@ export async function register (initial) {
     } catch (err) {
       debug(`Error while performing speedtest: ${err.name} ${err.message}`)
     }
+    verifyUplinkRequirements(requirements.minUploadSpeedMbps, speedtest)
     Object.assign(stats, { speedtest })
   }
-
-  verifyRequirements(requirements, stats)
 
   const body = {
     nodeId,
@@ -171,8 +169,12 @@ export const addRegisterCheckRoute = (app) => app.get('/register-check', (req, r
   res.sendStatus(200)
 })
 
-function verifyRequirements (requirements, stats) {
-  const { minCPUCores, minMemoryGB, minUploadSpeedMbps, minDiskGB } = requirements
+function verifyHWRequirements (requirements, stats) {
+  const { minVersion, minCPUCores, minMemoryGB, minDiskGB } = requirements
+
+  if (stats.version < minVersion) {
+    throw new Error(`Node version ${stats.version} is too old. Minimum version: ${requirements.minVersion}. Please update your node and set up auto-update.`)
+  }
 
   if (stats.cpuStats.numCPUs < minCPUCores) {
     throw new Error(`Not enough CPU cores. Required: ${minCPUCores}, current: ${stats.cpuStats.numCPUs}`)
@@ -182,15 +184,19 @@ function verifyRequirements (requirements, stats) {
     throw new Error(`Not enough memory. Required: ${minMemoryGB} GB, available: ${stats.memoryStats.totalMemory}`)
   }
 
-  if (stats.speedtest?.upload.bandwidth < (minUploadSpeedMbps * 1_000_000 / 8)) {
-    throw new Error(`Not enough upload speed. Required: ${minUploadSpeedMbps} Mbps, current: ${stats.speedtest.upload.bandwidth / 1_000_000 * 8} Mbps`)
-  }
-
   if (stats.diskStats.totalDisk < minDiskGB) {
     throw new Error(`Not enough disk space. Required: ${minDiskGB} GB, available: ${stats.diskStats.totalDisk}`)
   }
 
   debug('All requirements met')
+}
+
+function verifyUplinkRequirements (minUploadSpeedMbps, speedtest) {
+  if (!speedtest || speedtest?.upload.bandwidth < (minUploadSpeedMbps * 1_000_000 / 8)) {
+    throw new Error(`Not enough upload speed. Required: ${minUploadSpeedMbps} Mbps, current: ${speedtest.upload.bandwidth / 1_000_000 * 8} Mbps`)
+  }
+
+  debug('Speed requirement met')
 }
 
 function postOptions (body) {

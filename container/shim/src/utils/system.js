@@ -1,4 +1,4 @@
-import { loadavg } from 'node:os'
+import { loadavg, cpus } from 'node:os'
 import fsPromises from 'node:fs/promises'
 import { debug as Debug } from './logging.js'
 import { promisify } from 'node:util'
@@ -31,8 +31,7 @@ export async function getDiskStats () {
 }
 
 export async function getCPUStats () {
-  const result = await fsPromises.readFile('/proc/cpuinfo', 'utf-8')
-  const numCPUs = result.trim().split('\n\n').length
+  const numCPUs = cpus().length
   const loadAvgs = loadavg()
   debug(`CPUs: ${numCPUs} (${loadAvgs.join(', ')})`)
   return { numCPUs, loadAvgs }
