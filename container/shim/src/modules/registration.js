@@ -32,8 +32,12 @@ const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
 export async function register (initial) {
   const requirements = await fetch(`${ORCHESTRATOR_URL}/requirements`, { agent }).then(res => res.json())
 
+  const versionNumber = parseVersionNumber(NODE_VERSION)
+  if (versionNumber < requirements.minVersion) {
+    throw new Error(`Node version ${versionNumber} is too old. Minimum version: ${requirements.minVersion}. Please update your node and set up auto-update.`)
+  }
+
   const stats = {
-    version: parseVersionNumber(NODE_VERSION),
     memoryStats: await getMemoryStats(),
     diskStats: await getDiskStats(),
     cpuStats: await getCPUStats(),
@@ -170,11 +174,7 @@ export const addRegisterCheckRoute = (app) => app.get('/register-check', (req, r
 })
 
 function verifyHWRequirements (requirements, stats) {
-  const { minVersion, minCPUCores, minMemoryGB, minDiskGB } = requirements
-
-  if (stats.version < minVersion) {
-    throw new Error(`Node version ${stats.version} is too old. Minimum version: ${requirements.minVersion}. Please update your node and set up auto-update.`)
-  }
+  const { minCPUCores, minMemoryGB, minDiskGB } = requirements
 
   if (stats.cpuStats.numCPUs < minCPUCores) {
     throw new Error(`Not enough CPU cores. Required: ${minCPUCores}, current: ${stats.cpuStats.numCPUs}`)
