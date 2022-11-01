@@ -5,14 +5,14 @@
 : "${IPFS_GATEWAY_ORIGIN:=https://ipfs.io}"
 : "${ORCHESTRATOR_REGISTRATION:=true}"
 
-echo $(date -u) "[host] Running Saturn node dev"
+echo "$(date -u) [host] Running Saturn node dev"
 
 # Start the docker image
 docker run --name saturn-node -it --rm \
-          -v $(pwd)/shared:/usr/src/app/shared \
-          -e FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS \
-          -e NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL \
-          -e IPFS_GATEWAY_ORIGIN=$IPFS_GATEWAY_ORIGIN \
-          -e ORCHESTRATOR_REGISTRATION=$ORCHESTRATOR_REGISTRATION \
+          -v "$(pwd)/shared:/usr/src/app/shared" \
+          -e "FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS" \
+          -e "NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL" \
+          -e "IPFS_GATEWAY_ORIGIN=$IPFS_GATEWAY_ORIGIN" \
+          -e "ORCHESTRATOR_REGISTRATION=$ORCHESTRATOR_REGISTRATION" \
           -p 443:443 -p 80:80 \
           saturn-node
