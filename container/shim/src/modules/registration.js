@@ -82,10 +82,11 @@ export async function register (initial) {
 
       debug('Success, restarting container...')
 
-      process.exit()
+      process.exit(1)
     } catch (err) {
       debug(`Failed initial registration: ${err.name} ${err.message}`)
-      process.exit(1)
+      // we don't restart if we failed the initial registration
+      process.exit(0)
     }
   } else {
     if (initial) {
@@ -106,7 +107,8 @@ export async function register (initial) {
 
       if (!valid) {
         await getNewTLSCert(registerOptions)
-        process.exit()
+        // we get the new cert and restart
+        process.exit(1)
       }
     }
 
@@ -131,7 +133,8 @@ export async function register (initial) {
     } catch (err) {
       debug('Failed re-registration %s', err.message)
       if (initial) {
-        process.exit(1)
+        // we don't try again if we fail the initial registration
+        process.exit(0)
       }
     }
   }
