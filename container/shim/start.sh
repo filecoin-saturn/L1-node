@@ -9,7 +9,7 @@ if [ -n "$host_resolvers" ]; then
 fi
 
 echo "$(date -u) [container] booting"
-echo "$(date -u) [container] CPUs: $(nproc)"
+echo "$(date -u) [container] CPUs: $(nproc --all)"
 echo "$(date -u) [container] Memory: $(awk '(NR<4)' /proc/meminfo | tr -d '  ' | tr '\n' ' ')"
 echo "$(date -u) [container] Disk: $(df -h /usr/src/app/shared | awk '(NR>1)')"
 [ -f /sys/block/sda/queue/rotational ] && echo "$(date -u) [container] SDD: $([ "$(cat /sys/block/sda/queue/rotational)" == "0" ] && echo 'true' || echo 'false')"
