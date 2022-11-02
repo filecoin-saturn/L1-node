@@ -1,5 +1,28 @@
 # FAQ
 
+## Payouts
+
+### How am I going to receive payouts?
+
+FIL will be sent to the registered wallet in the node, make sure to triple check it.
+
+### How often do I receive FIL?
+
+FIL is paid out at the end of every month. We hope to have this faster in the future.
+
+### How are payouts calculated?
+
+They are based on the number of retrievals and the traffic served to end users. See an estimate [here](https://strn.network/#calculateyourearnings)
+
+## Penalties
+
+These are the current penalties that affect both DNS weight and earned FIL:
+- Slow TTFB
+- Slow uploads
+- Failing health checks
+- High error rate
+- High CPU/Memory usage
+
 ## Registration
 
 ### My Node fails to register with error ETIMEDOUT/EHOSTUNREACH
@@ -16,4 +39,4 @@ as per the instructions or a tool like [Watchtower](https://containrrr.dev/watch
 
 ### What happens if I change my wallet address and restart?
 
-Retrievals that have been already submitted would still be tied to the old wallet address. If there's been a security breach, please reach out to us.
+Retrievals that have been already submitted will be to listed wallet at the end of every month.
