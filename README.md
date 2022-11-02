@@ -93,11 +93,11 @@ From [here](https://docs.ansible.com/ansible/latest/index.html#about-ansible):
 > "Ansible is an IT automation tool. It can configure systems, deploy software, and orchestrate more advanced IT tasks such as continuous deployments or zero downtime rolling updates."
 
 This playbook is meant as a bare-bones approach to set up an L1. It simply automates running the steps described [above](#set-up-a-node). A consequence of this is that when run it will restart a crashed L1 node docker container.
+It also presents a basic approach to server hardening which is by no means thorough.
 
-**Note: this playbook does not cover server hardening. The security of your servers is your responsibility.**
+**Note: The security of your servers is your responsibility. You should do your own research to ensure your server follows security best practices.**
 
-You should do your own research to ensure your server follows security best practices.
-If you want a playbook which covers server hardening, monitoring and logging please check out https://github.com/hyphacoop/ansible-saturn-l1.
+If you're looking for a playbook which covers server hardening, monitoring and logging please check out https://github.com/hyphacoop/ansible-saturn-l1.
 
 Currently, this playbook runs on the following Linux distros:
   - Ubuntu
@@ -116,7 +116,7 @@ Most commands are run as root and your ssh user should have root access on the t
     Note: Using the playbook for this is completely optional.
     1. Make sure you have configured `ansible_user` and `ansible_ssh_pass` for your target host in your inventory file. See more [here](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#adding-variables-to-inventory).
     1. Setup an `authorized_keys` file with your public ssh keys in the cloned repository root.
-    2. Run `ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=config,run playbooks/l1.yaml`
+    2. Run `ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=config,harden,run playbooks/l1.yaml`
 
 3. Ensure your control node has ssh access to your target machine(s).
   - Make sure to specify which hosts you want to provision in your inventory file.
@@ -140,6 +140,12 @@ Most commands are run as root and your ssh user should have root access on the t
 
   ```bash
   ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=bootstrap playbooks/l1.yaml
+  ```
+
+  - To skip the hardening step run this instead:
+
+  ```bash
+  ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=bootstrap,harden playbooks/l1.yaml
   ```
 
 ## Stopping a node
