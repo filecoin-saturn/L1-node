@@ -100,8 +100,6 @@ const handleCID = asyncHandler(async (req, res) => {
 
   const format = getResponseFormat(req)
 
-  debug(`Cache miss for ${req.path}`)
-
   res.set({
     'Content-Type': mimeTypes.lookup(req.path) || 'application/octet-stream',
     'Cache-Control': 'public, max-age=29030400, immutable',
@@ -125,6 +123,8 @@ const handleCID = asyncHandler(async (req, res) => {
   if (cid === TESTING_CID) {
     return res.send(testCAR)
   }
+
+  debug(`Cache miss for ${req.path}`)
 
   if (
     SATURN_NETWORK !== 'main' &&
