@@ -20,7 +20,7 @@
   # Now that we have resolved the issue with the host key
   # we can "gather facts" without issue
   - name: Set authorized keys for the host
-    authorized_key:
+    ansible.posix.authorized_key:
       user: "{{ ansible_user }}"
       state: present
       key: "{{ lookup('file', '../authorized_keys') }}"
@@ -84,6 +84,29 @@
       name: docker
       enabled: true
       state: started
+
+- name: Harden playbook
+  tags: harden
+  hosts: all
+  collections:
+  - devsec.hardening
+  roles:
+  - role: os_hardening
+    become: true
+  - role: ssh_hardening
+  - role: geerlingguy.firewall
+  become: true
+  vars:
+    sysctl_overwrite:
+      # Enable IPv4 traffic forwarding for docker
+      net.ipv4.ip_forward: 1
+    # Enabling ssh root login is not recommended.
+    # It's only left here, as it might be necessary in particular scenarios
+    ssh_permit_root_login: "{{ 'yes' if ansible_user == 'root' else 'no' }}"
+    firewall_allowed_tcp_ports:
+    - "22"
+    - "80"
+    - "443"
 
 - name: Run playbook
   tags: run
