@@ -44,8 +44,10 @@ If your node falls under the minimum version, it will be kicked out and won't be
 To avoid this, make sure to set up the auto-update [script](https://github.com/filecoin-saturn/L1-node/blob/main/update.sh)
 as per the instructions or a tool like [Watchtower](https://containrrr.dev/watchtower/).
 
+**You should update your node to the latest version within 24 hours of the release.**
+
 ## Wallet
 
 ### What happens if I change my wallet address and restart?
 
-Retrievals that have been already submitted will be to listed wallet at the end of every month.
+Retrievals that have been already submitted will be to paid to the configured wallet address at the end of every month.
