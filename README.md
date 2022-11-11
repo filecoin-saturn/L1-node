@@ -163,6 +163,8 @@ If you want to switch your node from Saturn's test network (aka `test`) to Satur
 
 ## Node operator guide
 
+For answers to common questions about operating a node, see the L1 node [docs/faq.md](FAQ) page.
+
 ### Obtaining a Filecoin wallet address
 
 You need to own a Filecoin wallet to receive FIL payments.
