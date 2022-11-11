@@ -5,19 +5,13 @@ Saturn L1 nodes are CDN edge caches in the outermost layer of the
 and CID byte ranges to retrieval clients. Cache misses are served by
 Saturn [L2 nodes](https://github.com/filecoin-saturn/L2-node).
 
-Saturn is under active development and not yet in production, but you
-can still download and run a Saturn L1 to try it out for yourself in
-Saturn's [test network](https://orchestrator.saturn-test.network/). We'd
-love your feedback in
+We're also looking for early L1 node operators to run L1 nodes and earn
+Filecoin (FIL). Do you have a server meeting the requirements below? If you
+do, follow the setup instructions below to get started.
+
+We'd love your feedback in
 [#filecoin-saturn](https://filecoinproject.slack.com/archives/C03DH0BL02E)
 on [Filecoin Slack](https://filecoinproject.slack.com/).
-
-We're also looking for early L1 node operators to run L1 nodes and earn
-Filecoin when Saturn enters private beta. Do you have server capacity
-with considerable uplink and storage and want to get in early? If so,
-please introduce yourself in
-[#filecoin-saturn](https://filecoinproject.slack.com/archives/C03DH0BL02E)
-on [Filecoin Slack](https://filecoinproject.slack.com/)!
 
 
 ## Requirements

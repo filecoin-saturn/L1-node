@@ -31,7 +31,7 @@ function networkToOrchestrator () {
       return 'https://orchestrator.strn.pl'
     }
     case 'test': {
-      return 'https://orchestrator.saturn-test.network'
+      return 'https://orchestrator.strn-test.pl'
     }
     default: {
       return 'http://localhost:10365'
