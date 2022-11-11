@@ -52,7 +52,7 @@ if [[ $out != *"up to date"* ]]; then
 
   echo -n "$(date -u) Draining $SATURN_NETWORK network L1 node... "
   sudo docker kill --signal=SIGTERM saturn-node >> /dev/null
-  sleep 600
+  sleep 900
   echo "restarting...."
 
   sudo docker pull ghcr.io/filecoin-saturn/l1-node:$SATURN_NETWORK || true
