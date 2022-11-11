@@ -152,14 +152,14 @@ To gracefully stop a node a not receive a penalty, run:
   sudo docker stop saturn-node
 ```
 
-## Switching networks
+## Switch networks between test net and main net
 
-If you are switching networks, follow these steps:
+If you want to switch your node from Saturn's test network (aka `test`) to Saturn's main network (aka `main`), or vice versa, follow these steps:
 
-1. Stop the node as explained in [Stopping a node](#stopping-a-node)
-2. Set the network env variable `SATURN_NETWORK` to `main` or `test` in `/etc/environment` and `.bashrc`
-3. Delete contents in `$SATURN_HOME/shared/ssl` (default: `$HOME/shared/ssl`)
-4. Start the node again with `run.sh` script
+1. Gracefully halt your node as explained in [Stopping a node](#stopping-a-node).
+2. Set the network env variable `SATURN_NETWORK` to `main`, or `test`, in `/etc/environment` and `.bashrc`.
+3. Delete contents in `$SATURN_HOME/shared/ssl` (default: `$HOME/shared/ssl`).
+4. Start the node again with `run.sh` script.
 
 ## Node operator guide
 
