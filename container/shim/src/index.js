@@ -102,7 +102,6 @@ const handleCID = asyncHandler(async (req, res) => {
 
   res.set({
     'Content-Type': mimeTypes.lookup(req.path) || 'application/octet-stream',
-    'Cache-Control': 'public, max-age=29030400, immutable',
     'Saturn-Node-Id': nodeId,
     'Saturn-Node-Version': NODE_VERSION
   })
@@ -168,9 +167,10 @@ function respondFromIPFSGateway (req, res, { cid, format }) {
   }, async fetchRes => {
     clearTimeout(timeout)
     const { statusCode } = fetchRes
-    if (statusCode >= 400) {
+    if (statusCode === 200) {
+      res.set('Cache-Control', 'public, max-age=29030400, immutable')
+    } else if (statusCode >= 400) {
       debug.extend('error')(`Invalid response from IPFS gateway (${statusCode}) for ${cid}`)
-      res.removeHeader('Cache-Control')
     }
 
     res.status(statusCode)
