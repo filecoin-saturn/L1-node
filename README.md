@@ -41,7 +41,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/).
 <sub>If you are switching networks, please see the [Switching networks](#switching-networks) section below.</sub>
 
 1. Install Docker. [Instructions here](https://docs.docker.com/engine/install/#server)
-2. Set FIL_WALLET_ADDRESS and NODE_OPERATOR_EMAIL env variables in `.bashrc` (user) and `/etc/environment` (global), and load them
+2. Set `FIL_WALLET_ADDRESS` and `NODE_OPERATOR_EMAIL` env variables in `.bashrc` (user) and `/etc/environment` (global), and load them
    - If **Main network:** Set `SATURN_NETWORK` to `main` too
    - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` env variable
 
