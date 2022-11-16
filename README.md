@@ -38,7 +38,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/).
 
 ## Set up a node
 
-<sub>If you are switching networks, please see the [Switching networks](#switching-networks) section below.</sub>
+<sub>If you are switching your node from test net to main net, or vice versa, see [Switching networks](#switching-networks) below.</sub>
 
 1. Install Docker. [Instructions here](https://docs.docker.com/engine/install/#server)
 2. Set `FIL_WALLET_ADDRESS` and `NODE_OPERATOR_EMAIL` env variables in `.bashrc` (user) and `/etc/environment` (global), and load them
