@@ -200,8 +200,8 @@ When payments are scheduled to be sent out, your Filecoin wallet will receive a 
 ### Banning CIDs
 
 Occasionally, you might need to ban a particular CID from being served (e.g. because of phishing).
-To do this, you should open a PR targeting `container/nginx/denylist.conf` and adding a new entry for that CID.
-This is preferred way to go, as it benefits everyone in the network from serving faulty content.
+To do this, you should open a PR targeting `container/nginx/denylist.conf` and add a new entry for that CID.
+This is the preferred way to go, as it benefits everyone in the network from serving faulty content.
 
 Note that the update process can take up to 1.5 hours.
 If that's too long, you should go ahead and ban those CIDs from your node(s) manually.
@@ -222,7 +222,7 @@ cat cids_to_ban | xargs -I{} docker exec -t $(docker ps -q) /bin/sh -c 'echo "lo
 
 This command fills in the `denylist.conf` file and gracefully reloads nginx.
 
-Note that these changes won't outlast a version update. As such, you should open a PR so your future self and the rest of network can benefit from your contribution.
+Note that these changes won't outlast a version update. You should always open a PR, so your future self and the rest of network can benefit from your effort.
 
 ## Development
 
