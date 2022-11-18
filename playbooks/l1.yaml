@@ -163,7 +163,7 @@
   - name: Check the L1 container
     become: true
     become_user: root
-    docker_container_info:
+    community.docker.docker_container_info:
       name: saturn-node
     register: saturn_container
   - name: Run the L1 container
