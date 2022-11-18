@@ -10,6 +10,10 @@ FIL will be sent to the registered wallet in the node, make sure to triple check
 
 FIL is paid out at the end of every month. We hope to have this faster in the future.
 
+### I'm already a Filecoin storage provider, how does it work with my existing nodes, wallets, etc.?
+
+Saturn runs independent of storage, we suggest a clean (virtual) server to run Saturn.
+
 ### How are payouts calculated?
 
 The final earnings of a specific operator depend on the combination of the operator's performance and the overall performance of the network. There are three main sets of metrics that impact earnings:
@@ -45,6 +49,10 @@ To avoid this, make sure to set up the auto-update [script](https://github.com/f
 as per the instructions or a tool like [Watchtower](https://containrrr.dev/watchtower/).
 
 **You should update your node to the latest version within 24 hours of the release.**
+
+### How do I run multiple nodes?
+
+Multiple nodes can be ran pointing to the same wallet and email address, just follow the same setup instructions on each node.
 
 ## Wallet
 
