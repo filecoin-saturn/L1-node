@@ -30,11 +30,23 @@ const agent = ORCHESTRATOR_URL.includes('https') ? new https.Agent(agentOpts) : 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
 
 export async function register (initial) {
-  const requirements = await fetch(`${ORCHESTRATOR_URL}/requirements`, { agent }).then(res => res.json())
+  let requirements
+  try {
+    requirements = await fetch(`${ORCHESTRATOR_URL}/requirements`, { agent }).then(res => res.json())
+  } catch (err) {
+    const error = new Error(`Failed to fetch requirements: ${err.name}`)
+    debug(error.message)
+    if (initial) {
+      throw error
+    }
+  }
 
   const versionNumber = parseVersionNumber(NODE_VERSION)
   if (versionNumber < requirements.minVersion) {
     throw new Error(`Node version ${versionNumber} is too old. Minimum version: ${requirements.minVersion}. Please update your node and set up auto-update.`)
+  }
+  if (versionNumber < (requirements.lastVersion || 0)) {
+    debug(`Node version ${versionNumber} is not the latest. Latest version: ${requirements.lastVersion}. Please update your node and set up auto-update.`)
   }
 
   const stats = {
@@ -51,7 +63,9 @@ export async function register (initial) {
     try {
       speedtest = await getSpeedtest()
     } catch (err) {
-      debug(`Error while performing speedtest: ${err.name} ${err.message}`)
+      const error = new Error(`Error while performing speedtest: ${err.name} ${err.message}`)
+      debug(error.message)
+      throw error
     }
     verifyUplinkRequirements(requirements.minUploadSpeedMbps, speedtest)
     Object.assign(stats, { speedtest })
@@ -158,7 +172,7 @@ async function _deregister () {
     await fetch(`${ORCHESTRATOR_URL}/deregister`, { ...postOptions({ nodeId }), signal: controller.signal })
     debug('De-registered successfully')
   } catch (err) {
-    debug(`Failed to de-register: ${err.name} ${err.message}`)
+    debug('Failed to de-register')
   } finally {
     clearTimeout(timeout)
     deregistering = null

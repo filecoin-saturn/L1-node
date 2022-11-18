@@ -47,7 +47,7 @@ async function parseLogs () {
   clearTimeout(parseLogsTimer)
   const stat = await fh.stat()
 
-  if (stat.size > ONE_GIGABYTE) {
+  if (stat.size >= ONE_GIGABYTE) {
     // Got to big we can't read it into single string
     // TODO: stream read it
     await fh.truncate()
