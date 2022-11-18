@@ -1,5 +1,18 @@
 # FAQ
 
+## Requirements
+
+### Why is 10 Gbps uplink required?
+
+**It's important to note that the 10 Gbps do NOT need to be dedicated, the uplink can be burstable/shared**
+
+Saturn is a Content Delivery Network (CDN) that serves thousands of clients. With the increasing bandwidth of fixed home connections, some which exceed 1 Gbps, we want to avoid scenarios of slow downloads to clients. Keys points on this decision:
+
+- We want to avoid escenarios where a handful of client saturate a single L1 node.
+- We started with a higher requirement and decrease it as we measure things and improve user-to-node routing. Better to allow more operators in the future when requirement is lowered, than to kick "slow" ones if it were to increase.
+
+We are continuously looking at the requirements and multiple factors, such as geolocation, we'll be taking into consideration soon to allow emerging markets, where 10 Gbps is not common, to join Saturn.
+
 ## Payouts
 
 ### How am I going to receive payouts?
