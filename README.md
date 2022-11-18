@@ -23,10 +23,10 @@ on [Filecoin Slack](https://filecoinproject.slack.com/).
 ### Node's host requirements
 - Linux server with a public IPv4 address
 - Root access / passwordless sudo user ([How to](https://askubuntu.com/questions/147241/execute-sudo-without-password))
-- Ports 80 and 443 free
+- Ports 80 and 443 free and public to the internet
 - [Docker](https://www.docker.com/) installed ([Instructions here](https://docs.docker.com/engine/install/#server))
 - CPU with 6 cores (12+ cores recommended). [CPU Mark](https://www.cpubenchmark.net/cpu_list.php) of 8,000+ (20,000+ recommended)
-- 10Gbps upload link minimum<sup>1</sup>
+- 10Gbps upload link minimum<sup>1</sup> ([Why 10Gbps?](https://github.com/filecoin-saturn/L1-node/blob/main/docs/faq.md#why-is-10-gbps-uplink-required))
 - 32GB RAM minimum (128GB+ recommended)
 - 1TB SSD storage minimum (4TB+ recommended)<sup>2</sup>
 
@@ -98,28 +98,34 @@ Currently, this playbook runs on the following Linux distros:
   - Debian
   - CentOS
 
-These instructions are to be run in a machine with [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) >= 2.12 installed.
+These instructions are to be run in a machine with [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) >= 2.14 installed.
 This machine is known as your control node and it should not be the one to run your L1 node.
 
 Most commands are run as root and your ssh user should have root access on the target machine.
 
-1. Clone this repository and `cd` into it.
+1. Install the required Ansible modules
 
-2. For target host connectivity, ssh keys are recommended and this playbook can help you with that.
+```
+ansible-galaxy collection install community.docker
+```
+
+2. Clone this repository and `cd` into it.
+
+3. For target host connectivity, ssh keys are recommended and this playbook can help you with that.
 
     Note: Using the playbook for this is completely optional.
     1. Make sure you have configured `ansible_user` and `ansible_ssh_pass` for your target host in your inventory file. See more [here](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#adding-variables-to-inventory).
     1. Setup an `authorized_keys` file with your public ssh keys in the cloned repository root.
     2. Run `ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=config,harden,run playbooks/l1.yaml`
 
-3. Ensure your control node has ssh access to your target machine(s).
+4. Ensure your control node has ssh access to your target machine(s).
   - Make sure to specify which hosts you want to provision in your inventory file.
 
   ```bash
   ansible -vvv -i <path_to_your_inventory> <host_label> -m ping
   ```
 
-4. Replace the env var values where appropriate and export them.
+5. Replace the env var values where appropriate and export them.
   - If **Main network:** Set `SATURN_NETWORK` to `main`
   - If you are switching networks check [Switching networks](#switching-networks) and rerun step 4 and 5.
   - You can define a host-specific `SATURN_HOME` by setting a `saturn_root` variable for that host on your inventory file. See more [here](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#adding-variables-to-inventory).
@@ -128,7 +134,7 @@ Most commands are run as root and your ssh user should have root access on the t
   export FIL_WALLET_ADDRESS=<your_fil_wallet_address>; export NODE_OPERATOR_EMAIL=<your_email>; export SATURN_NETWORK=test
   ```
 
-5. Run the playbook
+6. Run the playbook
   - Feel free to use host labels to filter them or to deploy incrementally.
   - We're skipping the bootstrap play by default, as it deals with setting authorized ssh keys on the target machine. See 2 for more info.
 

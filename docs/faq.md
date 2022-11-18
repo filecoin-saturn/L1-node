@@ -1,5 +1,18 @@
 # FAQ
 
+## Requirements
+
+### Why is 10 Gbps uplink required?
+
+**It's important to note that the 10 Gbps do NOT need to be dedicated, the uplink can be burstable/shared**
+
+Saturn is a Content Delivery Network (CDN) that serves thousands of clients. With the increasing bandwidth of fixed home connections, some which exceed 1 Gbps, we want to avoid scenarios of slow downloads to clients. Keys points on this decision:
+
+- We want to avoid escenarios where a handful of client saturate a single L1 node.
+- We started with a higher requirement and decrease it as we measure things and improve user-to-node routing. Better to allow more operators in the future when requirement is lowered, than to kick "slow" ones if it were to increase.
+
+We are continuously looking at the requirements and multiple factors, such as geolocation, we'll be taking into consideration soon to allow emerging markets, where 10 Gbps is not common, to join Saturn.
+
 ## Payouts
 
 ### How am I going to receive payouts?
@@ -9,6 +22,10 @@ FIL will be sent to the registered wallet in the node, make sure to triple check
 ### How often do I receive FIL?
 
 FIL is paid out at the end of every month. We hope to have this faster in the future.
+
+### I'm already a Filecoin storage provider, how does it work with my existing nodes, wallets, etc.?
+
+Saturn runs independent of storage, we suggest a clean (virtual) server to run Saturn.
 
 ### How are payouts calculated?
 
@@ -45,6 +62,10 @@ To avoid this, make sure to set up the auto-update [script](https://github.com/f
 as per the instructions or a tool like [Watchtower](https://containrrr.dev/watchtower/).
 
 **You should update your node to the latest version within 24 hours of the release.**
+
+### How do I run multiple nodes?
+
+Multiple nodes can be ran pointing to the same wallet and email address, just follow the same setup instructions on each node.
 
 ## Wallet
 
