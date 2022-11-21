@@ -15,9 +15,6 @@ echo "$(date -u) [container] Disk: $(df -h /usr/src/app/shared | awk '(NR>1)')"
 [ -f /sys/block/sda/queue/rotational ] && echo "$(date -u) [container] SDD: $([ "$(cat /sys/block/sda/queue/rotational)" == "0" ] && echo 'true' || echo 'false')"
 [ -f /sys/block/vda/queue/rotational ] && echo "$(date -u) [container] SDD: $([ "$(cat /sys/block/vda/queue/rotational)" == "0" ] && echo 'true' || echo 'false')"
 
-# Clean up wrongly cached files
-# grep -lnr 'HTTP/1.1 50*' /usr/src/app/shared/nginx_cache/ | xargs rm
-
 # Create if not exists
 mkdir -p /usr/src/app/shared/ssl
 
