@@ -22,6 +22,7 @@ const NGINX_LOG_KEYS_MAP = {
   ucs: 'cacheHit',
   url: 'url'
 }
+const NGINX_NULL_VALUE = '-'
 const IPFS_PREFIX = '/ipfs/'
 const IPNS_PREFIX = '/ipns/'
 
@@ -86,11 +87,16 @@ async function parseLogs () {
         return Object.assign(varsAgg, { [NGINX_LOG_KEYS_MAP[name] || name]: parsedValue })
       }, {})
 
+      let { url, args } = vars
+      if (args !== NGINX_NULL_VALUE) {
+        url += `?${args}`
+      }
       let urlObj
 
       try {
-        urlObj = new URL(vars.url)
+        urlObj = new URL(url)
       } catch (err) {
+        debug(`Invalid URL: ${url}`)
         continue
       }
 
@@ -104,7 +110,7 @@ async function parseLogs () {
       const {
         clientAddress, numBytesSent, requestId, localTime, status,
         requestDuration, range, cacheHit, referrer, userAgent, http3,
-        httpProtocol, url
+        httpProtocol
       } = vars
 
       const cid = urlObj.pathname.split('/')[2]
