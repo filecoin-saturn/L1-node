@@ -112,7 +112,7 @@ COPY container/shim ./
 COPY container/nginx /etc/nginx/
 # Load CIDs ban lists
 RUN rm /etc/nginx/conf.d/default.conf \
-  && curl -s https://badbits.dwebops.pub/denylist.json | jq '.[].anchor' | xargs -I{} echo "location ~ \"{}\" { return 410; }" >> /etc/nginx/denylist.conf
+  && curl -s https://badbits.dwebops.pub/denylist.json | jq '.[].anchor' | xargs -I{} echo 'location ~ "{}" { return 410; }' >> /etc/nginx/denylist.conf
 
 ARG RUN_NUMBER="9999"
 ARG GIT_COMMIT_HASH="dev"
