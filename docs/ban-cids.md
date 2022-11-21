@@ -1,34 +1,33 @@
-# Manual CID Bans
+# Block a CID
 
-Occasionally, you might need to ban a particular CID from being served (e.g. because of phishing).
-To do this, you should open a PR targeting `container/nginx/denylist.conf` and add a new entry for that CID.
-This is the preferred way to go, as it benefits everyone in the network from serving faulty content.
+By default, Saturn L1s block all CIDs in the [Bad Bits List](https://badbits.dwebops.pub/).
 
-Note that the update process can take up to 1.5 hours.
-If that's too long, you should go ahead and ban those CIDs from your node(s) manually.
+Occasionally, you may need to block a particular CID from being served in addition to the Bad Bits List, e.g. because of phishing. To do this:
 
-1. Ssh into your machine(s)
-2. Create a file containing the CIDs to ban (e.g. `cids_to_ban`). For example:
+1. SSH into your machine(s).
+2. Create a file containing the CIDs to block (e.g. `cids_to_block`). For example:
 
 ```
 QmeYDGLpQXPQvVk1DiHyoqt7ft7eavkLZhC9rRoV58wZYU
 QmaHAW65Gqx3pUW44aDnRM18mDjEu2uGaunriUL3sgA87d
 ```
 
-3. From your current directory run:
+3. From the current directory run:
 
 ```bash
-cat cids_to_ban | xargs -I{} docker exec -t $(docker ps -q) /bin/sh -c 'echo "location ~ \"{}\" { return 410; }" >> /etc/nginx/denylist.conf && kill -s HUP $(cat /var/run/nginx.pid)'
+cat cids_to_block | xargs -I{} docker exec -t $(docker ps -q) /bin/sh -c 'echo "location ~ \"{}\" { return 410; }" >> /etc/nginx/denylist.conf && kill -s HUP $(cat /var/run/nginx.pid)'
 ```
 
-This command fills in the `denylist.conf` file and gracefully reloads nginx.
+This command appends the CIDs to block to the existing `denylist.conf` file and gracefully reloads nginx. Your node will not go offline, and there will be no impact on your node's performance or earnings.
 
-Note that these changes won't outlast a version update. You should always open a PR, so your future self and the rest of network can benefit from your effort.
+Please note that these changes will not outlast the next L1 version update and will thus need to be re-applied after an L1 version update. We plan to add persistent CID blocks in the future.
 
-4. Check the target CIDs are indeed blocked. For e.g.:
+4. Verify that the intended CIDs are indeed blocked. For e.g.:
 
 ```bash
-curl -skw '%{http_code}\n' https://$YOUR_NODE_IP/ipfs/QmeYDGLpQXPQvVk1DiHyoqt7ft7eavkLZhC9rRoV58wZYU --output /dev/null
+curl -skw '%{http_code}\n' https://{$YOUR_NODE_IP}/ipfs/QmeYDGLpQXPQvVk1DiHyoqt7ft7eavkLZhC9rRoV58wZYU --output /dev/null
 ```
 
-This should return 410 if the ban was successful.
+This will return 410 if the block was successful.
+
+Once blocked on your node, if this CID should also be blocked across the network, e.g. for phishing, please report the CID(s) to the Bad Bits List [here](https://badbits.dwebops.pub/#reporting).
