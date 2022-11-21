@@ -24,3 +24,11 @@ cat cids_to_ban | xargs -I{} docker exec -t $(docker ps -q) /bin/sh -c 'echo "lo
 This command fills in the `denylist.conf` file and gracefully reloads nginx.
 
 Note that these changes won't outlast a version update. You should always open a PR, so your future self and the rest of network can benefit from your effort.
+
+4. Check the target CIDs are indeed blocked. For e.g.:
+
+```bash
+curl -skw '%{http_code}\n' https://$YOUR_NODE_IP/ipfs/QmeYDGLpQXPQvVk1DiHyoqt7ft7eavkLZhC9rRoV58wZYU --output /dev/null
+```
+
+This should return 410 if the ban was successful.
