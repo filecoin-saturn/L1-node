@@ -65,6 +65,9 @@ on [Filecoin Slack](https://filecoinproject.slack.com/).
 
 6. Check logs with `docker logs -f saturn-node`
 7. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
+
+If the speedtest value reported by speedtest seems low, you may want to configure SPEEDTEST_EXTRA to point to a local speedtest server (e.g. `SPEEDTEST_EXTRA="-s 6468"`). In most intsances speedtest does a good job of picking "close" servers but for small networks the geo-ip info used may be incorrect.
+
 8. Download the [`update.sh`](update.sh) script and make it executable
 
    ```bash
