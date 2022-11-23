@@ -20,7 +20,7 @@ mkdir -p /usr/src/app/shared/ssl
 
 L1_CONF_FILE=/etc/nginx/conf.d/L1.conf
 
-# If we have a cert, start the shim and nginx, else just the shim
+# If we have a cert, start nginx with TLS, else without (but always start the shim)
 if [ -f "/usr/src/app/shared/ssl/node.crt" ]; then
   echo "$(date -u) [container] SSL config available, starting TLS nginx and node shim";
   cp /etc/nginx/confs/tls_proxy.conf $L1_CONF_FILE;
