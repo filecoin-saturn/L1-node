@@ -158,7 +158,7 @@ To gracefully stop a node a not receive a penalty, run:
 
 ```bash
   sudo docker kill --signal=SIGTERM saturn-node
-  sleep 600 # wait for 10 minutes to drain all requests
+  sleep 1800 # wait for 30 minutes to drain all requests
   sudo docker stop saturn-node
 ```
 
