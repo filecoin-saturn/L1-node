@@ -31,6 +31,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/).
 - [Docker](https://www.docker.com/) installed ([Instructions here](https://docs.docker.com/engine/install/#server))
 - CPU with 6 cores (12+ cores recommended). [CPU Mark](https://www.cpubenchmark.net/cpu_list.php) of 8,000+ (20,000+ recommended)
 - 10Gbps upload link minimum<sup>1</sup> ([Why 10Gbps?](https://github.com/filecoin-saturn/L1-node/blob/main/docs/faq.md#why-is-10-gbps-uplink-required))
+- Fixed static IP from ISP is recommended, dynamic IP is possible, but highly discouraged. 
 - 32GB RAM minimum (128GB+ recommended)
 - 1TB SSD storage minimum (4TB+ recommended)<sup>2</sup>
 
