@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 
 # patch DNS to use the ones the host passed to docker
 # we grab the top two, so we don't potentially load balance over a ton of resolvers
