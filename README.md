@@ -25,7 +25,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/).
 - Email address
 
 ### Node's host requirements
-- Linux server with a public IPv4 address
+- Linux server with a static public IPv4 address
 - Root access / passwordless sudo user ([How to](https://askubuntu.com/questions/147241/execute-sudo-without-password))
 - Ports 80 and 443 free and public to the internet
 - [Docker](https://www.docker.com/) installed ([Instructions here](https://docs.docker.com/engine/install/#server))
