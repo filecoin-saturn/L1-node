@@ -278,6 +278,8 @@ git commit -m "my commit message [skip ci]"
 
 ## Files
 
+### In git
+
 #### nginx configuration
 
 `nginx/` contains the nginx configuration of the caching proxy
@@ -286,6 +288,9 @@ git commit -m "my commit message [skip ci]"
 
 `shim/` contains the necessary code to fetch CIDs and CAR files for nginx to cache
 
+### Container
+
+[Architecture > Storage](docs/architecture/storage.md) documents the files and directories of the container at runtime.
 
 ## License
 
