@@ -93,6 +93,7 @@ jobs:
           push: true
           tags: ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
           labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
           cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
           cache-to: type=inline
           build-args: |
