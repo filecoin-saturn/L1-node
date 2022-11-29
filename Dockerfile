@@ -3,6 +3,9 @@ ARG NGINX_NAME="nginx-${NGINX_VERSION}"
 
 FROM debian AS build
 
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s \
+  CMD (curl -f http://localhost/) || exit 1
+
 ARG NGINX_VERSION
 # https://hg.nginx.org/nginx
 ARG NGINX_BRANCH=default
