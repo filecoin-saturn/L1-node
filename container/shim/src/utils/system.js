@@ -60,7 +60,7 @@ export async function getNICStats () {
 
 export async function getSpeedtest () {
   debug('Executing speedtest')
-  const { stdout: result } = await exec('speedtest ${SPEEDTEST_SERVER_CONFIG} --accept-license --accept-gdpr -f json')
+  const { stdout: result } = await exec(`speedtest ${SPEEDTEST_SERVER_CONFIG} --accept-license --accept-gdpr -f json`)
   const values = JSON.parse(result)
   debug(`Done executing speedtest. ${bytesToMbps(values.download.bandwidth)} Mbps DL / ${bytesToMbps(values.upload.bandwidth)} Mbps  UL`)
   return values

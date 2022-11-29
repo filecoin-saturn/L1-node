@@ -30,7 +30,7 @@ else
   cp /etc/nginx/confs/non_tls_proxy.conf $L1_CONF_FILE;
 fi
 
-if [ -n "$IPFS_GATEWAY_ORIGIN" ]; then
+if [ -n "${IPFS_GATEWAY_ORIGIN:-}" ]; then
   sed -i "s@https://ipfs.io;@$IPFS_GATEWAY_ORIGIN;@g" /etc/nginx/conf.d/shared.conf;
 fi
 
