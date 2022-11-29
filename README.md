@@ -158,7 +158,7 @@ ansible-galaxy collection install community.docker
 
 ## Stopping a node
 
-To gracefully stop a node a not receive a penalty, run:
+To gracefully stop a node and not receive a penalty, run:
 
 ```bash
   sudo docker kill --signal=SIGTERM saturn-node
