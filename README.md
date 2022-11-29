@@ -67,7 +67,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/).
 7. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
 
 In most intsances speedtest does a good job of picking "close" servers but for small networks it may be incorrect.
-If the speedtest value reported by speedtest seems low, you may want to configure SPEEDTEST_EXTRA to point to a different public speedtest server. You will need to install [speedtest CLI](https://www.speedtest.net/apps/cli) in the host and fetch close servers' IDs by doing `speedtest --servers`, then setting `SPEEDTEST_EXTRA="--server-id=XXXXX"`
+If the speedtest value reported by speedtest seems low, you may want to configure SPEEDTEST_SERVER_CONFIG to point to a different public speedtest server. You will need to install [speedtest CLI](https://www.speedtest.net/apps/cli) in the host and fetch close servers' IDs by doing `speedtest --servers`, then setting `SPEEDTEST_SERVER_CONFIG="--server-id=XXXXX"`
 
 8. Download the [`update.sh`](update.sh) script and make it executable
 

@@ -14,5 +14,6 @@ docker run --name saturn-node -it --rm \
           -e "NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL" \
           -e "IPFS_GATEWAY_ORIGIN=$IPFS_GATEWAY_ORIGIN" \
           -e "ORCHESTRATOR_REGISTRATION=$ORCHESTRATOR_REGISTRATION" \
+          -e "SPEEDTEST_SERVER_CONFIG=$SPEEDTEST_SERVER_CONFIG" \
           -p 443:443 -p 80:80 \
           saturn-node

@@ -4,7 +4,7 @@ import { debug as Debug } from './logging.js'
 import { promisify } from 'node:util'
 import { exec as CpExec } from 'node:child_process'
 import prettyBytes from 'pretty-bytes'
-import { SPEEDTEST_EXTRA } from '../config.js'
+import { SPEEDTEST_SERVER_CONFIG } from '../config.js'
 
 const exec = promisify(CpExec)
 
@@ -60,7 +60,7 @@ export async function getNICStats () {
 
 export async function getSpeedtest () {
   debug('Executing speedtest')
-  const { stdout: result } = await exec('speedtest ${SPEEDTEST_EXTRA} --accept-license --accept-gdpr -f json')
+  const { stdout: result } = await exec('speedtest ${SPEEDTEST_SERVER_CONFIG} --accept-license --accept-gdpr -f json')
   const values = JSON.parse(result)
   debug(`Done executing speedtest. ${bytesToMbps(values.download.bandwidth)} Mbps DL / ${bytesToMbps(values.upload.bandwidth)} Mbps  UL`)
   return values
