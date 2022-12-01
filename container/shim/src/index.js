@@ -187,7 +187,7 @@ function respondFromIPFSGateway (req, res, { cid, format }) {
     if (controller.signal.aborted) {
       return res.sendStatus(504)
     }
-    res.sendStatus(502)
+    if (!res.headersSent) res.sendStatus(502)
   }).on('timeout', () => {
     clearTimeout(timeout)
     debug.extend('error')(`Timeout from IPFS gateway for ${cid}`)
