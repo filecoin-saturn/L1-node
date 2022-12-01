@@ -179,6 +179,7 @@ function respondFromIPFSGateway (req, res, { cid, format }) {
     if (format === 'car') {
       streamCAR(fetchRes, res).catch(() => {})
     } else {
+      res.set('Accept-Ranges', 'bytes')
       fetchRes.pipe(res)
     }
   }).on('error', err => {
