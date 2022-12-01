@@ -71,15 +71,15 @@ Yes, multiple nodes can be ran pointing to the same wallet and email address, ju
 
 ### What happens if I change my wallet address and restart?
 
-Retrievals that have been already submitted will be to paid to the configured wallet address at the end of every month.
+Retrievals that have already been submitted will be to paid to the configured wallet address at the end of every month.
 
 ### How can I change my wallet address?
 
-1. Set the new wallet address in the `FIL_WALLET_ADDRESS` environmental variable in `.bashrc` and `/etc/environment`
+1. Set the new wallet address in the `FIL_WALLET_ADDRESS` environment variable in `.bashrc` and `/etc/environment`
 2. Load the new variable
 3. Gracefully stop your node
 4. Restart your L1 node and check in the logs that the new wallet address is set
 
-### When I change my wallet address?
+### When can I change my wallet address?
 
 You can change your wallet address anytime before the end of the month, as payouts are processed next day (1st of next month)
