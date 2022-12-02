@@ -21,6 +21,22 @@ for you to get involved. Come say hi in
 [#filecoin-saturn](https://filecoinproject.slack.com/archives/C03DH0BL02E)
 on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 
+### Table of Contents
+
+   * [Requirements](#requirements)
+      * [General requirements](#general-requirements)
+      * [Node hardware requirements](#node-hardware-requirements)
+   * [Set up a node](#set-up-a-node)
+   * [Set up a node with <a href="https://docs.ansible.com/ansible/latest/index.html" rel="nofollow">Ansible</a>](#set-up-a-node-with-ansible)
+   * [Stopping a node](#stopping-a-node)
+   * [Switch networks between test net and main net](#switch-networks-between-test-net-and-main-net)
+   * [Node operator guide](#node-operator-guide)
+      * [Obtaining a Filecoin wallet address](#obtaining-a-filecoin-wallet-address)
+      * [Receiving FIL payments](#receiving-fil-payments)
+      * [Node monitoring](#node-monitoring)
+   * [Development](#development)
+   * [License](#license)
+
 
 ## Requirements
 
