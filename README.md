@@ -1,21 +1,25 @@
 # Saturn L1 Node 🪐
 
 Saturn L1 nodes are CDN edge caches in the outermost layer of the
-[Filecoin Saturn Network](https://strn.network/). L1 nodes serve [CAR
+[Filecoin Saturn](https://strn.network/) network. L1 nodes serve [CAR
 files](https://ipld.io/specs/transport/car/) to retrieval clients as
 requested by their [CID](https://docs.filebase.com/ipfs/ipfs-cids)s.
 Cache misses are currently served by the [IPFS
-Gateway](https://docs.ipfs.tech/concepts/ipfs-gateway/) and in the
-future will be served by Saturn [L2
-nodes](https://github.com/filecoin-saturn/L2-node).
+Gateway](https://docs.ipfs.tech/concepts/ipfs-gateway/). In the future,
+cache misses will be served by Saturn [L2
+nodes](https://github.com/filecoin-saturn/L2-node) and Filecoin [Storage
+Providers](https://sp.filecoin.io/).
 
-We're also looking for early L1 node operators to run L1 nodes and earn
-Filecoin (FIL). Do you have a server meeting the requirements below? If you
-do, follow the setup instructions below to get started.
+Saturn is live. Do you have a server that meets the minimum [hardware
+requirements](#node-hardware-requirements)? If so, follow the [setup
+instructions](#set-up-a-node) below to get started. You can run an L1
+node, contribute bandwidth to the network, and earn Filecoin (FIL)
+today.
 
-We'd love your feedback in
+Beyond running a node, Saturn is a community run project and we'd love
+for you to get involved. Come say hi in
 [#filecoin-saturn](https://filecoinproject.slack.com/archives/C03DH0BL02E)
-on [Filecoin Slack](https://filecoinproject.slack.com/).
+on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 
 
 ## Requirements
