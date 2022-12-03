@@ -3,8 +3,8 @@ import { deregister } from '../modules/registration.js'
 
 const debug = Debug.extend('trap')
 
-const shutdownServer = (server) => () => {
-  debug('Shutting down server')
+const shutdownServer = (server, signal) => () => {
+  debug('Shutting down server due to', signal)
   server.close(() => {
     debug('Server closed')
     process.exit(0)
@@ -17,7 +17,7 @@ const drainServer = () => {
 }
 
 export const trapServer = (server) => {
-  process.on('SIGQUIT', shutdownServer(server))
-  process.on('SIGINT', shutdownServer(server))
+  process.on('SIGQUIT', shutdownServer(server, 'SIGQUIT'))
+  process.on('SIGINT', shutdownServer(server, 'SIGINT'))
   process.on('SIGTERM', drainServer)
 }
