@@ -9,7 +9,7 @@ echo "$(date -u) [host] Running Saturn node dev"
 
 # Start the docker image
 docker run --name saturn-node -it --rm \
-          -v "$(pwd)/shared:/usr/src/app/shared" \
+          -v "$(pwd)/shared:/usr/src/app/shared:Z" \
           -e "FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS" \
           -e "NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL" \
           -e "IPFS_GATEWAY_ORIGIN=$IPFS_GATEWAY_ORIGIN" \
