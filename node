@@ -1,8 +1,0 @@
-#!/bin/bash
-
-sh scripts/$1.sh
-
-if [ $2 ]
-then
-  sh scripts/$2.sh
-fi
