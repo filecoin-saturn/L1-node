@@ -3,9 +3,6 @@ ARG NGINX_NAME="nginx-${NGINX_VERSION}"
 
 FROM debian AS build
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=60s \
-  CMD (curl -f http://localhost/ipfs/QmXjYBY478Cno4jzdCcPy4NcJYFrwHZ51xaCP8vUwN9MGm/) || exit 1
-
 ARG NGINX_VERSION
 # https://hg.nginx.org/nginx
 ARG NGINX_BRANCH=default
@@ -87,6 +84,9 @@ RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from '$NG
  && make install
 
 FROM nginx:${NGINX_VERSION}
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s \
+  CMD (curl -f http://localhost/ipfs/QmXjYBY478Cno4jzdCcPy4NcJYFrwHZ51xaCP8vUwN9MGm/) || exit 1
 
 ARG NGINX_NAME
 
