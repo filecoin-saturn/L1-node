@@ -5,7 +5,8 @@
 : "${IPFS_GATEWAY_ORIGIN:=https://ipfs.io}"
 : "${ORCHESTRATOR_REGISTRATION:=true}"
 
-echo "$(date -u) [host] Running Saturn node dev"
+mkdir $(pwd)/shared
+echo "$(date -u) [host] Running Saturn node dev, with volume in $(pwd)/shared"
 
 # Start the docker image
 docker run --name saturn-node -it --rm \
