@@ -8,6 +8,7 @@
     "test:unit": "FIL_WALLET_ADDRESS=test NODE_OPERATOR_EMAIL=test L2_FIRE_AND_FORGET=true node--test"
   },
   "dependencies": {
+    "@glif/filecoin-address": "^2.0.20",
     "@ipld/car": "^4.1.5",
     "@ipld/dag-cbor": "^7.0.3",
     "@ipld/dag-json": "^8.0.11",

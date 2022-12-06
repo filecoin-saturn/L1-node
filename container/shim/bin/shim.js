@@ -1,6 +1,7 @@
-import app from '../src/index.js'
 import http from 'node:http'
+import { validateAddressString } from '@glif/filecoin-address'
 
+import app from '../src/index.js'
 import { deregister, register } from '../src/modules/registration.js'
 import {
   FIL_WALLET_ADDRESS,
@@ -8,19 +9,22 @@ import {
   NODE_VERSION,
   nodeId,
   PORT,
-  ORCHESTRATOR_REGISTRATION
+  ORCHESTRATOR_REGISTRATION, SATURN_NETWORK
 } from '../src/config.js'
 import { trapServer } from '../src/utils/trap.js'
 import { debug } from '../src/utils/logging.js'
-
 import { submitRetrievals, initLogIngestor } from '../src/modules/log_ingestor.js'
 
 debug('Saturn L1 Node')
 debug.extend('id')(nodeId)
 debug.extend('version')(NODE_VERSION)
+
+if (!validateAddressString(FIL_WALLET_ADDRESS)) throw new Error('Invalid wallet address')
+if (!FIL_WALLET_ADDRESS.startsWith('f') && SATURN_NETWORK === 'main') throw new Error('Invalid testnet wallet address for Saturn Main Network')
+
 debug.extend('important')('===== IMPORTANT =====')
 debug.extend('important')(`Earnings will be sent to Filecoin wallet address: ${FIL_WALLET_ADDRESS}`)
-debug.extend('important')(NODE_OPERATOR_EMAIL ? `Payment notifications and important update will be sent to: ${NODE_OPERATOR_EMAIL}` : 'NO OPERATOR EMAIL SET, WE HIGHLY RECOMMEND SETTING ONE')
+debug.extend('important')(`Payment notifications and important updates will be sent to: ${NODE_OPERATOR_EMAIL}`)
 debug.extend('important')('===== IMPORTANT =====')
 
 process.on('SIGQUIT', shutdown)
