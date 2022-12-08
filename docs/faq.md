@@ -40,6 +40,14 @@ At each payment window, the operators' performance is compared against the netwo
 
 We should note that the available pool of FIL to be distributed will depend on how much bandwidth is being served by the network. As the traffic grows and more operators join to meet that traffic, the higher the pot of FIL will be. This design is aimed to avoid a cannibalistic environment where network growth leads to a decrease in individual rewards. More info about the reward pool can be found [here](https://hackmd.io/@cryptoecon/SJIJEUJbs/%2FMqxcRhVdSi2txAKW7pCh5Q#Reward-pool1).
 
+### What happens when a node commits fraud?
+
+If a node commits fraud -- e.g. falsely reporting speed tests, node stats, logs, and/or committing any other fraudulent activity -- as detected by the network:
+
+1. All earnings associated with that node's wallet address are immediately and automatically forfeited and returned the network.
+2. All future earnings are halted.
+
+
 ## Penalties
 
 These are the current penalties that affect both DNS weight and earned FIL:
