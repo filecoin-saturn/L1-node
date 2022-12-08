@@ -69,7 +69,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
    - If **Main network:** Set `SATURN_NETWORK` to `main` too
    - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` env variable
 
-3. Change directory to $SATURN_HOME (default: `$HOME`) to download the `run.sh` and `update.sh` scripts in steps 4 and 8
+3. Change directory to `$SATURN_HOME` (default: `$HOME`) to download the `run.sh` and `update.sh` scripts in steps 4 and 8
 4. Download the [`run.sh`](run.sh) script and make it executable
 
    ```bash
