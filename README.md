@@ -66,7 +66,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 
 1. Install Docker. [Instructions here](https://docs.docker.com/engine/install/#server)
 2. Set the `FIL_WALLET_ADDRESS` and `NODE_OPERATOR_EMAIL` environment variables in `.bashrc` (user) and `/etc/environment` (global) and then load them
-   - If you want your node to join Saturn's Main network and earn FIL rewards, set `SATURN_NETWORK` to `main`. If you want your node to join Saturn's **Test network**, which doesn't earn FIL rewards, set `SATURN_NETWORK` to `test`
+   - If you want your node to join Saturn's Main network and earn FIL rewards, set `SATURN_NETWORK` to `main`. If you want your node to join Saturn's Test network, which doesn't earn FIL rewards, set `SATURN_NETWORK` to `test`
    - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` environment variable
 
 3. Change directory to `$SATURN_HOME` (default: `$HOME`) to download the `run.sh` and `update.sh` scripts in steps 4 and 8
