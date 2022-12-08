@@ -65,8 +65,8 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 <sub>If you want to switch your node from test net to main net, or vice versa, see [Switch networks](#switch-networks-between-test-net-and-main-net) below.</sub>
 
 1. Install Docker. [Instructions here](https://docs.docker.com/engine/install/#server)
-2. Set `FIL_WALLET_ADDRESS` and `NODE_OPERATOR_EMAIL` env variables in `.bashrc` (user) and `/etc/environment` (global), and load them
-   - If **Main network:** Set `SATURN_NETWORK` to `main` too
+2. Set the `FIL_WALLET_ADDRESS` and `NODE_OPERATOR_EMAIL` environment variables in `.bashrc` (user) and `/etc/environment` (global) and then load them
+   - If you want your node to join Saturn's Main network and earn FIL rewards, set `SATURN_NETWORK` to `main`. If you want your node to join Saturn's **Test network**, which doesn't earn FIL rewards, set `SATURN_NETWORK` to `test`
    - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` env variable
 
 3. Change directory to `$SATURN_HOME` (default: `$HOME`) to download the `run.sh` and `update.sh` scripts in steps 4 and 8
