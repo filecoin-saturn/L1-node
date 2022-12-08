@@ -67,7 +67,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 1. Install Docker. [Instructions here](https://docs.docker.com/engine/install/#server)
 2. Set the `FIL_WALLET_ADDRESS` and `NODE_OPERATOR_EMAIL` environment variables in `.bashrc` (user) and `/etc/environment` (global) and then load them
    - If you want your node to join Saturn's Main network and earn FIL rewards, set `SATURN_NETWORK` to `main`. If you want your node to join Saturn's **Test network**, which doesn't earn FIL rewards, set `SATURN_NETWORK` to `test`
-   - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` env variable
+   - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` environment variable
 
 3. Change directory to `$SATURN_HOME` (default: `$HOME`) to download the `run.sh` and `update.sh` scripts in steps 4 and 8
 4. Download the [`run.sh`](run.sh) script and make it executable
@@ -107,7 +107,7 @@ If the speedtest value reported by speedtest seems low, you may want to configur
    */5 * * * * /path/to/saturn/home/update.sh >> /path/to/saturn/home/l1-cron.log 2>&1
    ```
 
-   **Make sure to have env variables set in `/etc/environment` for auto-update to work**
+   **Make sure to have environment variables set in `/etc/environment` for auto-update to work**
 
 ## Set up a node with [Ansible](https://docs.ansible.com/ansible/latest/index.html)
 
@@ -153,7 +153,7 @@ ansible-galaxy collection install community.docker
   ansible -vvv -i <path_to_your_inventory> <host_label> -m ping
   ```
 
-5. Replace the env var values where appropriate and export them.
+5. Replace the environment varariable values where appropriate and export them.
   - If **Main network:** Set `SATURN_NETWORK` to `main`
   - If you are switching networks check [Switching networks](#switching-networks) and rerun step 4 and 5.
   - You can define a host-specific `SATURN_HOME` by setting a `saturn_root` variable for that host on your inventory file. See more [here](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#adding-variables-to-inventory).
@@ -191,7 +191,7 @@ To gracefully stop a node and not receive a penalty, run:
 If you want to switch your node from Saturn's test network (aka `test`) to Saturn's main network (aka `main`), or vice versa, follow these steps:
 
 1. Gracefully halt your node as explained in [Stopping a node](#stopping-a-node).
-2. Set the network env variable `SATURN_NETWORK` to `main`, or `test`, in `/etc/environment` and `.bashrc`.
+2. Set the network environment variable `SATURN_NETWORK` to `main`, or `test`, in `/etc/environment` and `.bashrc`.
 3. Delete contents in `$SATURN_HOME/shared/ssl` (default: `$HOME/shared/ssl`).
 4. Start the node again with `run.sh` script.
 
