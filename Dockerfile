@@ -1,7 +1,7 @@
 ARG NGINX_VERSION="1.23.2"
 ARG NGINX_NAME="nginx-${NGINX_VERSION}"
 
-FROM debian AS build
+FROM docker.io/library/debian:latest AS build
 
 ARG NGINX_VERSION
 # https://hg.nginx.org/nginx
@@ -83,7 +83,7 @@ RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from '$NG
  && make \
  && make install
 
-FROM nginx:${NGINX_VERSION}
+FROM docker.io/library/nginx:${NGINX_VERSION}
 
 ARG NGINX_NAME
 
