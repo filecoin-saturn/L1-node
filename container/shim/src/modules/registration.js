@@ -1,6 +1,4 @@
 import { X509Certificate } from 'node:crypto'
-import http from 'node:http'
-import https from 'node:https'
 import fsPromises from 'node:fs/promises'
 import fetch from 'node-fetch'
 
@@ -19,20 +17,16 @@ import { debug as Debug } from '../utils/logging.js'
 import { getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from '../utils/system.js'
 import { CERT_PATH, certExists, getNewTLSCert, SSL_PATH } from './tls.js'
 import { parseVersionNumber } from '../utils/version.js'
+import { orchestratorAgent } from '../utils/http.js'
 
 const debug = Debug.extend('registration')
-
-const agentOpts = {
-  keepAlive: true
-}
-const agent = ORCHESTRATOR_URL.includes('https') ? new https.Agent(agentOpts) : new http.Agent(agentOpts)
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
 
 export async function register (initial) {
   let requirements
   try {
-    requirements = await fetch(`${ORCHESTRATOR_URL}/requirements`, { agent }).then(res => res.json())
+    requirements = await fetch(`${ORCHESTRATOR_URL}/requirements`, { agent: orchestratorAgent }).then(res => res.json())
   } catch (err) {
     const error = new Error(`Failed to fetch requirements: ${err.name}`)
     debug(error.message)
@@ -218,7 +212,7 @@ function verifyUplinkRequirements (minUploadSpeedMbps, speedtest) {
 
 function postOptions (body) {
   return {
-    agent,
+    agent: orchestratorAgent,
     method: 'POST',
     body: JSON.stringify(body),
     headers: {

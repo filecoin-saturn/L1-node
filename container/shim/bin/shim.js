@@ -14,6 +14,7 @@ import {
 import { trapServer } from '../src/utils/trap.js'
 import { debug } from '../src/utils/logging.js'
 import { submitRetrievals, initLogIngestor } from '../src/modules/log_ingestor.js'
+import { refreshLocalNodes } from '../src/modules/local_nodes.js'
 
 debug('Saturn L1 Node')
 debug.extend('id')(nodeId)
@@ -41,6 +42,7 @@ setTimeout(async function () {
 
   // Start log ingestor
   await initLogIngestor()
+  refreshLocalNodes()
 }, 500)
 
 const server = http.createServer(app)
