@@ -23,8 +23,8 @@ const debug = Debug.extend('registration')
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
 
+let requirements
 export async function register (initial) {
-  let requirements
   try {
     requirements = await fetch(`${ORCHESTRATOR_URL}/requirements`, { agent: orchestratorAgent }).then(res => res.json())
   } catch (err) {
