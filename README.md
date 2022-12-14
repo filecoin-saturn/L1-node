@@ -34,7 +34,6 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
       * [Obtaining a Filecoin wallet address](#obtaining-a-filecoin-wallet-address)
       * [Receiving FIL payments](#receiving-fil-payments)
       * [Node monitoring](#node-monitoring)
-   * [Development](#development)
    * [License](#license)
 
 
@@ -230,67 +229,6 @@ When payments are scheduled to be sent out, your Filecoin wallet will receive a 
 
 * https://dashboard.strn.network - View historical data on your bandwidth contributions, FIL earnings, and more.
 * https://orchestrator.strn.pl/stats - View detailed, real-time stats on every Saturn node.
-
-## Development
-
-### Requirements
-1. Run [orchestrator](https://github.com/filecoin-saturn/orchestrator) locally
-2. Self-signed 256-bit ECC certificate ([Instructions here](docs/certificate.md)) in `shared/ssl`
-
-### Build
-
-Build the docker image with
-```bash
-./node build
-```
-
-### Run
-
-Run the docker container with
-```bash
-./node run
-```
-
-### Build and run
-
-```bash
-./node build run
-```
-
-### Deployment
-
-**Only changes to `container/` and `Dockerfile`** trigger a build
-
-- To deploy to test network, just push to `main`.
-- To deploy to main network, create a tag and push it, example:
-  ```bash
-  git checkout main
-  git pull
-  git tag $(date +%s)
-  git push --follow-tags
-  ```
-
-In development, to avoid an automatic CI/CD deployment to the test network when any change is made to the `container/` directory, include `[skip ci]` in the `git commit` message. Like:
-
-```bash
-git commit -m "my commit message [skip ci]"
-```
-
-## Files
-
-### In git
-
-#### nginx configuration
-
-`nginx/` contains the nginx configuration of the caching proxy
-
-#### Shim
-
-`shim/` contains the necessary code to fetch CIDs and CAR files for nginx to cache
-
-### Container
-
-[Architecture > Storage](docs/architecture/storage.md) documents the files and directories of the container at runtime.
 
 ## License
 
