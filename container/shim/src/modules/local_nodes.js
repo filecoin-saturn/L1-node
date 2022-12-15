@@ -10,7 +10,7 @@ export let localNodes = []
 export async function refreshLocalNodes () {
   debug('Refreshing local nodes')
   try {
-    const res = await fetch(`${ORCHESTRATOR_URL}/requirements`, { agent: orchestratorAgent })
+    const res = await fetch(`${ORCHESTRATOR_URL}/nodes/local`, { agent: orchestratorAgent })
     localNodes = await res.json()
     debug(`Local nodes refreshed, ${localNodes.length} nodes found`)
   } catch (err) {
