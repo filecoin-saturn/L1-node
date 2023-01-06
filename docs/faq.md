@@ -22,7 +22,9 @@ FIL payouts are finalized at the end of every month and payouts are made shortly
 
 ### How do I receive my FIL payout?
 
-FIL will be sent to the registered wallet in the node, make sure to triple check it.
+Your FIL payout will be sent in filecoin the filecoin wallet address set in your node's `FIL_WALLET_ADDRESS` environment variable.
+
+Triple check that the wallet address in `FIL_WALLET_ADDRESS` is correct; filecoin sent to the wrong address can't be undone or re-sent.
 
 ### I'm already a Filecoin storage provider, how does it work with my existing nodes, wallets, etc.?
 
