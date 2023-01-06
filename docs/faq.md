@@ -20,7 +20,7 @@ We are continuously looking at the requirements and multiple factors, such as ge
 
 FIL payouts are finalized at the end of every month and payouts are made shortly thereafter -- within the following few days.
 
-### How am I going to receive payouts?
+### How do I receive my FIL payout?
 
 FIL will be sent to the registered wallet in the node, make sure to triple check it.
 
