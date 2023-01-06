@@ -196,7 +196,7 @@ If you want to switch your node from Saturn's test network (aka `test`) to Satur
 
 ## Node operator guide
 
-For answers to common questions about operating a node, see the L1 node [FAQ](docs/faq.md) page.
+For answers to common questions about operating a node, like about receiving your filecoin payouts, see the L1 node [FAQ](docs/faq.md) page.
 
 ### Obtaining a Filecoin wallet address
 
