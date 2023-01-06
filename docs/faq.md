@@ -16,13 +16,13 @@ We are continuously looking at the requirements and multiple factors, such as ge
 
 ## Payouts
 
+### When do I receive my FIL payouts?
+
+FIL payouts are finalized at the end of every month and payouts are made shortly thereafter -- within the following few days.
+
 ### How am I going to receive payouts?
 
 FIL will be sent to the registered wallet in the node, make sure to triple check it.
-
-### How often do I receive my FIL payouts?
-
-FIL payouts are finalized at the end of every month and payouts are made shortly thereafter -- within the following few days.
 
 ### I'm already a Filecoin storage provider, how does it work with my existing nodes, wallets, etc.?
 
