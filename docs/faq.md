@@ -18,7 +18,7 @@ We are continuously looking at the requirements and multiple factors, such as ge
 
 ### When do I receive my FIL payouts?
 
-FIL payouts are finalized at the end of every month and payouts are made shortly thereafter -- within the following few days.
+Node earnings, in FIL, are finalized at the end of every month and payouts are made shortly thereafter -- within the following few days. So you can expect to receive your FIL payout -- for prior month's earnings -- within the first week of every calendar month.
 
 ### How do I receive my FIL payout?
 
