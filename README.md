@@ -65,14 +65,22 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 
 1. Install Docker. [Instructions here](https://docs.docker.com/engine/install/#server)
 2. Change directory to `$SATURN_HOME` (default: `$HOME`) to download the required files
+   
+   ```bash
+   cd ${SATURN_HOME:-$HOME}
+   ```
+
 3. Download the `.env` file and set the `FIL_WALLET_ADDRESS` and `NODE_OPERATOR_EMAIL` environment variables in the `.env` file. These are mandatory.
    - If you want your node to join Saturn's Main network and earn FIL rewards, make sure to set `SATURN_NETWORK` to `main`.
    - If you want your node to join Saturn's Test network, which doesn't earn FIL rewards, set `SATURN_NETWORK` to `test`. Note that this is the default value!
    - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` environment variable.
 
-    ```base
-   curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/.env -o .env
+    ```bash
+    curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/.env -o .env
     ```
+    You can use the text editor of your choice (e.g. `nano` or `vim` on Linux)
+    
+   (Note that the '.env' file is [not taking precedence](https://docs.docker.com/compose/envvars-precedence/) over env variables set locally.)
 
 4. Download the docker-compose file
 
@@ -92,6 +100,10 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 In most intsances speedtest does a good job of picking "close" servers but for small networks it may be incorrect.
 If the speedtest value reported by speedtest seems low, you may want to configure SPEEDTEST_SERVER_CONFIG to point to a different public speedtest server. You will need to install [speedtest CLI](https://www.speedtest.net/apps/cli) in the host and fetch close servers' IDs by doing `speedtest --servers`, then setting `SPEEDTEST_SERVER_CONFIG="--server-id=XXXXX"`
 
+## Update a node
+
+We are using a Watchtower container to update the saturn-node container.
+You don't need to do anything to update your node in theory and can see update logs with `docker logs -f saturn-watchtower`.
 
 ## Set up a node with [Ansible](https://docs.ansible.com/ansible/latest/index.html)
 
@@ -165,10 +177,14 @@ ansible-galaxy collection install community.docker
 To gracefully stop a node and not receive a penalty, run:
 
 ```bash
-  sudo docker stop saturn-node
+  sudo docker stop --time 1800 saturn-node
+```
+or if you are in your `$SATURN_HOME` folder with the Saturn `docker-compose.yml` file:
+```bash
+  sudo docker compose down
 ```
 
-We are setting the 'stop_signal' and the 'stop_grace_period' in our Docker compose file correctly to avoid issues.
+We are setting the `stop_signal` and the `stop_grace_period` in our Docker compose file to avoid issues.
 If you have a custom setup, make sure to send a SIGTERM to your node and wait at least 30 minutes for it to drain.
 
 ## Switch networks between test net and main net
@@ -176,9 +192,10 @@ If you have a custom setup, make sure to send a SIGTERM to your node and wait at
 If you want to switch your node from Saturn's test network (aka `test`) to Saturn's main network (aka `main`), or vice versa, follow these steps:
 
 1. Gracefully halt your node as explained in [Stopping a node](#stopping-a-node).
-2. Set the network environment variable `SATURN_NETWORK` to `main`, or `test`, in `/etc/environment` and `.bashrc`.
+2. Set the network environment variable `SATURN_NETWORK` to `main`, or `test`, in your `$SATURN_HOME/.env` file (default: `$HOME/.env`).
 3. Delete contents in `$SATURN_HOME/shared/ssl` (default: `$HOME/shared/ssl`).
-4. Start the node again with `run.sh` script.
+4. Start the node again with `docker compose -f $SATURN_HOME/docker-compose.yml up -d`.
+5. Check logs with `docker logs -f saturn-node`
 
 ## Node operator guide
 

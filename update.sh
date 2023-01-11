@@ -12,8 +12,9 @@ fi
 compose_file=$SATURN_HOME/docker-compose.yml
 env_file=$SATURN_HOME/.env
 
-echo -n "$(date -u) The auto-update script was deprecated to migrate to a docker compose setup."
-echo -n "$(date -u) The run script was deprecated too."
+echo "$(date -u) Starting migration to docker compose setup."
+echo "The auto-update script was deprecated to migrate to a docker compose setup. Updates are handled by a Watchtower container now."
+echo "The run script was deprecated too. To start or stop your node use 'docker compose -f $compose_file up -d' or 'docker compose -f $compose_file down' respectively."
 
 if [ -f "$compose_file" ]; then
     echo "We have migrated to a docker compose setup to reduce risks caused by these update and run scripts. You can delete these scripts and use the Docker Compose workflow now."
@@ -24,7 +25,7 @@ else
     echo "Downloaded the docker compose file successfully!"
   else
     echo "Failed to download the docker compose file automagically. Please open a Github issue or migrate manually to the docker compose setup"
-    exit
+    exit 1
   fi
 
   wget -O "$env_file" -T 10 -t 3 "https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/.env"
@@ -33,36 +34,37 @@ else
     echo "Downloaded the .env file successfully!"
   else
     echo "Failed to download the .env file automagically. Please open a Github issue or migrate manually to the docker compose setup"
-    exit
+    exit 1
   fi
 
   echo "Testing compatibility with our Docker Compose workflow"
   sudo docker compose version
   if [ $? -ne 0 ];
   then
-      echo 'docker compose might not be supported by your setup, or you are still using an old docker-compose version';
-      exit
+      echo "docker compose might not be supported by your setup, or you are still using an old docker-compose version";
+      exit 1
   fi
   echo "You have docker compose, proceeding."
-  echo -n "$(date -u) Pulling Saturn $SATURN_NETWORK network L1 node updates."
-  sudo docker compose -f $compose_file pull
-  echo "$(date -u) New Saturn $SATURN_NETWORK network L1 node version found!"
-  random_sleep="$(( RANDOM % 2000 ))"
-  echo "$(date -u) Waiting for $random_sleep seconds..."
-  sleep "$random_sleep"
-  echo -n "$(date -u) Draining $SATURN_NETWORK network L1 node... "
-  sudo docker kill --signal=SIGTERM saturn-node >> /dev/null
-  sleep 900
-  echo "restarting with docker compose now..."
+  echo "If any of the following steps fail, please edit the .env file to include the expected values and try running the commands:\n\t'sudo docker stop --time 900 saturn-node && sudo docker compose -f $compose_file up -d'."
 
-  sudo docker compose -f $compose_file pull
-  sudo docker stop saturn-node || true
+  random_sleep="$(( RANDOM % 2000 ))"
+  echo "Waiting for $random_sleep seconds to avoid stopping all nodes in the network at once..."
+  sleep "$random_sleep"
+
+  echo "Pulling Saturn $SATURN_NETWORK network L1 node updates."
+  sudo -E docker compose -f $compose_file pull
+
+  echo "Draining $SATURN_NETWORK network L1 node... "
+  sudo docker stop --time 900 saturn-node || true
+
+  echo "Restarting with docker compose now..."
   sudo docker rm -f saturn-node || true
-  sudo docker compose -f $compose_file up -d
+  sudo -E docker compose -f $compose_file pull
+  sudo -E docker compose -f $compose_file up -d
   if [ $? -ne 0 ];
   then
-      echo 'Error while launching the docker compose setup';
-      exit
+      echo "Error while launching the docker compose setup. Please try running 'docker compose up -d' yourself or open an issue on Github."
+      exit 1
   fi
   echo "Updated to the latest version successfully! You can now delete the run.sh and update.sh scripts."
 fi

@@ -28,6 +28,8 @@ services:
 
   watchtower:
       image: containrrr/watchtower
+      container_name: saturn-watchtower
+      restart: always
       environment:
         WATCHTOWER_POLL_INTERVAL: 10800
         WATCHTOWER_LABEL_ENABLE: true
