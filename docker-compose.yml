@@ -20,6 +20,7 @@ services:
     stop_signal: SIGTERM
     stop_grace_period: 30m
     labels:
+      com.centurylinklabs.watchtower.scope: saturn
       com.centurylinklabs.watchtower.enable: true
       com.centurylinklabs.watchtower.lifecycle.pre-update-timeout: 30
       com.centurylinklabs.watchtower.lifecycle.post-update-timeout: 30
@@ -31,8 +32,11 @@ services:
       container_name: saturn-watchtower
       restart: always
       environment:
-        WATCHTOWER_POLL_INTERVAL: 10800
+        WATCHTOWER_POLL_INTERVAL: 3600
         WATCHTOWER_LABEL_ENABLE: true
+        WATCHTOWER_SCOPE: saturn
+      labels:
+        com.centurylinklabs.watchtower.scope: saturn
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
 
