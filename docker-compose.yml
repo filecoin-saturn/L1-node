@@ -2,12 +2,12 @@ version: "3.8"
 services:
   saturn-node:
     image: ghcr.io/filecoin-saturn/l1-node:${SATURN_NETWORK:-test}
-    container_name: saturn_node
+    container_name: saturn-node
     restart: always
     environment:
-      SATURN_NETWORK: "${SATURN_NETWORK:-test}"
-      FIL_WALLET_ADDRESS: "${FIL_WALLET_ADDRESS:?please make sure to set your FIL_WALLET_ADDRESS environment variable}"
-      NODE_OPERATOR_EMAIL: "${NODE_OPERATOR_EMAIL:?please make sure to set your NODE_OPERATOR_EMAIL environment variable}"
+      SATURN_NETWORK: "${SATURN_NETWORK:?please make sure to set your SATURN_NETWORK environment variable with either 'test' or 'main' in the .env file}"
+      FIL_WALLET_ADDRESS: "${FIL_WALLET_ADDRESS:?please make sure to set your FIL_WALLET_ADDRESS environment variable in the .env file}"
+      NODE_OPERATOR_EMAIL: "${NODE_OPERATOR_EMAIL:?please make sure to set your NODE_OPERATOR_EMAIL environment variable in the .env file}"
       SPEEDTEST_SERVER_CONFIG: "${SPEEDTEST_SERVER_CONFIG}"
     ulimits:
         nofile:

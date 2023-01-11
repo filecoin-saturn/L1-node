@@ -10,6 +10,7 @@ if pidof -o %PPID -x "update.sh" > /dev/null; then
 fi
 
 compose_file=$SATURN_HOME/docker-compose.yml
+env_file=$SATURN_HOME/.env
 
 echo -n "$(date -u) The auto-update script was deprecated to migrate to a docker compose setup."
 echo -n "$(date -u) The run script was deprecated too."
@@ -17,14 +18,21 @@ echo -n "$(date -u) The run script was deprecated too."
 if [ -f "$compose_file" ]; then
     echo "We have migrated to a docker compose setup to reduce risks caused by these update and run scripts. You can delete these scripts and use the Docker Compose workflow now."
 else 
-  wget -O "$compose_file.tmp" -T 10 -t 3 "https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml" 
-  if [[ -s "$compose_file.tmp" ]];
+  wget -O "$compose_file" -T 10 -t 3 "https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml"
+  if [[ -s "$compose_file" ]];
   then
-    mv -f "$compose_file.tmp" "$compose_file"
     echo "Downloaded the docker compose file successfully!"
   else
     echo "Failed to download the docker compose file automagically. Please open a Github issue or migrate manually to the docker compose setup"
-    rm -f "$compose_file.tmp"
+    exit
+  fi
+
+  wget -O "$env_file" -T 10 -t 3 "https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/.env"
+  if [[ -s "$env_file" ]];
+  then
+    echo "Downloaded the .env file successfully!"
+  else
+    echo "Failed to download the .env file automagically. Please open a Github issue or migrate manually to the docker compose setup"
     exit
   fi
 

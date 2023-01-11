@@ -47,7 +47,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 - Linux server with a static public IPv4 address
 - Root access / passwordless sudo user ([How to](https://askubuntu.com/questions/147241/execute-sudo-without-password))
 - Ports 80 and 443 free and public to the internet
-- [Docker](https://www.docker.com/) installed ([Instructions here](https://docs.docker.com/engine/install/#server))
+- [Docker](https://www.docker.com/) installed ([Instructions here](https://docs.docker.com/engine/install/#server)) with Docker Compose V2
 - CPU with 6 cores (12+ cores recommended). [CPU Mark](https://www.cpubenchmark.net/cpu_list.php) of 8,000+ (20,000+ recommended)
 - 10Gbps upload link minimum<sup>1</sup> ([Why 10Gbps?](https://github.com/filecoin-saturn/L1-node/blob/main/docs/faq.md#why-is-10-gbps-uplink-required))
 - 32GB RAM minimum (128GB+ recommended)
@@ -64,22 +64,26 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 <sub>If you want to switch your node from test net to main net, or vice versa, see [Switch networks](#switch-networks-between-test-net-and-main-net) below.</sub>
 
 1. Install Docker. [Instructions here](https://docs.docker.com/engine/install/#server)
-2. Set the `FIL_WALLET_ADDRESS` and `NODE_OPERATOR_EMAIL` environment variables in `.bashrc` (user) and `/etc/environment` (global) and then load them
-   - If you want your node to join Saturn's Main network and earn FIL rewards, set `SATURN_NETWORK` to `main`. If you want your node to join Saturn's Test network, which doesn't earn FIL rewards, set `SATURN_NETWORK` to `test`
-   - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` environment variable
+2. Change directory to `$SATURN_HOME` (default: `$HOME`) to download the required files
+3. Download the `.env` file and set the `FIL_WALLET_ADDRESS` and `NODE_OPERATOR_EMAIL` environment variables in the `.env` file. These are mandatory.
+   - If you want your node to join Saturn's Main network and earn FIL rewards, make sure to set `SATURN_NETWORK` to `main`.
+   - If you want your node to join Saturn's Test network, which doesn't earn FIL rewards, set `SATURN_NETWORK` to `test`. Note that this is the default value!
+   - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` environment variable.
 
-3. Change directory to `$SATURN_HOME` (default: `$HOME`) to download the `run.sh` and `update.sh` scripts in steps 4 and 8
-4. Download the [`run.sh`](run.sh) script and make it executable
+    ```base
+   curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/.env -o .env
+    ```
+
+4. Download the docker-compose file
 
    ```bash
-   curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/run.sh -o run.sh
-   chmod +x run.sh
+   curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml -o docker-compose.yml
    ```
 
-5. Run the script:
+5. Launch it:
 
     ```bash
-    ./run.sh
+    sudo docker compose up -d
     ```
 
 6. Check logs with `docker logs -f saturn-node`
@@ -88,25 +92,6 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 In most intsances speedtest does a good job of picking "close" servers but for small networks it may be incorrect.
 If the speedtest value reported by speedtest seems low, you may want to configure SPEEDTEST_SERVER_CONFIG to point to a different public speedtest server. You will need to install [speedtest CLI](https://www.speedtest.net/apps/cli) in the host and fetch close servers' IDs by doing `speedtest --servers`, then setting `SPEEDTEST_SERVER_CONFIG="--server-id=XXXXX"`
 
-8. Download the [`update.sh`](update.sh) script and make it executable
-
-   ```bash
-   curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh -o update.sh
-   chmod +x update.sh
-   ```
-
-9. Setup the cron to run every 5 minutes:
-
-   ```bash
-   crontab -e
-   ```
-
-   Add the following text replacing the path:
-   ```
-   */5 * * * * /path/to/saturn/home/update.sh >> /path/to/saturn/home/l1-cron.log 2>&1
-   ```
-
-   **Make sure to have environment variables set in `/etc/environment` for auto-update to work**
 
 ## Set up a node with [Ansible](https://docs.ansible.com/ansible/latest/index.html)
 
@@ -180,10 +165,11 @@ ansible-galaxy collection install community.docker
 To gracefully stop a node and not receive a penalty, run:
 
 ```bash
-  sudo docker kill --signal=SIGTERM saturn-node
-  sleep 1800 # wait for 30 minutes to drain all requests
   sudo docker stop saturn-node
 ```
+
+We are setting the 'stop_signal' and the 'stop_grace_period' in our Docker compose file correctly to avoid issues.
+If you have a custom setup, make sure to send a SIGTERM to your node and wait at least 30 minutes for it to drain.
 
 ## Switch networks between test net and main net
 
