@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  saturn-node:
+    image: ghcr.io/filecoin-saturn/l1-node:${SATURN_NETWORK:-test}
+    container_name: saturn_node
+    restart: always
+    environment:
+      SATURN_NETWORK: "${SATURN_NETWORK:-test}"
+      FIL_WALLET_ADDRESS: "${FIL_WALLET_ADDRESS:?please make sure to set your FIL_WALLET_ADDRESS environment variable}"
+      NODE_OPERATOR_EMAIL: "${NODE_OPERATOR_EMAIL:?please make sure to set your NODE_OPERATOR_EMAIL environment variable}"
+      SPEEDTEST_SERVER_CONFIG: "${SPEEDTEST_SERVER_CONFIG}"
+    ulimits:
+        nofile:
+          soft: 65536
+          hard: 65536
+    ports:
+      - 80:80
+      - 443:443
+    network_mode: host
+    stop_signal: SIGTERM
+    stop_grace_period: 30m
+    labels:
+      com.centurylinklabs.watchtower.enable: true
+      com.centurylinklabs.watchtower.lifecycle.pre-update-timeout: 30
+      com.centurylinklabs.watchtower.lifecycle.post-update-timeout: 30
+    volumes:
+      - ${SATURN_HOME:-$HOME}/shared:/usr/src/app/shared
+
+  watchtower:
+      image: containrrr/watchtower
+      environment:
+        WATCHTOWER_POLL_INTERVAL: 10800
+        WATCHTOWER_LABEL_ENABLE: true
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+
