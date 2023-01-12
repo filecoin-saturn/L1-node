@@ -15,7 +15,8 @@ export const FIL_WALLET_ADDRESS = process.env.FIL_WALLET_ADDRESS || error('FIL_W
 export const NODE_OPERATOR_EMAIL = process.env.NODE_OPERATOR_EMAIL || error('NODE_OPERATOR_EMAIL')
 export const IPFS_GATEWAY_ORIGIN = process.env.IPFS_GATEWAY_ORIGIN || 'https://ipfs.io'
 export const TESTING_CID = 'QmXjYBY478Cno4jzdCcPy4NcJYFrwHZ51xaCP8vUwN9MGm'
-export const nodeId = await readFile(NODE_ID_FILE_PATH, 'utf-8').catch(() => false) || createNodeId()
+
+export const nodeId = await readOrCreateNodeId()
 export const L2_FIRE_AND_FORGET = process.env.L2_FIRE_AND_FORGET
   ? process.env.L2_FIRE_AND_FORGET === 'true'
   : SATURN_NETWORK === 'test'
@@ -60,6 +61,15 @@ function error (requiredVarName) {
 
 function pVersion (version) {
   return version.slice(0, version.indexOf('_') + 8)
+}
+
+async function readOrCreateNodeId () {
+  try {
+    const nodeId = await readFile(NODE_ID_FILE_PATH, 'utf8')
+    return nodeId.trim()
+  } catch (err) {
+    return createNodeId()
+  }
 }
 
 function createNodeId () {
