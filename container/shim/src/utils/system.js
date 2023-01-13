@@ -15,20 +15,32 @@ const meminfoKBToGB = (bytes) => bytes / 1_000_000
 export async function getMemoryStats () {
   const result = await fsPromises.readFile('/proc/meminfo', 'utf-8')
   const values = result.trim().split('\n').slice(0, 3).map(res => res.split(':').map(kv => kv.trim())).reduce((acc, cv) => {
-    return Object.assign(acc, { [cv[0]]: Number(meminfoKBToGB(cv[1].split(' ')[0]).toFixed(1)) })
+    return Object.assign(acc, {
+      [`${cv[0]}KB`]: Number(cv[1]),
+      [cv[0]]: Number(meminfoKBToGB(cv[1].split(' ')[0]).toFixed(1))
+    })
   }, {})
   debug(`Memory Total: ${values.MemTotal} GB Free: ${values.MemFree} GB Available: ${values.MemAvailable} GB`)
-  return { totalMemory: values.MemTotal, freeMemory: values.MemFree, availableMemory: values.MemAvailable }
+  return {
+    totalMemory: values.MemTotal,
+    freeMemory: values.MemFree,
+    availableMemory: values.MemAvailable,
+    totalMemoryKB: values.MemTotalKB,
+    freeMemoryKB: values.MemFreeKB,
+    availableMemoryKB: values.MemAvailableKB
+  }
 }
 
 export async function getDiskStats () {
   const { stdout: result } = await exec('df -B GB /usr/src/app/shared')
-  const values = result.trim().split('\n')[1].split(/\s+/).map(res => res.replace('GB', ''))
-  const totalDisk = Number(values[1])
-  const usedDisk = Number(values[2])
-  const availableDisk = Number(values[3])
+  const { stdout: resultMB } = await exec('df -B MB /usr/src/app/shared')
+  const values = result.trim().split('\n')[1].split(/\s+/).map(res => Number(res.replace('GB', '')))
+  const valuesMB = resultMB.trim().split('\n')[1].split(/\s+/).map(res => Number(res.replace('MB', '')))
+  const totalDisk = values[1]
+  const usedDisk = values[2]
+  const availableDisk = values[3]
   debug(`Disk Total: ${totalDisk} GB Used: ${usedDisk} GB Available: ${availableDisk} GB`)
-  return { totalDisk, usedDisk, availableDisk }
+  return { totalDisk, usedDisk, availableDisk, totalDiskMB: valuesMB[1], usedDiskMB: valuesMB[2], availableDiskMB: valuesMB[3] }
 }
 
 export async function getCPUStats () {
