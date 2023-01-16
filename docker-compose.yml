@@ -3,7 +3,7 @@ services:
   saturn-node:
     image: ghcr.io/filecoin-saturn/l1-node:${SATURN_NETWORK:-test}
     container_name: saturn-node
-    restart: always
+    restart: unless-stopped
     environment:
       SATURN_NETWORK: "${SATURN_NETWORK:?please make sure to set your SATURN_NETWORK environment variable with either 'test' or 'main' in the .env file}"
       FIL_WALLET_ADDRESS: "${FIL_WALLET_ADDRESS:?please make sure to set your FIL_WALLET_ADDRESS environment variable in the .env file}"
@@ -11,8 +11,8 @@ services:
       SPEEDTEST_SERVER_CONFIG: "${SPEEDTEST_SERVER_CONFIG}"
     ulimits:
         nofile:
-          soft: 65536
-          hard: 65536
+          soft: 1000000
+          hard: 1000000
     ports:
       - 80:80
       - 443:443
