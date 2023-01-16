@@ -16,7 +16,7 @@ export async function getMemoryStats () {
   const result = await fsPromises.readFile('/proc/meminfo', 'utf-8')
   const values = result.trim().split('\n').slice(0, 3).map(res => res.split(':').map(kv => kv.trim())).reduce((acc, cv) => {
     return Object.assign(acc, {
-      [`${cv[0]}KB`]: Number(cv[1]),
+      [`${cv[0]}KB`]: Number(cv[1].split(' ')[0]),
       [cv[0]]: Number(meminfoKBToGB(cv[1].split(' ')[0]).toFixed(1))
     })
   }, {})
