@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import fsPromises from 'node:fs/promises'
 import fetch from 'node-fetch'
 import prettyBytes from 'pretty-bytes'
+import logfmt from 'logfmt'
 
 import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, nodeId, nodeToken, TESTING_CID } from '../config.js'
 import { debug as Debug } from '../utils/logging.js'
@@ -9,18 +10,36 @@ import { debug as Debug } from '../utils/logging.js'
 const debug = Debug.extend('log-ingestor')
 
 const NGINX_LOG_KEYS_MAP = {
-  addr: 'clientAddress',
-  b: 'numBytesSent',
-  h3: 'http3',
-  lt: 'localTime',
-  ref: 'referrer',
-  rid: 'requestId',
-  rt: 'requestDuration',
-  s: 'status',
-  sp: 'httpProtocol',
-  ua: 'userAgent',
-  ucs: 'cacheHit',
-  url: 'url'
+  clientAddress: (values) => values.addr,
+  numBytesSent: (values) => parseInt(values.bytes, 10),
+  localTime: (values) => values.time,
+  referrer: (values) => values.ref,
+  requestId: (values) => values.id,
+  requestDuration: (values) => parseFloat(values.rt),
+  status: (values) => parseInt(values.status, 10),
+  httpProtocol: (values) => values.sp,
+  userAgent: (values) => values.ua,
+  cacheHit: (values) => values.cache === "HIT",
+  url: (values) => {
+    const url = new URL(`${values.scheme}://${values.host}${values.uri}`)
+    url.searchParams.set('ua', values.ua)
+    url.searchParams.set('rid', values.id)
+    return url;
+  },
+  range: (values) => values.range,
+  ff: (values) => values.ff,
+  uct: (values) => {
+    const parsed = parseFloat(values.uct);
+    return isNaN(parsed) ? values.uct : parsed;
+  },
+  uht: (values) => {
+    const parsed = parseFloat(values.uht);
+    return isNaN(parsed) ? values.uht : parsed;
+  },
+  urt: (values) => {
+    const parsed = parseFloat(values.urt);
+    return isNaN(parsed) ? values.urt : parsed;
+  },
 }
 const NGINX_NULL_VALUE = '-'
 const IPFS_PREFIX = '/ipfs/'
@@ -33,7 +52,7 @@ let fh, hasRead
 let parseLogsTimer
 let submitRetrievalsTimer
 
-export async function initLogIngestor () {
+export async function initLogIngestor() {
   if (fs.existsSync('/var/log/nginx/node-access.log')) {
     debug('Reading nginx log file')
     fh = await openFileHandle()
@@ -44,7 +63,7 @@ export async function initLogIngestor () {
   }
 }
 
-async function parseLogs () {
+async function parseLogs() {
   clearTimeout(parseLogsTimer)
   const stat = await fh.stat()
 
@@ -63,40 +82,17 @@ async function parseLogs () {
     const lines = read.toString().trim().split('\n')
 
     for (const line of lines) {
-      const vars = line.split('&&').reduce((varsAgg, currentValue) => {
-        const [name, ...value] = currentValue.split('=')
-        const jointValue = value.join('=')
-
-        let parsedValue
-        switch (name) {
-          case 'lt':
-          case 'rid':
-          case 'addr': {
-            parsedValue = jointValue
-            break
-          }
-          case 'ucs': {
-            parsedValue = jointValue === 'HIT'
-            break
-          }
-          default: {
-            const numberValue = Number.parseFloat(jointValue)
-            parsedValue = Number.isNaN(numberValue) ? jointValue : numberValue
-          }
-        }
-        return Object.assign(varsAgg, { [NGINX_LOG_KEYS_MAP[name] || name]: parsedValue })
+      const parsed = logfmt.parse(line);
+      const vars = Object.entries(NGINX_LOG_KEYS_MAP).reduce((acc, [key, getter]) => {
+        acc[key] = getter(parsed)
+        return acc;
       }, {})
-
-      let { url, args } = vars
-      if (args !== NGINX_NULL_VALUE) {
-        url += `?${args}`
-      }
       let urlObj
 
       try {
-        urlObj = new URL(url)
+        urlObj = new URL(vars.url)
       } catch (err) {
-        debug(`Invalid URL: ${url}`)
+        debug(`Invalid URL: ${vars.url}`)
         continue
       }
 
@@ -110,7 +106,7 @@ async function parseLogs () {
       const {
         clientAddress, numBytesSent, requestId, localTime, status,
         requestDuration, range, cacheHit, referrer, userAgent, http3,
-        httpProtocol
+        httpProtocol, url
       } = vars
 
       const cid = urlObj.pathname.split('/')[2]
@@ -151,11 +147,11 @@ async function parseLogs () {
   parseLogsTimer = setTimeout(parseLogs, Math.max(10_000 - valid, 1000))
 }
 
-async function openFileHandle () {
+async function openFileHandle() {
   return await fsPromises.open('/var/log/nginx/node-access.log', 'r+')
 }
 
-export async function submitRetrievals () {
+export async function submitRetrievals() {
   clearTimeout(submitRetrievalsTimer)
   const length = pending.length
   if (length > 0) {
