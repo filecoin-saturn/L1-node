@@ -1,8 +1,8 @@
 import http from 'node:http'
 import { validateAddressString } from '@glif/filecoin-address'
 
-import app from '../src/index.js'
-import { deregister, register } from '../src/modules/registration.js'
+import app from '../index.js'
+import { deregister, register } from '../modules/registration.js'
 import {
   FIL_WALLET_ADDRESS,
   NODE_OPERATOR_EMAIL,
@@ -10,11 +10,11 @@ import {
   nodeId,
   PORT,
   ORCHESTRATOR_REGISTRATION, SATURN_NETWORK
-} from '../src/config.js'
-import { trapServer } from '../src/utils/trap.js'
-import { debug } from '../src/utils/logging.js'
-import { submitRetrievals, initLogIngestor } from '../src/modules/log_ingestor.js'
-import { refreshLocalNodes } from '../src/modules/local_nodes.js'
+} from '../config.js'
+import { trapServer } from '../utils/trap.js'
+import { debug } from '../utils/logging.js'
+import { submitRetrievals, initLogIngestor } from '../modules/log_ingestor.js'
+import { refreshLocalNodes } from '../modules/local_nodes.js'
 
 debug('Saturn L1 Node')
 debug.extend('id')(nodeId)
