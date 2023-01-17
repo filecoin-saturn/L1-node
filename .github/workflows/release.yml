@@ -100,7 +100,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
-            ghcr.io/filecoin-saturn/l1-node:${{ github.sha }}-${{ github.run_number}}
+            ghcr.io/filecoin-saturn/l1-node:${{ github.run_number}}_${{ github.sha_short }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
