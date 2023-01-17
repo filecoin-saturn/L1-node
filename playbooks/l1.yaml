@@ -172,20 +172,3 @@
     ansible.builtin.command: "{{ homedir }}/run.sh"
     environment: "{{ env_vars }}"
     when: not saturn_container.exists
-  - name: Download the update.sh file
-    become: true
-    become_user: root
-    ansible.builtin.get_url:
-      url: |
-        https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh
-      dest: "{{ homedir }}/update.sh"
-      mode: +x
-  - name: Creates the L1 update cron job
-    become: true
-    become_user: root
-    ansible.builtin.cron:
-      name: l1-update
-      minute: "*/5"
-      user: root
-      job: "{{ homedir }}/update.sh >> {{ homedir }}/l1-cron.log"
-      state: present
