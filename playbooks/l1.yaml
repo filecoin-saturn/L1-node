@@ -31,6 +31,10 @@
   gather_facts: true
   vars:
     packages:
+      docker_compose:
+        CentOS: docker-compose
+        Debian: docker-compose
+        Ubuntu: docker-compose
       docker:
         CentOS: docker-ce
         Debian: docker.io
@@ -66,6 +70,7 @@
       name:
       - wget
       - "{{ packages.docker[ansible_distribution] }}"
+      - "{{ packages.docker_compose[ansible_distribution] }}"
       - "{{ packages.pip[ansible_distribution] }}"
       state: present
       update_cache: true
@@ -115,11 +120,10 @@
     # this wasn't consistent between runs, so we need to store it
     homedir: "{{ ansible_env.HOME }}"
     saturn_home: "{{ saturn_root if saturn_root is defined else homedir }}"
-    env_vars:
-      SATURN_NETWORK: "{{ lookup('ansible.builtin.env', 'SATURN_NETWORK', default='test') }}"
-      FIL_WALLET_ADDRESS: "{{ lookup('ansible.builtin.env', 'FIL_WALLET_ADDRESS', default=undef()) }}"
-      NODE_OPERATOR_EMAIL: "{{ lookup('ansible.builtin.env', 'NODE_OPERATOR_EMAIL', default=undef()) }}"
-      SATURN_HOME: "{{ saturn_home }}"
+    env_file: "{{ lookup('file', '../.env' ) }}"
+    # ref - https://stackoverflow.com/questions/60209185/ansible-environment-variables-from-env-file
+    var_regex: "([^=]*)=(['\"]?.*['\"]?)"
+    env_vars: "{{ env_file.split('\n') | select | map('regex_replace', var_regex, '{\"key\": \"\\1\", \"value\": \\2}') | map('from_json') }}"
   tasks:
   - name: Log the run config
     ansible.builtin.debug:
@@ -144,15 +148,31 @@
       marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.1.key }}"
     with_nested:
     - [/etc/environment, "{{ homedir }}/.bashrc"]
-    - "{{ env_vars | dict2items }}"
+    - "{{ env_vars }}"
   - name: Get the L1 run.sh script
     become: true
     become_user: root
     ansible.builtin.get_url:
-      url: |
-        https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/run.sh
+      url: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/run.sh
+      # url: https://raw.githubusercontent.com/AnomalRoil/L1-node/main/run.sh
       dest: "{{ homedir }}/run.sh"
       mode: +x
+    register: run_script
+  - name: Get docker-compose.yml
+    become: true
+    become_user: root
+    ansible.builtin.get_url:
+      # url: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml
+      url: https://raw.githubusercontent.com/AnomalRoil/L1-node/main/docker-compose.yml
+      dest: "{{ homedir }}/docker-compose.yml"
+    register: docker_compose
+  - name: Get update.sh
+    become: true
+    become_user: root
+    ansible.builtin.get_url:
+      url: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh
+      # url: https://raw.githubusercontent.com/AnomalRoil/L1-node/main/update.sh
+      dest: "{{ homedir }}/update.sh"
   - name: Ensure we have the right $SATURN_HOME/shared permissions
     become: true
     become_user: root
@@ -170,22 +190,5 @@
     become: true
     become_user: root
     ansible.builtin.command: "{{ homedir }}/run.sh"
-    environment: "{{ env_vars }}"
-    when: not saturn_container.exists
-  - name: Download the update.sh file
-    become: true
-    become_user: root
-    ansible.builtin.get_url:
-      url: |
-        https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh
-      dest: "{{ homedir }}/update.sh"
-      mode: +x
-  - name: Creates the L1 update cron job
-    become: true
-    become_user: root
-    ansible.builtin.cron:
-      name: l1-update
-      minute: "*/5"
-      user: root
-      job: "{{ homedir }}/update.sh >> {{ homedir }}/l1-cron.log"
-      state: present
+    environment: "{{ env_vars | items2dict }}"
+    when: run_script.changed or docker_compose.changed or not saturn_container.exists
