@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.3"
 services:
   saturn-node:
     image: ghcr.io/filecoin-saturn/l1-node:${SATURN_NETWORK:-test}
@@ -21,7 +21,7 @@ services:
     stop_grace_period: 30m
     labels:
       com.centurylinklabs.watchtower.scope: saturn
-      com.centurylinklabs.watchtower.enable: true
+      com.centurylinklabs.watchtower.enable: "true"
       com.centurylinklabs.watchtower.lifecycle.pre-update-timeout: 30
       com.centurylinklabs.watchtower.lifecycle.post-update-timeout: 30
     volumes:
@@ -33,7 +33,7 @@ services:
       restart: always
       environment:
         WATCHTOWER_POLL_INTERVAL: 3600
-        WATCHTOWER_LABEL_ENABLE: true
+        WATCHTOWER_LABEL_ENABLE: "true"
         WATCHTOWER_SCOPE: saturn
       labels:
         com.centurylinklabs.watchtower.scope: saturn
