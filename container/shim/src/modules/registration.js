@@ -18,13 +18,15 @@ import { getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } 
 import { CERT_PATH, certExists, getNewTLSCert, SSL_PATH } from './tls.js'
 import { parseVersionNumber } from '../utils/version.js'
 import { orchestratorAgent } from '../utils/http.js'
+import { prefillCache } from '../utils/prefill.js'
 
 const debug = Debug.extend('registration')
 
-const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
+const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000
 
 let requirements
 export async function register (initial) {
+  debug('Initiating registration (initial=%s)', initial)
   try {
     requirements = await fetch(`${ORCHESTRATOR_URL}/requirements`, { agent: orchestratorAgent }).then(res => res.json())
   } catch (err) {
@@ -106,7 +108,7 @@ export async function register (initial) {
 
       const validTo = Date.parse(cert.validTo)
 
-      if (Date.now() > (validTo - TWO_DAYS_MS)) {
+      if (Date.now() > (validTo - FIVE_DAYS_MS)) {
         debug('Certificate is soon to expire, getting a new one...')
         valid = false
       } else {
@@ -120,7 +122,7 @@ export async function register (initial) {
       }
     }
 
-    debug('Re-registering with orchestrator...')
+    debug('Registering with orchestrator...')
 
     try {
       const { token, ipGeo, error, success } = await fetch(`${ORCHESTRATOR_URL}/register?ssl=done`, registerOptions).then(res => res.json())
@@ -137,9 +139,11 @@ export async function register (initial) {
 
       updateNodeToken(token)
 
-      debug('Successful re-registration, updated token')
+      debug('Successful registration, updated token')
+
+      if (initial) prefillCache()
     } catch (err) {
-      debug('Failed re-registration %s', err.message)
+      debug('Failed registration %s', err.message)
       if (initial) {
         // we don't try again if we fail the initial registration
         process.exit(0)
@@ -164,9 +168,9 @@ async function _deregister () {
 
   try {
     await fetch(`${ORCHESTRATOR_URL}/deregister`, { ...postOptions({ nodeId }), signal: controller.signal })
-    debug('De-registered successfully')
+    debug('De-registration successful')
   } catch (err) {
-    debug('Failed to de-register')
+    debug('Failed de-registration')
   } finally {
     clearTimeout(timeout)
     deregistering = null
