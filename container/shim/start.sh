@@ -35,4 +35,4 @@ if [ -n "${IPFS_GATEWAY_ORIGIN:-}" ]; then
 fi
 
 nginx -g "daemon off;" &
-exec node bin/shim.js
+exec node src/bin/shim.js
