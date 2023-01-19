@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.3"
 services:
   saturn-node:
     image: ghcr.io/filecoin-saturn/l1-node:${SATURN_NETWORK:-test}
