@@ -130,7 +130,10 @@
     env_file: "{{ lookup('file', '../.env' ) }}"
     # ref - https://stackoverflow.com/questions/60209185/ansible-environment-variables-from-env-file
     var_regex: "([^=]*)=(['\"]?.*['\"]?)"
-    env_vars: "{{ env_file.split('\n') | select | map('regex_replace', var_regex, '{\"key\": \"\\1\", \"value\": \\2}') | map('from_json') }}"
+    env_vars: "{{ env_file.split('\n') | select | map('regex_replace', var_regex, '{\"key\": \"\\1\", \"value\": \\2}') | map('from_json') | rejectattr('value', '==', '') }}"
+    config_files: 
+    - /etc/environment
+    - "{{ homedir }}/.bashrc"
   tasks:
   - name: Log the run config
     ansible.builtin.debug:
@@ -143,19 +146,16 @@
       state: touch
       access_time: preserve
       modification_time: preserve
-    loop:
-    - /etc/environment
-    - "{{ homedir }}/.bashrc"
+    loop: "{{ config_files }}"
   - name: Set L1 container env
     become: true
     become_user: root
-    blockinfile:
-      dest: "{{ item.0 }}"
-      block: export {{ item.1.key }}={{ item.1.value }}
-      marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.1.key }}"
-    with_nested:
-    - [/etc/environment, "{{ homedir }}/.bashrc"]
-    - "{{ env_vars }}"
+    ansible.builtin.blockinfile:
+      path: "{{ item.1 }}"
+      marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.0.key }}"
+      block: |
+        export {{ item.0.key }}={{ item.0.value }}
+    loop: "{{ env_vars | product(config_files) | list }}"
   - name: Get the L1 run.sh script
     become: true
     become_user: root
