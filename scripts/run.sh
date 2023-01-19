@@ -4,6 +4,8 @@
 : "${NODE_OPERATOR_EMAIL:=dev@strn.pl}"
 : "${IPFS_GATEWAY_ORIGIN:=https://ipfs.io}"
 : "${ORCHESTRATOR_REGISTRATION:=true}"
+: "${HTTP_PORT:=80}"
+: "${HTTPS_PORT:=443}"
 
 mkdir $(pwd)/shared
 echo "$(date -u) [host] Running Saturn node dev, with volume in $(pwd)/shared"
@@ -16,5 +18,5 @@ docker run --name saturn-node -it --rm \
           -e "IPFS_GATEWAY_ORIGIN=$IPFS_GATEWAY_ORIGIN" \
           -e "ORCHESTRATOR_REGISTRATION=$ORCHESTRATOR_REGISTRATION" \
           -e "SPEEDTEST_SERVER_CONFIG=$SPEEDTEST_SERVER_CONFIG" \
-          -p 443:443 -p 80:80 \
+          -p $HTTPS_PORT:443 -p $HTTP_PORT:80 \
           saturn-node
