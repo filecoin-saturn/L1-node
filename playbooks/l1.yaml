@@ -36,9 +36,9 @@
         Debian: containerd
         Ubuntu: containerd
       docker_compose:
-        CentOS: docker-compose
-        Debian: docker-compose
-        Ubuntu: docker-compose
+        CentOS: docker-compose-plugin
+        Debian: docker-compose-plugin
+        Ubuntu: docker-compose-plugin
       docker:
         CentOS: docker-ce
         Debian: docker.io
