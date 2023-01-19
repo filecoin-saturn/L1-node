@@ -13,9 +13,6 @@ services:
         nofile:
           soft: 1000000
           hard: 1000000
-    ports:
-      - 80:80
-      - 443:443
     network_mode: host
     stop_signal: SIGTERM
     stop_grace_period: 30m
