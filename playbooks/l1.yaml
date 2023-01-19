@@ -31,6 +31,10 @@
   gather_facts: true
   vars:
     packages:
+      containerd:
+        CentOS: containerd.io
+        Debian: containerd
+        Ubuntu: containerd
       docker_compose:
         CentOS: docker-compose
         Debian: docker-compose
@@ -55,24 +59,27 @@
       enabled: true
       gpgcheck: true
       gpgkey: "https://download.docker.com/linux/centos/gpg"
-      state: present
+      state: latest
     when: ansible_distribution == "CentOS"
-  - name: Update OS package cache
+  - name: Install aptitude
     become: true
     become_user: root
-    ansible.builtin.apt:
+    ansible.builtin.package:
+      name:
+      - aptitude
       update_cache: true
     when: ansible_distribution in ["Debian", "Ubuntu"]
-  - name: Install OS packages
+  - name: Install dependencies
     become: true
     become_user: root
     ansible.builtin.package:
       name:
       - wget
+      - "{{ packages.containerd[ansible_distribution] }}"
       - "{{ packages.docker[ansible_distribution] }}"
       - "{{ packages.docker_compose[ansible_distribution] }}"
       - "{{ packages.pip[ansible_distribution] }}"
-      state: present
+      state: latest
       update_cache: true
   - name: Install python packages
     become: true
