@@ -161,7 +161,6 @@
     become_user: root
     ansible.builtin.get_url:
       url: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/run.sh
-      # url: https://raw.githubusercontent.com/AnomalRoil/L1-node/main/run.sh
       dest: "{{ homedir }}/run.sh"
       mode: +x
     register: run_script
@@ -169,8 +168,7 @@
     become: true
     become_user: root
     ansible.builtin.get_url:
-      # url: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml
-      url: https://raw.githubusercontent.com/AnomalRoil/L1-node/main/docker-compose.yml
+      url: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml
       dest: "{{ homedir }}/docker-compose.yml"
     register: docker_compose
   - name: Get update.sh
@@ -178,7 +176,6 @@
     become_user: root
     ansible.builtin.get_url:
       url: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh
-      # url: https://raw.githubusercontent.com/AnomalRoil/L1-node/main/update.sh
       dest: "{{ homedir }}/update.sh"
   - name: Ensure we have the right $SATURN_HOME/shared permissions
     become: true
