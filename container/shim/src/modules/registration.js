@@ -25,7 +25,7 @@ const debug = Debug.extend('registration')
 const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000
 
 let requirements
-export async function register (initial) {
+export async function register (initial = false) {
   debug('Initiating registration (initial=%s)', initial)
   try {
     requirements = await fetch(`${ORCHESTRATOR_URL}/requirements`, { agent: orchestratorAgent }).then(res => res.json())
