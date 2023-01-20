@@ -31,6 +31,7 @@ services:
     environment:
       WATCHTOWER_POLL_INTERVAL: 300
       WATCHTOWER_LABEL_ENABLE: "true"
+      WATCHTOWER_LIFECYCLE_HOOKS: "true"
       WATCHTOWER_SCOPE: saturn
     labels:
       com.centurylinklabs.watchtower.scope: saturn
