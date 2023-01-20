@@ -29,7 +29,6 @@ services:
       container_name: saturn-watchtower
       restart: always
       environment:
-        WATCHTOWER_POLL_INTERVAL: 3600
         WATCHTOWER_LABEL_ENABLE: "true"
         WATCHTOWER_SCOPE: saturn
       labels:
