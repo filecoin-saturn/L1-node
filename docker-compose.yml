@@ -35,4 +35,4 @@ services:
         com.centurylinklabs.watchtower.scope: saturn
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
-      command: --schedule "* /5 * * * *"
+      command: --schedule "* 5 * * * *"
