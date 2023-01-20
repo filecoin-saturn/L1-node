@@ -97,13 +97,13 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 6. Check logs with `docker logs -f saturn-node`
 7. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
 
-In most intsances speedtest does a good job of picking "close" servers but for small networks it may be incorrect.
+In most instances speedtest does a good job of picking "close" servers but for small networks it may be incorrect.
 If the speedtest value reported by speedtest seems low, you may want to configure SPEEDTEST_SERVER_CONFIG to point to a different public speedtest server. You will need to install [speedtest CLI](https://www.speedtest.net/apps/cli) in the host and fetch close servers' IDs by doing `speedtest --servers`, then setting `SPEEDTEST_SERVER_CONFIG="--server-id=XXXXX"`
 
 ## Update a node
 
 We are using a Watchtower container to update the saturn-node container.
-You don't need to do anything to update your node in theory and can see update logs with `docker logs -f saturn-watchtower`.
+Your node will be updated automatically. You can see the update logs with `docker logs -f saturn-watchtower`.
 
 ## Set up a node with [Ansible](https://docs.ansible.com/ansible/latest/index.html)
 
@@ -179,7 +179,9 @@ To gracefully stop a node and not receive a penalty, run:
 ```bash
   sudo docker stop --time 1800 saturn-node
 ```
+
 or if you are in your `$SATURN_HOME` folder with the Saturn `docker-compose.yml` file:
+
 ```bash
   sudo docker compose down
 ```
