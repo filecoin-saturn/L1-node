@@ -1,0 +1,21 @@
+name: "Static Code Analysis"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  check:
+    name: "Check linting and formatting"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+
+      - run: npm ci
+      - run: npm run check:eslint
+      - run: npm run check:prettier

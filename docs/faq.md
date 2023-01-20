@@ -13,7 +13,6 @@ Saturn is a Content Delivery Network (CDN) that serves thousands of clients. Wit
 
 We are continuously looking at the requirements and multiple factors, such as geolocation, we'll be taking into consideration soon to allow emerging markets, where 10 Gbps is not common, to join Saturn.
 
-
 ## Payouts
 
 ### When do I receive my FIL payouts?
@@ -49,10 +48,10 @@ If a node commits fraud -- e.g. falsely reporting speed tests, node stats, logs,
 1. All earnings associated with that node's wallet address are immediately and automatically forfeited and returned the network.
 2. All future earnings are halted.
 
-
 ## Penalties
 
 These are the current penalties that affect both DNS weight and earned FIL:
+
 - Slow time fo first byte (TTFB)
 - Slow uploads
 - Failing health checks

@@ -1,20 +1,22 @@
-import fetch from 'node-fetch'
-import { ORCHESTRATOR_URL } from '../config.js'
-import { orchestratorAgent } from '../utils/http.js'
-import { debug as Debug } from '../utils/logging.js'
+import fetch from "node-fetch";
+import { ORCHESTRATOR_URL } from "../config.js";
+import { orchestratorAgent } from "../utils/http.js";
+import { debug as Debug } from "../utils/logging.js";
 
-const debug = Debug.extend('local-nodes')
+const debug = Debug.extend("local-nodes");
 
-export let localNodes = []
+export let localNodes = [];
 
-export async function refreshLocalNodes () {
-  debug('Refreshing local nodes')
+export async function refreshLocalNodes() {
+  debug("Refreshing local nodes");
   try {
-    const res = await fetch(`${ORCHESTRATOR_URL}/nodes/local`, { agent: orchestratorAgent })
-    localNodes = await res.json()
-    debug(`Local nodes refreshed, ${localNodes.length} nodes found`)
+    const res = await fetch(`${ORCHESTRATOR_URL}/nodes/local`, {
+      agent: orchestratorAgent,
+    });
+    localNodes = await res.json();
+    debug(`Local nodes refreshed, ${localNodes.length} nodes found`);
   } catch (err) {
-    debug(`Failed to refresh local nodes: ${err.message}`)
+    debug(`Failed to refresh local nodes: ${err.message}`);
   }
-  setTimeout(refreshLocalNodes, 5 * 60 * 1000)
+  setTimeout(refreshLocalNodes, 5 * 60 * 1000);
 }
