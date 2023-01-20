@@ -7,102 +7,102 @@
   # a connection, which needs to check the remote host key
   gather_facts: false
   tasks:
-    - name: Check known_hosts for {{ inventory_hostname }}
-      delegate_to: localhost
-      ansible.builtin.command: ssh-keygen -F {{ inventory_hostname }}
-      register: has_entry_in_known_hosts_file
-      changed_when: false
-      ignore_errors: true
-    - name: Ignore host key for {{ inventory_hostname }} on first run
-      when: has_entry_in_known_hosts_file.rc == 1
-      set_fact:
-        ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
-    # Now that we have resolved the issue with the host key
-    # we can "gather facts" without issue
-    - name: Set authorized keys for the host
-      ansible.posix.authorized_key:
-        user: "{{ ansible_user }}"
-        state: present
-        key: "{{ lookup('file', '../authorized_keys') }}"
+  - name: Check known_hosts for {{ inventory_hostname }}
+    delegate_to: localhost
+    ansible.builtin.command: ssh-keygen -F {{ inventory_hostname }}
+    register: has_entry_in_known_hosts_file
+    changed_when: false
+    ignore_errors: true
+  - name: Ignore host key for {{ inventory_hostname }} on first run
+    when: has_entry_in_known_hosts_file.rc == 1
+    set_fact:
+      ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+  # Now that we have resolved the issue with the host key
+  # we can "gather facts" without issue
+  - name: Set authorized keys for the host
+    ansible.posix.authorized_key:
+      user: "{{ ansible_user }}"
+      state: present
+      key: "{{ lookup('file', '../authorized_keys') }}"
 
 - name: Configure playbook
   tags: config
   hosts: all
   gather_facts: true
   tasks:
-    - name: Add docker GPG key
-      become: true
-      become_user: root
-      apt_key:
-        url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
-    - name: Add docker repository (yum)
-      become: true
-      become_user: root
-      # ref - https://www.ansiblepilot.com/articles/install-docker-in-redhat-like-systems-ansible-module-rpm_key-yum_repository-and-yum/
-      ansible.builtin.yum_repository:
-        name: docker
-        description: docker repository to CentOS
-        baseurl: "https://download.docker.com/linux/centos/$releasever/$basearch/stable"
-        enabled: true
-        gpgcheck: true
-        gpgkey: "https://download.docker.com/linux/centos/gpg"
-        state: present
-      when: ansible_distribution == "CentOS"
-    - name: Add docker repository (apt)
-      become: true
-      become_user: root
-      ansible.builtin.apt_repository:
-        filename: docker
-        repo: deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
-        state: present
-      when: ansible_distribution in ["Debian", "Ubuntu"]
-    - name: Install aptitude
-      become: true
-      become_user: root
-      ansible.builtin.package:
-        name:
-          - aptitude
-        update_cache: true
-      when: ansible_distribution in ["Debian", "Ubuntu"]
-    - name: Install dependencies
-      become: true
-      become_user: root
-      ansible.builtin.package:
-        name:
-          - wget
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
-          - docker-compose-plugin
-          - python3-pip
-        state: latest
-        update_cache: true
-    - name: Install python packages
-      become: true
-      become_user: root
-      ansible.builtin.pip:
-        executable: pip3
-        name:
-          - docker>5.0.0
-        state: present
-    - name: Start docker
-      become: true
-      become_user: root
-      ansible.builtin.service:
-        name: docker
-        enabled: true
-        state: started
+  - name: Add docker GPG key
+    become: true
+    become_user: root
+    apt_key:
+      url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
+  - name: Add docker repository (yum)
+    become: true
+    become_user: root
+    # ref - https://www.ansiblepilot.com/articles/install-docker-in-redhat-like-systems-ansible-module-rpm_key-yum_repository-and-yum/
+    ansible.builtin.yum_repository:
+      name: docker
+      description: docker repository to CentOS
+      baseurl: "https://download.docker.com/linux/centos/$releasever/$basearch/stable"
+      enabled: true
+      gpgcheck: true
+      gpgkey: "https://download.docker.com/linux/centos/gpg"
+      state: present
+    when: ansible_distribution == "CentOS"
+  - name: Add docker repository (apt)
+    become: true
+    become_user: root
+    ansible.builtin.apt_repository:
+      filename: docker
+      repo: deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+      state: present
+    when: ansible_distribution in ["Debian", "Ubuntu"]
+  - name: Install aptitude
+    become: true
+    become_user: root
+    ansible.builtin.package:
+      name:
+        - aptitude
+      update_cache: true
+    when: ansible_distribution in ["Debian", "Ubuntu"]
+  - name: Install dependencies
+    become: true
+    become_user: root
+    ansible.builtin.package:
+      name:
+        - wget
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-compose-plugin
+        - python3-pip
+      state: latest
+      update_cache: true
+  - name: Install python packages
+    become: true
+    become_user: root
+    ansible.builtin.pip:
+      executable: pip3
+      name:
+        - docker>5.0.0
+      state: present
+  - name: Start docker
+    become: true
+    become_user: root
+    ansible.builtin.service:
+      name: docker
+      enabled: true
+      state: started
 
 - name: Harden playbook
   tags: harden
   hosts: all
   collections:
-    - devsec.hardening
+  - devsec.hardening
   roles:
-    - role: os_hardening
-      become: true
-    - role: ssh_hardening
-    - role: geerlingguy.firewall
+  - role: os_hardening
+    become: true
+  - role: ssh_hardening
+  - role: geerlingguy.firewall
   become: true
   vars:
     sysctl_overwrite:
@@ -112,9 +112,9 @@
     # It's only left here, as it might be necessary in particular scenarios
     ssh_permit_root_login: "{{ 'yes' if ansible_user == 'root' else 'no' }}"
     firewall_allowed_tcp_ports:
-      - "22"
-      - "80"
-      - "443"
+    - "22"
+    - "80"
+    - "443"
 
 - name: Run playbook
   tags: run
