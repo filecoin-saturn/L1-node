@@ -140,12 +140,6 @@
     ansible.builtin.get_url:
       url: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml
       dest: "{{ saturn_home }}/docker-compose.yml"
-  - name: Get update.sh
-    become: true
-    become_user: root
-    ansible.builtin.get_url:
-      url: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh
-      dest: "{{ saturn_home }}/update.sh"
   - name: Ensure we have the right $SATURN_HOME/shared permissions
     become: true
     become_user: root
