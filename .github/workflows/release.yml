@@ -2,12 +2,12 @@ name: Create and publish the Docker image
 
 on:
   push:
-    branches: ['main']
-    tags: ['*']
+    branches: ["main"]
+    tags: ["*"]
     paths:
-      - '.github/workflows/release.yml'
-      - 'container/**'
-      - 'Dockerfile'
+      - ".github/workflows/release.yml"
+      - "container/**"
+      - "Dockerfile"
 
 env:
   REGISTRY: ghcr.io
@@ -15,7 +15,7 @@ env:
 
 jobs:
   test-kubo:
-    name: 'test:kubo'
+    name: "test:kubo"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

@@ -23,27 +23,28 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 
 ### Table of Contents
 
-   * [Requirements](#requirements)
-      * [General requirements](#general-requirements)
-      * [Node hardware requirements](#node-hardware-requirements)
-   * [Set up a node](#set-up-a-node)
-   * [Set up a node with <a href="https://docs.ansible.com/ansible/latest/index.html" rel="nofollow">Ansible</a>](#set-up-a-node-with-ansible)
-   * [Stopping a node](#stopping-a-node)
-   * [Switch networks between test net and main net](#switch-networks-between-test-net-and-main-net)
-   * [Node operator guide](#node-operator-guide)
-      * [Obtaining a Filecoin wallet address](#obtaining-a-filecoin-wallet-address)
-      * [Receiving FIL payments](#receiving-fil-payments)
-      * [Node monitoring](#node-monitoring)
-   * [License](#license)
-
+- [Requirements](#requirements)
+  - [General requirements](#general-requirements)
+  - [Node hardware requirements](#node-hardware-requirements)
+- [Set up a node](#set-up-a-node)
+- [Set up a node with <a href="https://docs.ansible.com/ansible/latest/index.html" rel="nofollow">Ansible</a>](#set-up-a-node-with-ansible)
+- [Stopping a node](#stopping-a-node)
+- [Switch networks between test net and main net](#switch-networks-between-test-net-and-main-net)
+- [Node operator guide](#node-operator-guide)
+  - [Obtaining a Filecoin wallet address](#obtaining-a-filecoin-wallet-address)
+  - [Receiving FIL payments](#receiving-fil-payments)
+  - [Node monitoring](#node-monitoring)
+- [License](#license)
 
 ## Requirements
 
 ### General requirements
+
 - Filecoin wallet address
 - Email address
 
 ### Node hardware requirements
+
 - Linux server with a static public IPv4 address
 - Root access / passwordless sudo user ([How to](https://askubuntu.com/questions/147241/execute-sudo-without-password))
 - Ports 80 and 443 free and public to the internet
@@ -58,28 +59,29 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 <sup>2</sup> Bigger disk &rarr; bigger cache &rarr; greater FIL earnings
 </sub>
 
-
 ## Set up a node
 
 <sub>If you want to switch your node from test net to main net, or vice versa, see [Switch networks](#switch-networks-between-test-net-and-main-net) below.</sub>
 
 1. Install Docker. [Instructions here](https://docs.docker.com/engine/install/#server)
 2. Change directory to `$SATURN_HOME` (default: `$HOME`) to download the required files
-   
+
    ```bash
    cd ${SATURN_HOME:-$HOME}
    ```
 
 3. Download the `.env` file and set the `FIL_WALLET_ADDRESS` and `NODE_OPERATOR_EMAIL` environment variables in the `.env` file. These are mandatory.
+
    - If you want your node to join Saturn's Main network and earn FIL rewards, make sure to set `SATURN_NETWORK` to `main`.
    - If you want your node to join Saturn's Test network, which doesn't earn FIL rewards, set `SATURN_NETWORK` to `test`. Note that this is the default value!
    - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` environment variable.
 
-    ```bash
-    curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/.env -o .env
-    ```
-    You can use the text editor of your choice (e.g. `nano` or `vim` on Linux)
-    
+   ```bash
+   curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/.env -o .env
+   ```
+
+   You can use the text editor of your choice (e.g. `nano` or `vim` on Linux)
+
    (Note that the '.env' file is [not taking precedence](https://docs.docker.com/compose/envvars-precedence/) over env variables set locally.)
 
 4. Download the docker-compose file
@@ -90,9 +92,9 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 
 5. Launch it:
 
-    ```bash
-    sudo docker compose up -d
-    ```
+   ```bash
+   sudo docker compose up -d
+   ```
 
 6. Check logs with `docker logs -f saturn-node`
 7. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
@@ -108,6 +110,7 @@ Your node will be updated automatically. You can see the update logs with `docke
 ## Set up a node with [Ansible](https://docs.ansible.com/ansible/latest/index.html)
 
 From [here](https://docs.ansible.com/ansible/latest/index.html#about-ansible):
+
 > "Ansible is an IT automation tool. It can configure systems, deploy software, and orchestrate more advanced IT tasks such as continuous deployments or zero downtime rolling updates."
 
 This playbook is meant as a bare-bones approach to set up an L1. It simply automates running the steps described [above](#set-up-a-node). A consequence of this is that when run it will restart a crashed L1 node docker container.
@@ -118,9 +121,10 @@ It also presents a basic approach to server hardening which is by no means thoro
 If you're looking for a playbook which covers server hardening, monitoring and logging please check out https://github.com/hyphacoop/ansible-saturn-l1.
 
 Currently, this playbook runs on the following Linux distros:
-  - Ubuntu
-  - Debian
-  - CentOS
+
+- Ubuntu
+- Debian
+- CentOS
 
 These instructions are to be run in a machine with [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) >= 2.14 installed.
 This machine is known as your control node and it should not be the one to run your L1 node.
@@ -137,40 +141,44 @@ ansible-galaxy collection install community.docker
 
 3. For target host connectivity, ssh keys are recommended and this playbook can help you with that.
 
-    Note: Using the playbook for this is completely optional.
-    1. Make sure you have configured `ansible_user` and `ansible_ssh_pass` for your target host in your inventory file. See more [here](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#adding-variables-to-inventory).
-    1. Setup an `authorized_keys` file with your public ssh keys in the cloned repository root.
-    2. Run `ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=config,harden,run playbooks/l1.yaml`
+   Note: Using the playbook for this is completely optional.
+
+   1. Make sure you have configured `ansible_user` and `ansible_ssh_pass` for your target host in your inventory file. See more [here](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#adding-variables-to-inventory).
+   1. Setup an `authorized_keys` file with your public ssh keys in the cloned repository root.
+   1. Run `ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=config,harden,run playbooks/l1.yaml`
 
 4. Ensure your control node has ssh access to your target machine(s).
-  - Make sure to specify which hosts you want to provision in your inventory file.
 
-  ```bash
-  ansible -vvv -i <path_to_your_inventory> <host_label> -m ping
-  ```
+- Make sure to specify which hosts you want to provision in your inventory file.
+
+```bash
+ansible -vvv -i <path_to_your_inventory> <host_label> -m ping
+```
 
 5. Replace the environment varariable values where appropriate and export them.
-  - If **Main network:** Set `SATURN_NETWORK` to `main`
-  - If you are switching networks check [Switching networks](#switching-networks) and rerun step 4 and 5.
-  - You can define a host-specific `SATURN_HOME` by setting a `saturn_root` variable for that host on your inventory file. See more [here](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#adding-variables-to-inventory).
 
-  ```bash
-  export FIL_WALLET_ADDRESS=<your_fil_wallet_address>; export NODE_OPERATOR_EMAIL=<your_email>; export SATURN_NETWORK=test
-  ```
+- If **Main network:** Set `SATURN_NETWORK` to `main`
+- If you are switching networks check [Switching networks](#switching-networks) and rerun step 4 and 5.
+- You can define a host-specific `SATURN_HOME` by setting a `saturn_root` variable for that host on your inventory file. See more [here](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#adding-variables-to-inventory).
+
+```bash
+export FIL_WALLET_ADDRESS=<your_fil_wallet_address>; export NODE_OPERATOR_EMAIL=<your_email>; export SATURN_NETWORK=test
+```
 
 6. Run the playbook
-  - Feel free to use host labels to filter them or to deploy incrementally.
-  - We're skipping the bootstrap play by default, as it deals with setting authorized ssh keys on the target machine. See 2 for more info.
 
-  ```bash
-  ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=bootstrap playbooks/l1.yaml
-  ```
+- Feel free to use host labels to filter them or to deploy incrementally.
+- We're skipping the bootstrap play by default, as it deals with setting authorized ssh keys on the target machine. See 2 for more info.
 
-  - To skip the hardening step run this instead:
+```bash
+ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=bootstrap playbooks/l1.yaml
+```
 
-  ```bash
-  ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=bootstrap,harden playbooks/l1.yaml
-  ```
+- To skip the hardening step run this instead:
+
+```bash
+ansible-playbook -i <path_to_your_inventory> -l <host_label> --skip-tags=bootstrap,harden playbooks/l1.yaml
+```
 
 ## Stopping a node
 
@@ -207,19 +215,19 @@ For answers to common questions about operating a node, like about receiving you
 
 You need to own a Filecoin wallet to receive FIL payments.
 
-* [Official Filecoin wallet documentation](https://docs.filecoin.io/get-started/overview/#wallets)
+- [Official Filecoin wallet documentation](https://docs.filecoin.io/get-started/overview/#wallets)
 
-* If you have an account on a Centralized Exchange (Coinbase, Binance, etc.) that supports Filecoin,
-go through the steps to deposit Filecoin and you'll be given an wallet address. This is recommended
-if you don't want to manage your wallet's seed phrase.
+- If you have an account on a Centralized Exchange (Coinbase, Binance, etc.) that supports Filecoin,
+  go through the steps to deposit Filecoin and you'll be given an wallet address. This is recommended
+  if you don't want to manage your wallet's seed phrase.
 
-* Web wallets
-  * [Filfox wallet](https://wallet.filfox.info/)
-  * [Glif](https://wallet.glif.io/) - Supports Ledger
-* Desktop wallets
-  * [Exodus](https://www.exodus.com/)
-* Mobile wallets
-  * [FoxWallet](https://foxwallet.com/)
+- Web wallets
+  - [Filfox wallet](https://wallet.filfox.info/)
+  - [Glif](https://wallet.glif.io/) - Supports Ledger
+- Desktop wallets
+  - [Exodus](https://www.exodus.com/)
+- Mobile wallets
+  - [FoxWallet](https://foxwallet.com/)
 
 ⚠️ Please follow crypto wallet best practices. Never share your seed phrase with anyone or enter it into websites.
 The Saturn team will **never** DM you or ask you to verify/validate/upgrade your wallet. If you need assistance,
@@ -232,8 +240,8 @@ When payments are scheduled to be sent out, your Filecoin wallet will receive a 
 
 ### Node monitoring
 
-* https://dashboard.strn.network - View historical data on your bandwidth contributions, FIL earnings, and more.
-* https://orchestrator.strn.pl/stats - View detailed, real-time stats on every Saturn node.
+- https://dashboard.strn.network - View historical data on your bandwidth contributions, FIL earnings, and more.
+- https://orchestrator.strn.pl/stats - View detailed, real-time stats on every Saturn node.
 
 ## License
 

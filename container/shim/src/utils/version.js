@@ -1,1 +1,1 @@
-export const parseVersionNumber = (version) => Number(version.split('_')[0])
+export const parseVersionNumber = (version) => Number(version.split("_")[0]);

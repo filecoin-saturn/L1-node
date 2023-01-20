@@ -30,15 +30,7 @@
     "xor-distance": "^2.0.0"
   },
   "devDependencies": {
-    "@types/follow-redirects": "^1.14.1",
-    "@types/node": "^18.11.11",
-    "eslint": "^8.29.0",
-    "eslint-config-ipfs": "^3.1.2",
-    "eslint-plugin-jsdoc": "^39.6.4",
-    "eslint-plugin-promise": "^6.1.1",
-    "husky": "^8.0.2",
     "nock": "^13.2.9",
-    "nodemon": "^2.0.20",
     "test": "^3.2.1"
   },
   "eslintConfig": {

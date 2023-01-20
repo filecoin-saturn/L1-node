@@ -16,16 +16,16 @@ zdj7WhNQsX98KRehBoyoKBQHiqhPRvgcaKQTECPPGiih7j2HZ
 
 3. Note that there are two [CID formats](https://docs.ipfs.tech/concepts/content-addressing/#cid-versions): [v0](https://docs.ipfs.tech/concepts/content-addressing/#version-0-v0) and [v1](https://docs.ipfs.tech/concepts/content-addressing/#version-1-v1). So, to be rigorous, you likely want to block both the CID v0 and CID v1 formats, as both formats represent to the same content. Luckily, it's trivial to derive one format from the other with the [js-cid](https://github.com/multiformats/js-cid) package:
 
-    ```javascript
-    // npm i --save cids
-    const CID = require('cids')
+   ```javascript
+   // npm i --save cids
+   const CID = require("cids");
 
-    const cl = console.log
+   const cl = console.log;
 
-    const cid = new CID('bafybeig6xv5nwphfmvcnektpnojts33jqcuam7bmye2pb54adnrtccjlsu')
-    cl('v0', cid.toV0())
-    cl('v1', cid.toV1())
-    ```
+   const cid = new CID("bafybeig6xv5nwphfmvcnektpnojts33jqcuam7bmye2pb54adnrtccjlsu");
+   cl("v0", cid.toV0());
+   cl("v1", cid.toV1());
+   ```
 
 4. Then, with the `cids_to_block` file populated with CIDs, one per line, in the current directory, run:
 

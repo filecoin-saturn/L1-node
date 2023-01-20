@@ -1,0 +1,22 @@
+{
+  "devDependencies": {
+    "eslint": "^8.32.0",
+    "eslint-config-ipfs": "^3.1.3",
+    "eslint-config-prettier": "^8.6.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.1.0",
+    "prettier": "^2.8.3"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --config .eslintrc.json --cache --fix",
+      "prettier --write"
+    ],
+    "*.{html,json,css,md,yaml}": "prettier --write"
+  },
+  "scripts": {
+    "prepare": "husky install",
+    "check:prettier": "prettier --check .",
+    "check:eslint": "eslint --config .eslintrc.json --quiet ."
+  }
+}
