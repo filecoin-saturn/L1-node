@@ -29,26 +29,13 @@
   tags: config
   hosts: all
   gather_facts: true
-  vars:
-    packages:
-      containerd:
-        CentOS: containerd.io
-        Debian: containerd
-        Ubuntu: containerd
-      docker_compose:
-        CentOS: docker-compose-plugin
-        Debian: docker-compose-plugin
-        Ubuntu: docker-compose-plugin
-      docker:
-        CentOS: docker-ce
-        Debian: docker.io
-        Ubuntu: docker.io
-      pip:
-        CentOS: python3-pip.noarch
-        Debian: python3-pip
-        Ubuntu: python3-pip
   tasks:
-  - name: Add docker repository
+  - name: Add docker GPG key
+    become: true
+    become_user: root
+    apt_key:
+      url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
+  - name: Add docker repository (yum)
     become: true
     become_user: root
     # ref - https://www.ansiblepilot.com/articles/install-docker-in-redhat-like-systems-ansible-module-rpm_key-yum_repository-and-yum/
@@ -59,8 +46,16 @@
       enabled: true
       gpgcheck: true
       gpgkey: "https://download.docker.com/linux/centos/gpg"
-      state: latest
+      state: present
     when: ansible_distribution == "CentOS"
+  - name: Add docker repository (apt)
+    become: true
+    become_user: root
+    ansible.builtin.apt_repository:
+      filename: docker
+      repo: deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+      state: present
+    when: ansible_distribution in ["Debian", "Ubuntu"]
   - name: Install aptitude
     become: true
     become_user: root
@@ -75,10 +70,11 @@
     ansible.builtin.package:
       name:
       - wget
-      - "{{ packages.containerd[ansible_distribution] }}"
-      - "{{ packages.docker[ansible_distribution] }}"
-      - "{{ packages.docker_compose[ansible_distribution] }}"
-      - "{{ packages.pip[ansible_distribution] }}"
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+      - python3-pip
       state: latest
       update_cache: true
   - name: Install python packages
