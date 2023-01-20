@@ -19,8 +19,8 @@ services:
     labels:
       com.centurylinklabs.watchtower.scope: saturn
       com.centurylinklabs.watchtower.enable: "true"
-      com.centurylinklabs.watchtower.lifecycle.pre-update-timeout: 30
-      com.centurylinklabs.watchtower.lifecycle.post-update-timeout: 30
+      com.centurylinklabs.watchtower.lifecycle.pre-update: "sleep $((RANDOM % 3600))"
+      com.centurylinklabs.watchtower.lifecycle.pre-update-timeout: 3600
     volumes:
       - ${SATURN_HOME:-$HOME}/shared:/usr/src/app/shared
 
