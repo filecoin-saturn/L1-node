@@ -124,55 +124,28 @@
     homedir: "{{ ansible_env.HOME }}"
     saturn_home: "{{ saturn_root if saturn_root is defined else homedir }}"
     env_file: "{{ lookup('file', '../.env' ) }}"
-    # ref - https://stackoverflow.com/questions/60209185/ansible-environment-variables-from-env-file
-    var_regex: "([^=]*)=(['\"]?.*['\"]?)"
-    env_vars: "{{ env_file.split('\n') | select | map('regex_replace', var_regex, '{\"key\": \"\\1\", \"value\": \\2}') | map('from_json') | rejectattr('value', '==', '') }}"
-    config_files: 
-    - /etc/environment
-    - "{{ homedir }}/.bashrc"
   tasks:
-  - name: Log the run config
-    ansible.builtin.debug:
-      var: env_vars
-  - name: Ensure we have the expected config files
-    become: true
-    become_user: root
-    ansible.builtin.file:
-      path: "{{ item }}"
-      state: touch
-      access_time: preserve
-      modification_time: preserve
-    loop: "{{ config_files }}"
-  - name: Set L1 container env
-    become: true
-    become_user: root
+  - name: Copy the .env file
+    ansible.builtin.copy:
+      src: ../.env
+      dest: "{{ saturn_home }}"
+  - name: Patch SATURN_HOME
     ansible.builtin.blockinfile:
-      path: "{{ item.1 }}"
-      marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.0.key }}"
-      block: |
-        export {{ item.0.key }}={{ item.0.value }}
-    loop: "{{ env_vars | product(config_files) | list }}"
-  - name: Get the L1 run.sh script
-    become: true
-    become_user: root
-    ansible.builtin.get_url:
-      url: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/run.sh
-      dest: "{{ homedir }}/run.sh"
-      mode: +x
-    register: run_script
+      path: "{{ saturn_home }}/.env"
+      block: SATURN_HOME="{{ saturn_home }}"
+    when: saturn_root is defined 
   - name: Get docker-compose.yml
     become: true
     become_user: root
     ansible.builtin.get_url:
       url: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml
-      dest: "{{ homedir }}/docker-compose.yml"
-    register: docker_compose
+      dest: "{{ saturn_home }}/docker-compose.yml"
   - name: Get update.sh
     become: true
     become_user: root
     ansible.builtin.get_url:
       url: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/update.sh
-      dest: "{{ homedir }}/update.sh"
+      dest: "{{ saturn_home }}/update.sh"
   - name: Ensure we have the right $SATURN_HOME/shared permissions
     become: true
     become_user: root
@@ -180,15 +153,8 @@
       path: "{{ saturn_home }}/shared"
       mode: '0755'
       state: directory
-  - name: Check the L1 container
+  - name: Run docker compose
     become: true
     become_user: root
-    community.docker.docker_container_info:
-      name: saturn-node
-    register: saturn_container
-  - name: Run the L1 container
-    become: true
-    become_user: root
-    ansible.builtin.command: "{{ homedir }}/run.sh"
-    environment: "{{ env_vars | items2dict }}"
-    when: run_script.changed or docker_compose.changed or not saturn_container.exists
+    ansible.builtin.shell: 
+      cmd: docker compose up -d
