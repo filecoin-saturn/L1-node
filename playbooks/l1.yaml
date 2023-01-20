@@ -125,30 +125,31 @@
     saturn_home: "{{ saturn_root if saturn_root is defined else homedir }}"
     env_file: "{{ lookup('file', '../.env' ) }}"
   tasks:
-    - name: Copy the .env file
-      ansible.builtin.copy:
-        src: ../.env
-        dest: "{{ saturn_home }}"
-    - name: Patch SATURN_HOME
-      ansible.builtin.blockinfile:
-        path: "{{ saturn_home }}/.env"
-        block: SATURN_HOME="{{ saturn_home }}"
-      when: saturn_root is defined
-    - name: Get docker-compose.yml
-      become: true
-      become_user: root
-      ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml
-        dest: "{{ saturn_home }}/docker-compose.yml"
-    - name: Ensure we have the right $SATURN_HOME/shared permissions
-      become: true
-      become_user: root
-      ansible.builtin.file:
-        path: "{{ saturn_home }}/shared"
-        mode: "0755"
-        state: directory
-    - name: Run docker compose
-      become: true
-      become_user: root
-      ansible.builtin.shell:
-        cmd: docker compose up -d
+  - name: Copy the .env file
+    ansible.builtin.copy:
+      src: ../.env
+      dest: "{{ saturn_home }}"
+  - name: Patch SATURN_HOME
+    ansible.builtin.blockinfile:
+      path: "{{ saturn_home }}/.env"
+      block: SATURN_HOME="{{ saturn_home }}"
+    when: saturn_root is defined
+  - name: Get docker-compose.yml
+    become: true
+    become_user: root
+    ansible.builtin.get_url:
+      url: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml
+      dest: "{{ saturn_home }}/docker-compose.yml"
+  - name: Ensure we have the right $SATURN_HOME/shared permissions
+    become: true
+    become_user: root
+    ansible.builtin.file:
+      path: "{{ saturn_home }}/shared"
+      mode: "0755"
+      state: directory
+  - name: Run docker compose
+    become: true
+    become_user: root
+    ansible.builtin.command: docker compose up -d
+    args:
+       chdir: "{{ saturn_home }}"
