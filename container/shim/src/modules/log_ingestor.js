@@ -52,7 +52,7 @@ let parseLogsTimer;
 let submitRetrievalsTimer;
 
 export async function initLogIngestor() {
-  if (fs.existsSync("/var/log/nginx/node-access.log")) {
+  if (fs.existsSync("/usr/src/app/shared/nginx_log/node-access.log")) {
     debug("Reading nginx log file");
     fh = await openFileHandle();
 
@@ -161,7 +161,7 @@ async function parseLogs() {
 }
 
 async function openFileHandle() {
-  return await fsPromises.open("/var/log/nginx/node-access.log", "r+");
+  return await fsPromises.open("/usr/src/app/shared/nginx_log/node-access.log", "r+");
 }
 
 export async function submitRetrievals() {

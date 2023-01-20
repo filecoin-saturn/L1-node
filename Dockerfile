@@ -13,8 +13,8 @@ ARG CONFIG="--prefix=/etc/nginx \
  --sbin-path=/usr/sbin/nginx \
  --modules-path=/usr/lib/nginx/modules \
  --conf-path=/etc/nginx/nginx.conf \
- --error-log-path=/var/log/nginx/error.log \
- --http-log-path=/var/log/nginx/node-access.log \
+ --error-log-path=/usr/src/app/shared/nginx_log/error.log \
+ --http-log-path=/usr/src/app/shared/nginx_log/node-access.log \
  --pid-path=/var/run/nginx.pid \
  --lock-path=/var/run/nginx.lock \
  --user=nginx --group=nginx \
