@@ -38,7 +38,7 @@ else
   fi
 
   echo "Testing compatibility with our Docker Compose workflow"
-  if ! sudo docker compose version;
+  if ! sudo docker-compose version;
   then
       echo "docker compose might not be supported by your setup, or you are still using an old docker-compose version";
       exit 1
@@ -51,16 +51,16 @@ else
   sleep "$random_sleep"
 
   echo "Pulling Saturn $SATURN_NETWORK network L1 node updates."
-  sudo -E docker compose -f "$compose_file" pull
+  sudo -E docker-compose -f "$compose_file" pull
 
   echo "Draining $SATURN_NETWORK network L1 node... "
   sudo docker stop --time 900 saturn-node || true
 
   echo "Restarting with docker compose now..."
   sudo docker rm -f saturn-node || true
-  sudo -E docker compose -f "$compose_file" pull
+  sudo -E docker-compose -f "$compose_file" pull
   
-  if ! sudo -E docker compose -f "$compose_file" up -d;
+  if ! sudo -E docker-compose -f "$compose_file" up -d;
   then
       echo "Error while launching the docker compose setup. Please try running 'docker compose up -d' yourself or open an issue on Github."
       exit 1
