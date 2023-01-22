@@ -28,7 +28,7 @@ else
     exit 1
   fi
 
-  if [ ! -f "$env_file" ]];
+  if [ ! -f "$env_file" ];
   then
     echo FIL_WALLET_ADDRESS=\"$FIL_WALLET_ADDRESS\" > $env_file
     echo NODE_OPERATOR_EMAIL=\"$NODE_OPERATOR_EMAIL\" >> $env_file
