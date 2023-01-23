@@ -76,10 +76,10 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 
 3. Download the `.env` file
 
-   Note: the '.env' file [does not take precedence](https://docs.docker.com/compose/envvars-precedence/) over env variables set locally.
+   Note: the `.env` file [does not take precedence](https://docs.docker.com/compose/envvars-precedence/) over env variables set locally.
 
-   - Set the `FIL_WALLET_ADDRESS` and `NODE_OPERATOR_EMAIL` environment variables in the `.env` file. These are mandatory.
-   - Set `SATURN_NETWORK`
+   - Set the mandatory `FIL_WALLET_ADDRESS` and `NODE_OPERATOR_EMAIL` environment variables in the `.env` file.
+   - Set `SATURN_NETWORK` environment variable in the `env` file.
      - To join Saturn's Main network and earn FIL rewards, make sure to set `SATURN_NETWORK` to `main`.
      - To join Saturn's Test network, which doesn't earn FIL rewards, set `SATURN_NETWORK` to `test`. Note that this is the default value!
    - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` environment variable.
