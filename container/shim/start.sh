@@ -18,6 +18,7 @@ echo "$(date -u) [container] Disk: $(df -h /usr/src/app/shared | awk '(NR>1)')"
 
 # Create if not exists
 mkdir -p /usr/src/app/shared/ssl
+mkdir -p /usr/src/app/shared/nginx
 mkdir -p /usr/src/app/shared/nginx_log
 
 L1_CONF_FILE=/etc/nginx/conf.d/L1.conf
