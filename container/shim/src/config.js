@@ -69,11 +69,10 @@ function pVersion(version) {
 async function readOrCreateNodeId() {
   let nodeId;
   try {
-    nodeId = await readFile(NODE_ID_FILE_PATH, "utf8");
+    nodeId = (await readFile(NODE_ID_FILE_PATH, "utf8")).trim();
   } catch (err) {
     nodeId = createNodeId();
   }
-  nodeId = nodeId.trim();
   writeFile(NODE_ID_NGINX_CONF, `set $node_id "${nodeId}";`).catch(console.error); // eslint-disable-line no-console
   return nodeId;
 }
