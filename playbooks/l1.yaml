@@ -133,7 +133,6 @@
       ansible.builtin.blockinfile:
         path: "{{ saturn_home }}/.env"
         block: SATURN_HOME="{{ saturn_home }}"
-      when: saturn_root is defined
     - name: Get docker-compose.yml
       become: true
       become_user: root
@@ -150,5 +149,8 @@
     - name: Run docker compose
       become: true
       become_user: root
-      ansible.builtin.shell:
-        cmd: docker compose up -d
+      ansible.builtin.command: docker compose up -d
+      # ansible.builtin.command: docker compose restart watchtower
+      # ansible.builtin.shell: (docker rm -f saturn-node || true) && (docker rm -f saturn-watchtower) && docker compose up -d
+      args:
+        chdir: "{{ saturn_home }}"
