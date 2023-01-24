@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { readFile, writeFile } from "fs/promises";
 
 const NODE_ID_FILE_PATH = "./shared/nodeId.txt";
-const NODE_ID_NGINX_CONF = "./shared/nginx/node_id.conf";
+const NODE_ID_NGINX_CONF = "./shared/nginx_conf/node_id.conf";
 
 export const DEV_VERSION = "9999_dev";
 export const NODE_VERSION = pVersion(process.env.NODE_VERSION || DEV_VERSION);
