@@ -68,8 +68,9 @@ Please make sure your outgoing IP matches the incoming IP and ports 80 and 443 a
 ### My Node version is old and won't be registered
 
 If your node falls under the minimum version, it will be kicked out and won't be registered on future attempts.
-To avoid this, make sure to set up the auto-update [script](https://github.com/filecoin-saturn/L1-node/blob/main/update.sh)
-as per the instructions or a tool like [Watchtower](https://containrrr.dev/watchtower/).
+To avoid this, make sure you're running [Watchtower](https://containrrr.dev/watchtower/) as [per the instructions](https://github.com/filecoin-saturn/L1-node#update-a-node).
+
+If you've fallen too far behind and can't register, make sure to run `docker pull ghcr.io/filecoin-saturn/l1-node:main`.
 
 **You should update your node to the latest version within 24 hours of the last release.**
 
