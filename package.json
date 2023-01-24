@@ -10,7 +10,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "eslint --config .eslintrc.json --cache --fix",
+      "eslint --cache --fix",
       "prettier --write"
     ],
     "*.{html,json,css,md,yaml}": "prettier --write"
@@ -18,6 +18,6 @@
   "scripts": {
     "prepare": "husky install",
     "check:prettier": "prettier --check .",
-    "check:eslint": "eslint --config .eslintrc.json --quiet ."
+    "check:eslint": "eslint --quiet ."
   }
 }
