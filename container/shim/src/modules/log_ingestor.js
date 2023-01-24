@@ -1,8 +1,8 @@
-import fs from "node:fs";
-import fsPromises from "node:fs/promises";
+import fs from "node:fs/promises";
 import fetch from "node-fetch";
 import prettyBytes from "pretty-bytes";
 import logfmt from "logfmt";
+import readlines from "../utils/readlines.js";
 
 import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, nodeId, nodeToken, TESTING_CID } from "../config.js";
 import { debug as Debug } from "../utils/logging.js";
@@ -41,155 +41,150 @@ const NGINX_LOG_KEYS_MAP = {
     return isNaN(parsed) ? values.urt : parsed;
   },
 };
-const IPFS_PREFIX = "/ipfs/";
-const IPNS_PREFIX = "/ipns/";
 
-const ONE_GIGABYTE = 1073741823;
+const LOG_FILE = "/usr/src/app/shared/nginx_log/node-access.log";
 
-let pending = [];
-let fh, hasRead;
-let parseLogsTimer;
-let submitRetrievalsTimer;
+/**
+ * Check if a file is accessible with the given flags.
+ *
+ * @param {string} filename
+ * @param {number} flags - use fs.constants.R_OK, fs.constants.W_OK, etc.
+ * @returns {Promise<boolean>} true if the file is accessible, false otherwise
+ */
+async function isFileAccessible(filename, flags = fs.constants.R_OK) {
+  try {
+    await fs.access(filename, flags);
 
-export async function initLogIngestor() {
-  if (fs.existsSync("/usr/src/app/shared/nginx_log/node-access.log")) {
-    debug("Reading nginx log file");
-    fh = await openFileHandle();
+    return true;
+  } catch (error) {
+    debug(`Cannot access ${filename} (${flags}): ${error.message}`);
 
-    parseLogs();
-
-    submitRetrievals();
+    return false;
   }
 }
 
-async function parseLogs() {
-  clearTimeout(parseLogsTimer);
-  const stat = await fh.stat();
+function parseSingleLine(line) {
+  // parse the line into an object
+  const parsed = logfmt.parse(line);
 
-  if (stat.size >= ONE_GIGABYTE) {
-    // Got to big we can't read it into single string
-    // TODO: stream read it
-    await fh.truncate();
-  }
+  // use mapped keys and getters to extract the values we want
+  const vars = Object.entries(NGINX_LOG_KEYS_MAP).reduce((acc, [key, getter]) => {
+    acc[key] = getter(parsed);
+    return acc;
+  }, {});
 
-  const read = await fh.readFile();
+  const isIPFS = vars.url.pathname.startsWith("/ipfs/");
+  const isIPNS = vars.url.pathname.startsWith("/ipns/");
 
-  let valid = 0;
-  let hits = 0;
-  if (read.length > 0) {
-    hasRead = true;
-    const lines = read.toString().trim().split("\n");
+  // only submit logs for IPFS/IPNS requests
+  if (!isIPFS && !isIPNS) return null;
 
-    for (const line of lines) {
-      const parsed = logfmt.parse(line);
-      const vars = Object.entries(NGINX_LOG_KEYS_MAP).reduce((acc, [key, getter]) => {
-        acc[key] = getter(parsed);
-        return acc;
-      }, {});
-      let urlObj;
+  const cid = vars.url.pathname.split("/")[2];
 
-      try {
-        urlObj = new URL(vars.url);
-      } catch (err) {
-        debug(`Invalid URL: ${vars.url}`);
-        continue;
+  // do not submit logs for testing CID
+  if (cid === TESTING_CID) return null;
+
+  return {
+    cacheHit: vars.cacheHit,
+    clientAddress: vars.clientAddress,
+    localTime: vars.localTime,
+    numBytesSent: vars.numBytesSent,
+    range: vars.range,
+    referrer: vars.referrer,
+    requestDuration: vars.requestDuration,
+    requestId: vars.requestId,
+    userAgent: vars.userAgent,
+    httpStatusCode: vars.status,
+    // If/when "httpProtocol" eventually contains HTTP/3.0, then
+    // the "http3" key can be removed.
+    httpProtocol: vars.http3 || vars.httpProtocol,
+    url: vars.url,
+  };
+}
+
+/**
+ * Submits parsed bandwidth logs to the orchestrator.
+ *
+ * @param {Array} logs - array of parsed bandwidth logs
+ * @returns {Promise<void>} - resolves once the logs are successfully submitted to the orchestrator
+ */
+async function submitLogs(logs) {
+  // cache hit rate for this batch of retrievals
+  const cacheHits = logs.filter(({ cacheHit }) => cacheHit).length;
+  const cacheHitRate = cacheHits / logs.length;
+  const cacheHitRatePercent = Math.round(cacheHitRate * 100);
+
+  // total bytes sent to clients for this batch or retrievals
+  const totalBytesSent = logs.reduce((acc, { numBytesSent }) => acc + numBytesSent, 0);
+  const totalBytesSentPretty = prettyBytes(totalBytesSent);
+
+  debug(`Submitting ${logs.length} retrievals (${totalBytesSentPretty} with cache rate of ${cacheHitRatePercent}%)`);
+
+  const submitTime = Date.now();
+
+  await fetch(LOG_INGESTOR_URL, {
+    method: "POST",
+    body: JSON.stringify({ nodeId, filAddress: FIL_WALLET_ADDRESS, bandwidthLogs: logs }),
+    headers: { Authentication: nodeToken, "Content-Type": "application/json" },
+  });
+
+  debug(`Retrievals submitted succesfully to wallet ${FIL_WALLET_ADDRESS} in ${Date.now() - submitTime}ms`);
+}
+
+/**
+ * Runs the log ingestor function responsible for reading the nginx log file and submitting the logs to the orchestrator.
+ * It starts immediately once this function is called, calls itself recursively until the log file is read in full, and
+ * then sets a timeout to call itself again after at most 1 minute from the last time it was called. It keeps track of
+ * the last line read in the log file and only reads the lines after that line.
+ * This function can be called manually to force a log ingestor submission (e.g. when node is shutting down).
+ *
+ * @returns {Promise<void>} - resolves once the log ingestor finished current run and is scheduled to run again.
+ */
+export default async function startLogIngestor() {
+  // clear timeout timer if it exists (this is to prevent multiple timers from being set)
+  if (startLogIngestor.timeout) clearTimeout(startLogIngestor.timeout);
+
+  const startTime = Date.now();
+
+  if (await isFileAccessible(LOG_FILE)) {
+    // stream the log file and parse the lines
+    const read = await readlines(LOG_FILE);
+
+    if (read.lines.length) {
+      const logs = [];
+
+      for (let i = 0; i < read.lines.length; i++) {
+        // skip empty lines
+        if (read.lines[i] === "") continue;
+
+        // parse the line into an object
+        const parsed = parseSingleLine(read.lines[i]);
+
+        // add parsed log line if it is valid (only valid retrieval)
+        if (parsed) logs.push(parsed);
       }
 
-      const isIPFS = urlObj.pathname.startsWith(IPFS_PREFIX);
-      const isIPNS = urlObj.pathname.startsWith(IPNS_PREFIX);
+      // submit the logs to the log ingestor
+      if (logs.length) {
+        try {
+          // submit parsed logs to the orchestrator
+          await submitLogs(logs);
 
-      if (!isIPFS && !isIPNS) {
-        continue;
+          // mark the lines as read once they have been submitted successfully
+          // which persists new read bytes offset to the disk so it will not be read again
+          await read.confirmed();
+        } catch (error) {
+          debug(`Failed to submit ${logs.length} retrievals: ${error.name} ${error.message}`);
+        }
+      } else {
+        debug(`No retrievals to submit since ${new Date(startTime).toISOString()}`);
       }
-
-      const {
-        clientAddress,
-        numBytesSent,
-        requestId,
-        localTime,
-        status,
-        requestDuration,
-        range,
-        cacheHit,
-        referrer,
-        userAgent,
-        http3,
-        httpProtocol,
-        url,
-      } = vars;
-
-      const cid = urlObj.pathname.split("/")[2];
-
-      if (cid === TESTING_CID) continue;
-
-      pending.push({
-        cacheHit,
-        clientAddress,
-        localTime,
-        numBytesSent,
-        range,
-        referrer,
-        requestDuration,
-        requestId,
-        userAgent,
-        httpStatusCode: status,
-        // If/when "httpProtocol" eventually contains HTTP/3.0, then
-        // the "http3" key can be removed.
-        httpProtocol: http3 || httpProtocol,
-        url,
-      });
-
-      valid++;
-      if (cacheHit) hits++;
     }
-    if (valid > 0) {
-      debug(
-        `Parsed ${valid} valid retrievals in ${prettyBytes(read.length)} with hit rate of ${Number(
-          ((hits / valid) * 100).toFixed(2)
-        )}%`
-      );
-    }
-  } else {
-    if (hasRead) {
-      await fh.truncate();
-      await fh.close();
-      hasRead = false;
-      fh = await openFileHandle();
-    }
+
+    // run this function again immediately if there were more lines to read (read.eof is false)
+    if (read.eof === false) return startLogIngestor();
   }
-  parseLogsTimer = setTimeout(parseLogs, Math.max(10_000 - valid, 1000));
-}
 
-async function openFileHandle() {
-  return await fsPromises.open("/usr/src/app/shared/nginx_log/node-access.log", "r+");
-}
-
-export async function submitRetrievals() {
-  clearTimeout(submitRetrievalsTimer);
-  const length = pending.length;
-  if (length > 0) {
-    const body = {
-      nodeId,
-      filAddress: FIL_WALLET_ADDRESS,
-      bandwidthLogs: pending,
-    };
-    pending = [];
-    try {
-      debug(`Submitting ${length} pending retrievals`);
-      const startTime = Date.now();
-      await fetch(LOG_INGESTOR_URL, {
-        method: "POST",
-        body: JSON.stringify(body),
-        headers: {
-          Authentication: nodeToken,
-          "Content-Type": "application/json",
-        },
-      });
-      debug(`Submitted ${length} retrievals to wallet ${FIL_WALLET_ADDRESS} in ${Date.now() - startTime}ms`);
-    } catch (err) {
-      debug(`Failed to submit pending retrievals ${err.name} ${err.message}`);
-      pending = body.bandwidthLogs.concat(pending);
-    }
-  }
-  submitRetrievalsTimer = setTimeout(submitRetrievals, Math.max(60_000 - length, 10_000));
+  // ... otherwise, wait up to 60 seconds from the start of this function before running again
+  startLogIngestor.timeout = setTimeout(startLogIngestor, Math.max(0, 60_000 - (Date.now() - startTime)));
 }

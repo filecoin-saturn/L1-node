@@ -14,7 +14,7 @@ import {
 } from "../config.js";
 import { trapServer } from "../utils/trap.js";
 import { debug } from "../utils/logging.js";
-import { submitRetrievals, initLogIngestor } from "../modules/log_ingestor.js";
+import startLogIngestor from "../modules/log_ingestor.js";
 import { refreshLocalNodes } from "../modules/local_nodes.js";
 
 debug("Saturn L1 Node");
@@ -43,8 +43,9 @@ setTimeout(async function () {
     });
   }
 
-  // Start log ingestor
-  await initLogIngestor();
+  // run log ingestor process in background (starts immediately and keeps running periodically)
+  startLogIngestor();
+
   refreshLocalNodes();
 }, 500);
 
@@ -59,7 +60,7 @@ trapServer(server);
 
 async function shutdown() {
   try {
-    await Promise.allSettled([submitRetrievals(), ORCHESTRATOR_REGISTRATION ? deregister() : Promise.resolve()]);
+    await Promise.allSettled([startLogIngestor(), ORCHESTRATOR_REGISTRATION ? deregister() : Promise.resolve()]);
   } catch (err) {
     debug(`Failed during shutdown: ${err.name} ${err.message}`);
   } finally {
