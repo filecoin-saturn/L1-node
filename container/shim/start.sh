@@ -18,6 +18,7 @@ echo "$(date -u) [container] Disk: $(df -h /usr/src/app/shared | awk '(NR>1)')"
 
 # Create if not exists
 mkdir -p /usr/src/app/shared/ssl
+mkdir -p /usr/src/app/shared/nginx_conf
 mkdir -p /usr/src/app/shared/nginx_log
 
 L1_CONF_FILE=/etc/nginx/conf.d/L1.conf
@@ -29,6 +30,11 @@ if [ -f "/usr/src/app/shared/ssl/node.crt" ]; then
 else
   echo "$(date -u) [container] SSL config unavailable, starting non-TLS nginx and node shim";
   cp /etc/nginx/confs/non_tls_proxy.conf $L1_CONF_FILE;
+fi
+
+# If we have a node id, use it, else generate one on shim execution
+if [ -f "/usr/src/app/shared/nodeId.txt" ]; then
+  echo "set \$node_id" "\"$(cat /usr/src/app/shared/nodeId.txt)\";" > /usr/src/app/shared/nginx_conf/node_id.conf;
 fi
 
 if [ -n "${IPFS_GATEWAY_ORIGIN:-}" ]; then

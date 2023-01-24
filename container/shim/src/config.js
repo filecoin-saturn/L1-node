@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { readFile, writeFile } from "fs/promises";
 
 const NODE_ID_FILE_PATH = "./shared/nodeId.txt";
+const NODE_ID_NGINX_CONF = "./shared/nginx_conf/node_id.conf";
 
 export const DEV_VERSION = "9999_dev";
 export const NODE_VERSION = pVersion(process.env.NODE_VERSION || DEV_VERSION);
@@ -66,12 +67,14 @@ function pVersion(version) {
 }
 
 async function readOrCreateNodeId() {
+  let nodeId;
   try {
-    const nodeId = await readFile(NODE_ID_FILE_PATH, "utf8");
-    return nodeId.trim();
+    nodeId = (await readFile(NODE_ID_FILE_PATH, "utf8")).trim();
   } catch (err) {
-    return createNodeId();
+    nodeId = createNodeId();
   }
+  writeFile(NODE_ID_NGINX_CONF, `set $node_id "${nodeId}";`).catch(console.error); // eslint-disable-line no-console
+  return nodeId;
 }
 
 function createNodeId() {

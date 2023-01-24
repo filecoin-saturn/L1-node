@@ -110,14 +110,16 @@ RUN npm ci --production --ignore-scripts
 # copy the generated modules and all other files to the container
 COPY container/shim ./
 COPY container/nginx /etc/nginx/
-# Load CIDs ban lists
-RUN rm /etc/nginx/conf.d/default.conf \
-  && curl -s https://badbits.dwebops.pub/denylist.json | jq '.[].anchor' | xargs -I{} echo 'location ~ "{}" { return 410; }' >> /etc/nginx/denylist.conf
 
 ARG RUN_NUMBER="9999"
 ARG GIT_COMMIT_HASH="dev"
 ARG SATURN_NETWORK="local"
 ARG ORCHESTRATOR_URL
+
+# Load CIDs ban lists
+RUN if [[ "$SATURN_NETWORK" != "local" ]]; then rm /etc/nginx/conf.d/default.conf \
+  && curl -s https://badbits.dwebops.pub/denylist.json | jq '.[].anchor' | xargs -I{} echo 'location ~ "{}" { return 410; }' >> /etc/nginx/denylist.conf; \
+    else echo "Local"; fi
 
 # need nginx to find the openssl libs
 ENV LD_LIBRARY_PATH=/usr/lib/nginx/modules

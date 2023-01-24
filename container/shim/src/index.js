@@ -100,7 +100,6 @@ const handleCID = asyncHandler(async (req, res) => {
   res.set({
     "Content-Type": mimeTypes.lookup(req.path) || "application/octet-stream",
     "Saturn-Node-Id": nodeId,
-    "Saturn-Node-Version": NODE_VERSION,
   });
 
   if (req.headers.range) {
@@ -117,6 +116,7 @@ const handleCID = asyncHandler(async (req, res) => {
 
   // Testing CID
   if (cid === TESTING_CID) {
+    res.set("Saturn-Node-Version", NODE_VERSION);
     return res.send(testCAR);
   }
 
