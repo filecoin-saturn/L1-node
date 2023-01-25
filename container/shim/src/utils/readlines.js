@@ -86,13 +86,6 @@ export default async function readlines(filename, offsetBytes = null, readSize =
   const file = await open(filename, "r");
   const stream = file.createReadStream({ encoding: "utf8", start: offsetBytes });
 
-  // setting read size to less than the stream's readableHighWaterMark will cause the stream to end
-  // after every chunk read (chunk size set in readableHighWaterMark) which will be highly inefficient
-  // so we throw an error if the readSize is less than the readableHighWaterMark
-  if (readSize < stream.readableHighWaterMark) {
-    throw new Error(`readSize must be greater than readableHighWaterMark (${stream.readableHighWaterMark} bytes)`);
-  }
-
   return new Promise((resolve, reject) => {
     const lines = [];
     let adjustBytes = 0;
