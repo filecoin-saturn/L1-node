@@ -6,8 +6,8 @@ on:
   pull_request:
 
 jobs:
-  check:
-    name: "Check linting and formatting"
+  check-javascript:
+    name: "Check javascript linting and formatting"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -19,3 +19,12 @@ jobs:
       - run: npm ci
       - run: npm run check:eslint
       - run: npm run check:prettier
+
+  check-dockerfile:
+    name: "Check Dockerfile"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hadolint/hadolint-action@v3.0.0
+        with:
+          dockerfile: Dockerfile
