@@ -47,7 +47,7 @@ ARG CONFIG="--prefix=/etc/nginx \
 
 # Install dependencies
 # we need an up-to-date cargo
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install --no-install-recommends -y \
   dpkg-dev \
   build-essential \
   mercurial \
