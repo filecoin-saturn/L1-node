@@ -9,7 +9,11 @@ if [ -n "$host_resolvers" ]; then
   sed -i'' -e "s/resolver\s.*\s/resolver $host_resolvers/" /etc/nginx/confs/tls_proxy.conf
 fi
 
-echo "$(date -u) [container] booting"
+if [ ! -f "/usr/src/app/shared/nodeId.txt" ]; then
+  cat /proc/sys/kernel/random/uuid > /usr/src/app/shared/nodeId.txt
+fi
+
+echo "$(date -u) [container] Booting L1 $(cat /usr/src/app/shared/nodeId.txt)"
 echo "$(date -u) [container] CPUs: $(nproc --all)"
 echo "$(date -u) [container] Memory: $(awk '(NR<4)' /proc/meminfo | tr -d '  ' | tr '\n' ' ')"
 echo "$(date -u) [container] Disk: $(df -h /usr/src/app/shared | awk '(NR>1)')"
@@ -18,7 +22,6 @@ echo "$(date -u) [container] Disk: $(df -h /usr/src/app/shared | awk '(NR>1)')"
 
 # Create if not exists
 mkdir -p /usr/src/app/shared/ssl
-mkdir -p /usr/src/app/shared/nginx_conf
 mkdir -p /usr/src/app/shared/nginx_log
 
 L1_CONF_FILE=/etc/nginx/conf.d/L1.conf
@@ -32,10 +35,7 @@ else
   cp /etc/nginx/confs/non_tls_proxy.conf $L1_CONF_FILE;
 fi
 
-# If we have a node id, use it, else generate one on shim execution
-if [ -f "/usr/src/app/shared/nodeId.txt" ]; then
-  echo "set \$node_id" "\"$(cat /usr/src/app/shared/nodeId.txt)\";" > /usr/src/app/shared/nginx_conf/node_id.conf;
-fi
+sed -i "s@\$node_id@$(cat /usr/src/app/shared/nodeId.txt)@g" /etc/nginx/conf.d/shared.conf
 
 if [ -n "${IPFS_GATEWAY_ORIGIN:-}" ]; then
   sed -i "s@https://ipfs.io;@$IPFS_GATEWAY_ORIGIN;@g" /etc/nginx/conf.d/shared.conf;
