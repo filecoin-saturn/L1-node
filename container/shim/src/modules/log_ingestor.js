@@ -109,16 +109,18 @@ function parseSingleLine(line) {
  * @returns {Promise<void>} - resolves once the logs are successfully submitted to the orchestrator
  */
 async function submitLogs(logs) {
-  // cache hit rate for this batch of retrievals
-  const cacheHits = logs.filter(({ cacheHit }) => cacheHit).length;
+  // calculate total bytes sent to clients and cache hit rate for this batch or retrievals
+  const { bytesSent, cacheHits } = logs.reduce(
+    (acc, log) => ({
+      bytesSent: acc.bytesSent + log.numBytesSent, // sum of all bytes sent to clients
+      cacheHits: acc.cacheHits + (log.cacheHit ? 1 : 0), // sum of all cache hits
+    }),
+    { bytesSent: 0, cacheHits: 0 }
+  );
   const cacheHitRate = cacheHits / logs.length;
   const cacheHitRatePercent = Math.round(cacheHitRate * 100);
 
-  // total bytes sent to clients for this batch or retrievals
-  const totalBytesSent = logs.reduce((acc, { numBytesSent }) => acc + numBytesSent, 0);
-  const totalBytesSentPretty = prettyBytes(totalBytesSent);
-
-  debug(`Submitting ${logs.length} retrievals (${totalBytesSentPretty} with cache rate of ${cacheHitRatePercent}%)`);
+  debug(`Submitting ${logs.length} retrievals (${prettyBytes(bytesSent)} with cache rate of ${cacheHitRatePercent}%)`);
 
   const submitTime = Date.now();
 
