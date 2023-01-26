@@ -195,5 +195,8 @@ async function executeLogIngestor() {
   }
 
   // ... otherwise, wait up to 60 seconds from the start of this function before running again
-  executeLogIngestor.timeout = setTimeout(startLogIngestor, Math.max(0, 60_000 - (Date.now() - startTime)));
+  executeLogIngestor.timeout = setTimeout(() => {
+    // restart execution of ingestor again only if there are no pending executions already in the queue
+    if (limitConcurrency.pendingCount === 0) startLogIngestor();
+  }, Math.max(0, 60_000 - (Date.now() - startTime)));
 }
