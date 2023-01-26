@@ -20,7 +20,6 @@ import {
   L2_FIRE_AND_FORGET,
   NODE_UA,
   NODE_VERSION,
-  nodeId,
   SATURN_NETWORK,
   TESTING_CID,
 } from "./config.js";
@@ -97,10 +96,7 @@ const handleCID = asyncHandler(async (req, res) => {
 
   const format = getResponseFormat(req);
 
-  res.set({
-    "Content-Type": mimeTypes.lookup(req.path) || "application/octet-stream",
-    "Saturn-Node-Id": nodeId,
-  });
+  res.set("Content-Type", mimeTypes.lookup(req.path) || "application/octet-stream");
 
   if (req.headers.range) {
     let [start, end] = req.headers.range.split("=")[1].split("-");

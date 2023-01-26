@@ -7,7 +7,7 @@
 : "${HTTP_PORT:=80}"
 : "${HTTPS_PORT:=443}"
 
-mkdir $(pwd)/shared
+mkdir -p $(pwd)/shared
 echo "$(date -u) [host] Running Saturn node dev, with volume in $(pwd)/shared"
 
 # Start the docker image
