@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import fetch from "node-fetch";
+import pLimit from "p-limit";
 import prettyBytes from "pretty-bytes";
 import logfmt from "logfmt";
 import readlines from "../utils/readlines.js";
@@ -8,6 +9,7 @@ import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, nodeId, nodeToken, TESTING_CID } 
 import { debug as Debug } from "../utils/logging.js";
 
 const debug = Debug.extend("log-ingestor");
+const limitConcurrency = pLimit(1); // setup concurrency limit to execute one at a time
 
 const NGINX_LOG_KEYS_MAP = {
   clientAddress: (values) => values.addr,
@@ -139,12 +141,17 @@ async function submitLogs(logs) {
  * then sets a timeout to call itself again after at most 1 minute from the last time it was called. It keeps track of
  * the last line read in the log file and only reads the lines after that line.
  * This function can be called manually to force a log ingestor submission (e.g. when node is shutting down).
+ * It also enforces a concurrency limit of 1 to prevent multiple executions of this function from running at the same time.
  *
  * @returns {Promise<void>} - resolves once the log ingestor finished current run and is scheduled to run again.
  */
 export default async function startLogIngestor() {
+  return limitConcurrency(executeLogIngestor);
+}
+
+async function executeLogIngestor() {
   // clear timeout timer if it exists (this is to prevent multiple timers from being set)
-  if (startLogIngestor.timeout) clearTimeout(startLogIngestor.timeout);
+  if (executeLogIngestor.timeout) clearTimeout(executeLogIngestor.timeout);
 
   const startTime = Date.now();
 
@@ -184,9 +191,9 @@ export default async function startLogIngestor() {
     }
 
     // run this function again immediately if there were more lines to read (read.eof is false)
-    if (read.eof === false) return startLogIngestor();
+    if (read.eof === false) return executeLogIngestor();
   }
 
   // ... otherwise, wait up to 60 seconds from the start of this function before running again
-  startLogIngestor.timeout = setTimeout(startLogIngestor, Math.max(0, 60_000 - (Date.now() - startTime)));
+  executeLogIngestor.timeout = setTimeout(startLogIngestor, Math.max(0, 60_000 - (Date.now() - startTime)));
 }

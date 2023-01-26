@@ -24,6 +24,7 @@
     "multiformats": "^11.0.1",
     "node-fetch": "^3.3.0",
     "p-defer": "^4.0.0",
+    "p-limit": "^4.0.0",
     "p-timeout": "^6.1.0",
     "pretty-bytes": "^6.0.0",
     "stream-write": "^2.0.0",
