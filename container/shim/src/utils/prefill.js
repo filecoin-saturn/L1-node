@@ -30,5 +30,10 @@ export const prefillCache = () => {
 };
 
 async function getTopCids() {
-  return await fetch(`${ORCHESTRATOR_URL}/top-cids`);
+  try {
+    return await fetch(`${ORCHESTRATOR_URL}/top-cids`).then((res) => res.json());
+  } catch (err) {
+    debug(`Failed to fetch top CIDs: ${err.message}`);
+    return [];
+  }
 }
