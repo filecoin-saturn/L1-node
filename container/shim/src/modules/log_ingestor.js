@@ -3,6 +3,7 @@ import fetch from "node-fetch";
 import pLimit from "p-limit";
 import prettyBytes from "pretty-bytes";
 import logfmt from "logfmt";
+import glob from "fast-glob";
 import readlines from "../utils/readlines.js";
 
 import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, nodeId, nodeToken, TESTING_CID } from "../config.js";
@@ -153,11 +154,21 @@ async function executeLogIngestor() {
   // clear timeout timer if it exists (this is to prevent multiple timers from being set)
   if (executeLogIngestor.timeout) clearTimeout(executeLogIngestor.timeout);
 
+  // glob all log file, include rotated logs with extensions but ignore gzipped logs
+  // IMPORTANT: when rotating logs with compression, always enable delaycompress to
+  // ensure that once a log file is rotated, it will still be accessible for reading
+  // to finish parsing the lines before they are compressed, additionally do not use
+  // copytruncate to make sure that log file is moved instead of copied and truncated
+  // because we want to keep the original log file offset by matching its inode
+  const logFiles = await glob(`${LOG_FILE}*`, { ignore: ["*.gz"] });
+
   const startTime = Date.now();
 
-  if (await isFileAccessible(LOG_FILE)) {
+  for (const logFile of logFiles) {
+    if (!(await isFileAccessible(logFile))) continue;
+
     // stream the log file and parse the lines
-    const read = await readlines(LOG_FILE);
+    const read = await readlines(logFile);
 
     if (read.lines.length) {
       const logs = [];

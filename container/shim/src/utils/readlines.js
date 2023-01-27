@@ -1,7 +1,12 @@
+import path from "node:path";
 import { open, stat } from "node:fs/promises";
+import { readFileSync, writeFileSync } from "node:fs";
 
 function offsetFilename(filename) {
-  return `${filename}.offsetfile`;
+  const directory = path.dirname(filename);
+
+  // single offsetfile for all files in the same directory
+  return path.join(directory, ".offsetfile");
 }
 
 async function getFileContents(filename) {
@@ -19,22 +24,13 @@ async function getResumableOffset(filename) {
     // get current file stat and read the offsetfile contents
     const [currentStat, offsetfile] = await Promise.all([stat(filename), getFileContents(offsetFilename(filename))]);
 
-    // file is empty, reset the offset
-    if (offsetfile === "") {
-      return setResumableOffset(filename, 0, currentStat);
-    }
+    // offsetfile contains hashmap with file inodes as keys and { offset, size } as values
+    // (read more about inodes https://en.wikipedia.org/wiki/Inode)
+    const resumables = JSON.parse(offsetfile);
+    const resumable = resumables[currentStat.ino];
 
-    // offsetfile contains stringified JSON object with { offset [int], ino [int], size [int] }
-    const resumable = JSON.parse(offsetfile);
-
-    // if the file has been rotated, truncated or offset is corrupted, reset the offsetfile
-    const isFileRotated = resumable.ino !== currentStat.ino; // https://en.wikipedia.org/wiki/Inode
-    const isFileTruncated = resumable.size > currentStat.size || resumable.offset > currentStat.size;
-    const isOffsetCorrupted = isNaN(resumable.offset);
-
-    if (isFileRotated || isFileTruncated || isOffsetCorrupted) {
-      return setResumableOffset(filename, 0, currentStat);
-    }
+    // file that has not been read yet or brand new file, reset the offset
+    if (!resumable) return setResumableOffset(filename, 0, currentStat);
 
     return resumable.offset;
   } catch (error) {
@@ -50,14 +46,16 @@ async function getResumableOffset(filename) {
 
 async function setResumableOffset(filename, offset, currentStat) {
   const { ino, size } = currentStat ?? (await stat(filename));
-  const offsetfile = await open(offsetFilename(filename), "w");
 
+  // synchronously read and write to avoid potential race conditions
+  let resumables = {};
   try {
-    // store inode and file size alongside offset to detect file rotation
-    await offsetfile.writeFile(JSON.stringify({ ino, size, offset }));
-  } finally {
-    await offsetfile.close();
+    const offsetfile = readFileSync(offsetFilename(filename), "utf8");
+    resumables = JSON.parse(offsetfile);
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
   }
+  writeFileSync(offsetFilename(filename), JSON.stringify({ ...resumables, [ino]: { offset, size } }));
 
   return offset;
 }
