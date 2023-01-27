@@ -1,6 +1,5 @@
 import path from "node:path";
-import { open, stat } from "node:fs/promises";
-import { readFileSync, writeFileSync } from "node:fs";
+import { open, stat, readFile, writeFile } from "node:fs/promises";
 
 function offsetFilename(filename) {
   const directory = path.dirname(filename);
@@ -9,20 +8,10 @@ function offsetFilename(filename) {
   return path.join(directory, ".offsetfile");
 }
 
-async function getFileContents(filename) {
-  const file = await open(filename, "r");
-
-  try {
-    return await file.readFile(); // await to ensure finally is called after file is read
-  } finally {
-    await file.close();
-  }
-}
-
 async function getResumableOffset(filename) {
   try {
     // get current file stat and read the offsetfile contents
-    const [currentStat, offsetfile] = await Promise.all([stat(filename), getFileContents(offsetFilename(filename))]);
+    const [currentStat, offsetfile] = await Promise.all([stat(filename), readFile(offsetFilename(filename), "utf8")]);
 
     // offsetfile contains hashmap with file inodes as keys and { offset, size } as values
     // (read more about inodes https://en.wikipedia.org/wiki/Inode)
@@ -47,15 +36,17 @@ async function getResumableOffset(filename) {
 async function setResumableOffset(filename, offset, currentStat) {
   const { ino, size } = currentStat ?? (await stat(filename));
 
-  // synchronously read and write to avoid potential race conditions
   let resumables = {};
+
   try {
-    const offsetfile = readFileSync(offsetFilename(filename), "utf8");
+    const offsetfile = await readFile(offsetFilename(filename), "utf8");
+
     resumables = JSON.parse(offsetfile);
   } catch (error) {
     if (error.code !== "ENOENT") throw error;
   }
-  writeFileSync(offsetFilename(filename), JSON.stringify({ ...resumables, [ino]: { offset, size } }));
+
+  await writeFile(offsetFilename(filename), JSON.stringify({ ...resumables, [ino]: { offset, size } }));
 
   return offset;
 }
