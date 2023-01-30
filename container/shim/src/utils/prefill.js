@@ -8,18 +8,20 @@ import { debug as Debug } from "./logging.js";
 const debug = Debug.extend("cache-prefill");
 
 export const prefillCache = () => {
-  debug("Prefilling cache");
   getTopCids()
     .then(async (topCids) => {
-      for (const cid of topCids) {
-        const controller = new AbortController();
-        const signal = controller.signal;
-        await fetch(`https://localhost/ipfs/${cid}`, {
-          signal,
-          agent: new Agent({ rejectUnauthorized: false }),
-        });
-        controller.abort();
-        await setTimeoutPromise(1000);
+      for (const num of [1, 2]) {
+        debug(`Prefilling cache with ${topCids.length} CIDs. ${num}/2`);
+        for (const cid of topCids) {
+          const controller = new AbortController();
+          const signal = controller.signal;
+          await fetch(`https://127.0.0.1/ipfs/${cid}`, {
+            signal,
+            agent: new Agent({ rejectUnauthorized: false }),
+          });
+          controller.abort();
+          await setTimeoutPromise(1000);
+        }
       }
 
       debug("Cache prefill complete");
