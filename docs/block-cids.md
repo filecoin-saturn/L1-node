@@ -30,7 +30,7 @@ zdj7WhNQsX98KRehBoyoKBQHiqhPRvgcaKQTECPPGiih7j2HZ
 4. Then, with the `cids_to_block` file populated with CIDs, one per line, in the current directory, run:
 
 ```bash
-cat cids_to_block | xargs -I{} docker exec -t $(docker ps -q) /bin/sh -c 'echo "location ~ \"{}\" { return 410; }" >> /etc/nginx/denylist.conf && kill -s HUP $(cat /var/run/nginx.pid)'
+cat cids_to_block | xargs -I{} docker exec -t $(docker ps -qf "name=saturn-node") /bin/sh -c 'echo "location ~ \"{}\" { return 410; }" >> /etc/nginx/denylist.conf && kill -s HUP $(cat /var/run/nginx.pid)'
 ```
 
 This command appends the CIDs to block to the existing `denylist.conf` file and gracefully reloads nginx. Your node will not go offline, and there will be no impact on your node's performance or earnings.
