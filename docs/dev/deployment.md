@@ -10,6 +10,7 @@
   git tag $(date +%s)
   git push --follow-tags
   ```
+- Bump LAST_VERSION in orchestrator environment variables.
 
 In development, to avoid an automatic CI/CD deployment to the test network when any change is made to the `container/` directory, include `[skip ci]` in the `git commit` message. Like:
 
