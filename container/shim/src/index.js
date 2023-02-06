@@ -118,7 +118,7 @@ const handleCID = asyncHandler(async (req, res) => {
 
   debug(`Cache miss for ${req.path}`);
 
-  if (req.headers.origin === "rhea") {
+  if ((req.headers["x-fetcher"] || "").indexOf("bifrost-gateway") > -1) {
     // TODO: respond from lassie
     debug(`Cache miss to serve with lassie`);
   }
