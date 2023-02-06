@@ -30,6 +30,9 @@ export async function register(initial = false) {
   try {
     requirements = await fetch(`${ORCHESTRATOR_URL}/requirements`, {
       agent: orchestratorAgent,
+      headers: {
+        "User-Agent": NODE_UA,
+      },
     }).then((res) => res.json());
   } catch (err) {
     const error = new Error(`Failed to fetch requirements: ${err.name}`);

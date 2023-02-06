@@ -1,9 +1,10 @@
-import { setTimeout as setTimeoutPromise } from "timers/promises";
+import { setTimeout as setTimeoutPromise } from "node:timers/promises";
 import fetch from "node-fetch";
 import { Agent } from "https";
 
-import { ORCHESTRATOR_URL } from "../config.js";
+import { NODE_UA, ORCHESTRATOR_URL } from "../config.js";
 import { debug as Debug } from "./logging.js";
+import { orchestratorAgent } from "./http.js";
 
 const debug = Debug.extend("cache-prefill");
 
@@ -33,7 +34,12 @@ export const prefillCache = () => {
 
 async function getTopCids() {
   try {
-    return await fetch(`${ORCHESTRATOR_URL}/top-cids`).then((res) => res.json());
+    return await fetch(`${ORCHESTRATOR_URL}/top-cids`, {
+      agent: orchestratorAgent,
+      headers: {
+        "User-Agent": NODE_UA,
+      },
+    }).then((res) => res.json());
   } catch (err) {
     debug(`Failed to fetch top CIDs: ${err.message}`);
     return [];

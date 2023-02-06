@@ -6,7 +6,7 @@ import logfmt from "logfmt";
 import glob from "fast-glob";
 import readlines from "../utils/readlines.js";
 
-import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, nodeId, nodeToken, TESTING_CID } from "../config.js";
+import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, NODE_UA, nodeId, nodeToken, TESTING_CID } from "../config.js";
 import { debug as Debug } from "../utils/logging.js";
 
 const debug = Debug.extend("log-ingestor");
@@ -130,7 +130,7 @@ async function submitLogs(logs) {
   await fetch(LOG_INGESTOR_URL, {
     method: "POST",
     body: JSON.stringify({ nodeId, filAddress: FIL_WALLET_ADDRESS, bandwidthLogs: logs }),
-    headers: { Authentication: nodeToken, "Content-Type": "application/json" },
+    headers: { Authentication: nodeToken, "Content-Type": "application/json", "User-Agent": NODE_UA },
   });
 
   debug(`Retrievals submitted succesfully to wallet ${FIL_WALLET_ADDRESS} in ${Date.now() - submitTime}ms`);

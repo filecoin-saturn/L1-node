@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
-import { ORCHESTRATOR_URL } from "../config.js";
+
+import { NODE_UA, ORCHESTRATOR_URL } from "../config.js";
 import { orchestratorAgent } from "../utils/http.js";
 import { debug as Debug } from "../utils/logging.js";
 
@@ -12,6 +13,9 @@ export async function refreshLocalNodes() {
   try {
     const res = await fetch(`${ORCHESTRATOR_URL}/nodes/local`, {
       agent: orchestratorAgent,
+      headers: {
+        "User-Agent": NODE_UA,
+      },
     });
     localNodes = await res.json();
     debug(`Local nodes refreshed, ${localNodes.length} nodes found`);
