@@ -21,7 +21,7 @@ export const prefillCache = () => {
             agent: new Agent({ rejectUnauthorized: false }),
           });
           controller.abort();
-          await setTimeoutPromise(1000);
+          await setTimeoutPromise(2000);
         }
       }
 

@@ -22,5 +22,5 @@ export async function refreshLocalNodes() {
   } catch (err) {
     debug(`Failed to refresh local nodes: ${err.message}`);
   }
-  setTimeout(refreshLocalNodes, 5 * 60 * 1000);
+  setTimeout(refreshLocalNodes, 10 * 60 * 1000);
 }
