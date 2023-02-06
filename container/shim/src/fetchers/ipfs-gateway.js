@@ -2,7 +2,7 @@ import { cpus } from "node:os";
 import http from "node:http";
 import https from "node:https";
 
-import { streamCAR } from "./utils/car.js";
+import { streamCAR } from "../utils/car.js";
 import { proxyRequestHeaders, proxyResponseHeaders, toUtf8 } from "../utils/http.js";
 import { debug } from "../utils/logging.js";
 import { IPFS_GATEWAY_ORIGIN } from "../config.js";

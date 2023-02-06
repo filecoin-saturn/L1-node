@@ -5,7 +5,7 @@ import xorDistance from "xor-distance";
 import pDefer from "p-defer";
 import pTimeout from "p-timeout";
 
-import { streamCAR, streamRawFromCAR } from "./utils/car.js";
+import { streamCAR, streamRawFromCAR } from "../utils/car.js";
 import { debug } from "../utils/logging.js";
 import { L2_FIRE_AND_FORGET } from "../config.js";
 
