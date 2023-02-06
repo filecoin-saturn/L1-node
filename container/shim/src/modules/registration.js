@@ -27,17 +27,17 @@ const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
 let requirements;
 export async function register(initial = false) {
   debug("Initiating registration (initial=%s)", initial);
-  try {
-    requirements = await fetch(`${ORCHESTRATOR_URL}/requirements`, {
-      agent: orchestratorAgent,
-      headers: {
-        "User-Agent": NODE_UA,
-      },
-    }).then((res) => res.json());
-  } catch (err) {
-    const error = new Error(`Failed to fetch requirements: ${err.name}`);
-    debug(error.message);
-    if (initial) {
+  if (!requirements) {
+    try {
+      requirements = await fetch(`${ORCHESTRATOR_URL}/requirements`, {
+        agent: orchestratorAgent,
+        headers: {
+          "User-Agent": NODE_UA,
+        },
+      }).then((res) => res.json());
+    } catch (err) {
+      const error = new Error(`Failed to fetch requirements: ${err.name}`);
+      debug(error.message);
       throw error;
     }
   }
