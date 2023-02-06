@@ -98,7 +98,7 @@ const handleCID = asyncHandler(async (req, res) => {
 
   res.set("Content-Type", mimeTypes.lookup(req.path) || "application/octet-stream");
 
-  if (req.headers.range) {
+  if (req.headers.range && cid === TESTING_CID) {
     let [start, end] = req.headers.range.split("=")[1].split("-");
     start = parseInt(start, 10);
     end = parseInt(end, 10);
@@ -117,6 +117,11 @@ const handleCID = asyncHandler(async (req, res) => {
   }
 
   debug(`Cache miss for ${req.path}`);
+
+  if ((req.headers["x-fetcher"] || "").indexOf("bifrost-gateway") > -1) {
+    // TODO: respond from lassie
+    debug(`Cache miss to serve with lassie`);
+  }
 
   if (SATURN_NETWORK !== "main" && !req.params.path && (await maybeRespondFromL2(req, res, { cid, format }))) {
     return;
