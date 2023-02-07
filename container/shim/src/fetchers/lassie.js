@@ -133,7 +133,9 @@ async function getRequestedBlockFromCar(streamIn, streamOut, requestedCidV1, pat
   const roots = await carBlockIterator.getRoots();
   const rootCid = roots[0];
 
-  if (!path && !rootCid.toV1().equals(requestedCidV1)) {
+  if (roots.length > 1) {
+    throw new Error(`CAR file has more than one root CID.`);
+  } else if (!path && !rootCid.toV1().equals(requestedCidV1)) {
     throw new Error(`Requested CID ${requestedCidV1} doesn't equal CAR root CID ${rootCid}.`);
   }
 
