@@ -80,7 +80,7 @@ export async function streamRawFromCAR(streamIn, streamOut) {
  * @param {Buffer} bytes
  * @returns boolean
  */
-async function validateCarBlock(cid, bytes) {
+export async function validateCarBlock(cid, bytes) {
   if (!codecs[cid.code]) {
     debug(`Unexpected codec: 0x${cid.code.toString(16)}`);
     return false;

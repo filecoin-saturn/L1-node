@@ -10,7 +10,7 @@ import { respondFromIPFSGateway } from "./fetchers/ipfs-gateway.js";
 import { respondFromLassie } from "./fetchers/lassie.js";
 import { maybeRespondFromL2, registerL2Node, cancelCarRequest } from "./fetchers/l2-node.js";
 import { addRegisterCheckRoute } from "./modules/registration.js";
-import { NODE_VERSION, SATURN_NETWORK, TESTING_CID } from "./config.js";
+import { LASSIE_ORIGIN, NODE_VERSION, SATURN_NETWORK, TESTING_CID } from "./config.js";
 import { getResponseFormat } from "./utils/http.js";
 import { debug } from "./utils/logging.js";
 
@@ -69,7 +69,8 @@ const handleCID = asyncHandler(async (req, res) => {
 
   debug(`Cache miss for ${req.path}`);
 
-  if (req.headers["x-fetcher"]?.includes("bifrost-gateway")) {
+  const useLassie = req.headers["x-fetcher"]?.includes("bifrost-gateway");
+  if (useLassie && LASSIE_ORIGIN) {
     return respondFromLassie(req, res, { cid, format });
   }
 

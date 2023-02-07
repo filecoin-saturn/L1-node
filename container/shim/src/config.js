@@ -14,6 +14,7 @@ export const LOG_INGESTOR_URL = process.env.LOG_INGESTOR_URL || networkToIngesto
 export const FIL_WALLET_ADDRESS = process.env.FIL_WALLET_ADDRESS || error("FIL_WALLET_ADDRESS");
 export const NODE_OPERATOR_EMAIL = process.env.NODE_OPERATOR_EMAIL || error("NODE_OPERATOR_EMAIL");
 export const IPFS_GATEWAY_ORIGIN = process.env.IPFS_GATEWAY_ORIGIN || "https://ipfs.io";
+export const LASSIE_ORIGIN = process.env.LASSIE_ORIGIN || null;
 export const TESTING_CID = "QmXjYBY478Cno4jzdCcPy4NcJYFrwHZ51xaCP8vUwN9MGm";
 
 export const nodeId = await readOrCreateNodeId();
