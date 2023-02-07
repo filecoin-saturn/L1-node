@@ -24,10 +24,7 @@ const NGINX_LOG_KEYS_MAP = {
   userAgent: (values) => values.ua,
   cacheHit: (values) => values.cache === "HIT",
   url: (values) => {
-    const url = new URL(`${values.scheme}://${values.host}${values.uri}`);
-    url.searchParams.set("ua", values.ua);
-    url.searchParams.set("rid", values.id);
-    return url;
+    return new URL(`${values.scheme}://${values.host}${values.uri}`);
   },
   range: (values) => values.range,
   ff: (values) => values.ff,
@@ -75,6 +72,8 @@ function parseSingleLine(line) {
     acc[key] = getter(parsed);
     return acc;
   }, {});
+
+  if (vars.clientAddress === "127.0.0.1") return null;
 
   const isIPFS = vars.url.pathname.startsWith("/ipfs/");
   const isIPNS = vars.url.pathname.startsWith("/ipns/");
@@ -170,35 +169,36 @@ async function executeLogIngestor() {
     // stream the log file and parse the lines
     const read = await readlines(logFile);
 
-    if (read.lines.length) {
-      const logs = [];
+    const logs = [];
+    for (let i = 0; i < read.lines.length; i++) {
+      // skip empty lines
+      if (read.lines[i] === "") continue;
 
-      for (let i = 0; i < read.lines.length; i++) {
-        // skip empty lines
-        if (read.lines[i] === "") continue;
-
+      try {
         // parse the line into an object
         const parsed = parseSingleLine(read.lines[i]);
 
         // add parsed log line if it is valid (only valid retrieval)
         if (parsed) logs.push(parsed);
+      } catch (err) {
+        debug(`Failed to parse line: ${err.message}`);
       }
+    }
 
-      // submit the logs to the log ingestor
-      if (logs.length) {
-        try {
-          // submit parsed logs to the orchestrator
-          await submitLogs(logs);
+    // submit the logs to the log ingestor
+    if (logs.length) {
+      try {
+        // submit parsed logs to the orchestrator
+        await submitLogs(logs);
 
-          // mark the lines as read once they have been submitted successfully
-          // which persists new read bytes offset to the disk so it will not be read again
-          await read.confirmed();
-        } catch (error) {
-          debug(`Failed to submit ${logs.length} retrievals: ${error.name} ${error.message}`);
-        }
-      } else {
-        debug(`No retrievals to submit since ${new Date(startTime).toISOString()}`);
+        // mark the lines as read once they have been submitted successfully
+        // which persists new read bytes offset to the disk so it will not be read again
+        await read.confirmed();
+      } catch (error) {
+        debug(`Failed to submit ${logs.length} retrievals: ${error.name} ${error.message}`);
       }
+    } else {
+      debug(`No retrievals to submit since ${new Date(startTime).toISOString()}`);
     }
 
     // run this function again immediately if there were more lines to read (read.eof is false)
