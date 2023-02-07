@@ -85,9 +85,7 @@ jobs:
 
       - name: Set orchestrator env (test)
         if: github.ref_type == 'branch'
-        run: |
-          echo "SATURN_NETWORK=test" >> $GITHUB_ENV
-          echo "LASSIE_ORIGIN=http://localhost:7766" >> $GITHUB_ENV
+        run: echo "SATURN_NETWORK=test" >> $GITHUB_ENV
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
