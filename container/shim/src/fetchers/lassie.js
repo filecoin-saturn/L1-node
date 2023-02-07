@@ -128,8 +128,6 @@ function respondFromBlockCache(res, cid, block) {
  */
 async function getRequestedBlockFromCar(streamIn, streamOut, requestedCidV1, path) {
   const carBlockIterator = await CarBlockIterator.fromIterable(streamIn);
-  let count = 0;
-
   const roots = await carBlockIterator.getRoots();
   const rootCid = roots[0];
 
@@ -138,6 +136,8 @@ async function getRequestedBlockFromCar(streamIn, streamOut, requestedCidV1, pat
   } else if (!path && !rootCid.toV1().equals(requestedCidV1)) {
     throw new Error(`Requested CID ${requestedCidV1} doesn't equal CAR root CID ${rootCid}.`);
   }
+
+  let count = 0;
 
   for await (const { cid, bytes } of carBlockIterator) {
     if (!validateCarBlock(cid, bytes)) {
