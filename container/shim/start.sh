@@ -42,4 +42,15 @@ if [ -n "${IPFS_GATEWAY_ORIGIN:-}" ]; then
 fi
 
 nginx -g "daemon off;" &
-exec node src/bin/shim.js
+
+if [ "$LASSIE_ORIGIN" != "" ]; then
+  lassie daemon -p 7766 &
+  LASSIE_PID=$!
+
+  exec node --max-old-space-size=2048 src/bin/shim.js &
+  SHIM_PID=$!
+
+  wait -n $LASSIE_PID $SHIM_PID
+else
+  exec node src/bin/shim.js
+fi

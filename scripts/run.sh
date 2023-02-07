@@ -18,5 +18,6 @@ docker run --name saturn-node -it --rm \
           -e "IPFS_GATEWAY_ORIGIN=$IPFS_GATEWAY_ORIGIN" \
           -e "ORCHESTRATOR_REGISTRATION=$ORCHESTRATOR_REGISTRATION" \
           -e "SPEEDTEST_SERVER_CONFIG=$SPEEDTEST_SERVER_CONFIG" \
+          -e "LASSIE_ORIGIN=$LASSIE_ORIGIN" \
           -p $HTTPS_PORT:443 -p $HTTP_PORT:80 \
           saturn-node

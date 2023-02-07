@@ -100,6 +100,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
  jq \
  && rm -rf /var/lib/apt/lists/*
 
+# Download lassie
+RUN curl -L 'https://github.com/filecoin-project/lassie/releases/download/v0.3.1/lassie-v0.3.1-linux-386.tar.gz' -o lassie.tar.gz \
+  && tar -C /usr/bin -xzf lassie.tar.gz
+
 # create the directory inside the container
 WORKDIR /usr/src/app
 # copy the package.json files from local machine to the workdir in container
