@@ -101,7 +101,12 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
  && rm -rf /var/lib/apt/lists/*
 
 # Download lassie
-RUN curl -L 'https://github.com/filecoin-project/lassie/releases/download/v0.3.1/lassie-v0.3.1-linux-386.tar.gz' -o lassie.tar.gz \
+ARG TARGETPLATFORM
+ARG LASSIE_VERSION="v0.3.1"
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
+  elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=arm64; \
+  else ARCHITECTURE=386; fi \
+  && curl -sS -L -o lassie.tar.gz "https://github.com/filecoin-project/lassie/releases/download/${LASSIE_VERSION}/lassie-${LASSIE_VERSION}-linux-${ARCHITECTURE}.tar.gz" \
   && tar -C /usr/bin -xzf lassie.tar.gz
 
 # create the directory inside the container
