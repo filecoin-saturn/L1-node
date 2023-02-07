@@ -25,14 +25,17 @@ const blockCache = new LRU({
   allowStale: true,
 });
 
-export function respondFromLassie(req, res, { cid, format }) {
+export function respondFromLassie(req, res, { cidObj, format }) {
   debug(`Fetch ${req.path} from Lassie`);
 
+  const cidV1 = cidObj.toV1();
+  const cid = cidV1.toString();
   const isRawFormat = format === "raw";
   const isInBlockCache = isRawFormat && !req.params.path && blockCache.has(cid);
+
   if (isInBlockCache) {
     const block = blockCache.get(cid);
-    return respondFromBlockCache(req, res, cid, block);
+    return respondFromBlockCache(res, cid, block);
   }
 
   const lassieUrl = new URL(LASSIE_ORIGIN + toUtf8(req.path));
@@ -66,10 +69,11 @@ export function respondFromLassie(req, res, { cid, format }) {
         } else if (statusCode >= 400) {
           debug.extend("error")(`Invalid response from Lassie (${statusCode}) for ${cid}`);
           res.end();
+          return;
         }
 
         if (isRawFormat) {
-          getRequestedBlockFromCar(fetchRes, res).catch((err) => debug(err));
+          getRequestedBlockFromCar(fetchRes, res, cidV1, req.params.path).catch((err) => debug(err));
         } else {
           proxyResponseHeaders(fetchRes, res);
           streamCAR(fetchRes, res).catch(() => {});
@@ -101,12 +105,11 @@ export function respondFromLassie(req, res, { cid, format }) {
 }
 
 /**
- * @param {IncomingMessage || ReadableStream} req
  * @param {Response} res
  * @param {string} cid
  * @param {Uint8Array} block
  */
-function respondFromBlockCache(req, res, cid, block) {
+function respondFromBlockCache(res, cid, block) {
   res.status(200);
   res.set("content-length", Buffer.byteLength(block));
   res.set("content-type", "application/vnd.ipld.raw");
@@ -120,10 +123,19 @@ function respondFromBlockCache(req, res, cid, block) {
  *
  * @param {IncomingMessage || ReadableStream} streamIn
  * @param {Response} streamOut
+ * @param {CID} requestedCidV1
+ * @param {string} path
  */
-async function getRequestedBlockFromCar(streamIn, streamOut) {
+async function getRequestedBlockFromCar(streamIn, streamOut, requestedCidV1, path) {
   const carBlockIterator = await CarBlockIterator.fromIterable(streamIn);
   let count = 0;
+
+  const roots = await carBlockIterator.getRoots();
+  const rootCid = roots[0];
+
+  if (!path && !rootCid.toV1().equals(requestedCidV1)) {
+    throw new Error(`Requested CID ${requestedCidV1} doesn't equal CAR root CID ${rootCid}.`);
+  }
 
   for await (const { cid, bytes } of carBlockIterator) {
     if (!validateCarBlock(cid, bytes)) {
@@ -131,12 +143,16 @@ async function getRequestedBlockFromCar(streamIn, streamOut) {
       break;
     }
 
-    // Is it safe to assume the first block is the requested one?
+    const cidV1 = cid.toV1();
     if (count === 0) {
+      if (!path && !cidV1.equals(requestedCidV1)) {
+        throw new Error(`Requested CID ${requestedCidV1} doesn't equal first block CID ${rootCid}.`);
+      }
+
       await write(streamOut, bytes);
       streamOut.end();
     } else {
-      blockCache.set(cid.toString(), bytes);
+      blockCache.set(cidV1.toString(), bytes);
     }
     count++;
   }
