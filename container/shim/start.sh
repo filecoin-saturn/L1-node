@@ -51,6 +51,7 @@ if [ "$LASSIE_ORIGIN" != "" ]; then
   SHIM_PID=$!
 
   wait -n $LASSIE_PID $SHIM_PID
+  exit $?
 else
   exec node src/bin/shim.js
 fi
