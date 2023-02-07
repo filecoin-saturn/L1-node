@@ -11,7 +11,7 @@ const GATEWAY_TIMEOUT = 120_000;
 
 const agentOpts = {
   keepAlive: true,
-  maxSockets: Math.floor(128 / cpus().length),
+  maxSockets: Math.max(Math.floor(100 / cpus().length), 1),
 };
 const httpsAgent = new https.Agent(agentOpts);
 const httpAgent = new http.Agent(agentOpts);
