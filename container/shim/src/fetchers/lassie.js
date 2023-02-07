@@ -55,7 +55,7 @@ export function respondFromLassie(req, res, { cid, format }) {
         timeout: LASSIE_TIMEOUT,
         signal: controller.signal,
       },
-      async (fetchRes) => {
+      (fetchRes) => {
         clearTimeout(timeout);
         const { statusCode } = fetchRes;
 

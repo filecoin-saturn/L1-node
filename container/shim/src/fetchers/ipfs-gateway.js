@@ -42,7 +42,7 @@ export function respondFromIPFSGateway(req, res, { cid, format }) {
         headers: proxyRequestHeaders(req.headers),
         signal: controller.signal,
       },
-      async (fetchRes) => {
+      (fetchRes) => {
         clearTimeout(timeout);
         const { statusCode } = fetchRes;
         if (statusCode === 200) {
