@@ -3,6 +3,7 @@ import https from "node:https";
 
 import { CarBlockIterator } from "@ipld/car";
 import LRU from "lru-cache";
+import { base64 } from "multiformats/bases/base64";
 import write from "stream-write";
 
 import { LASSIE_ORIGIN } from "../config.js";
@@ -25,16 +26,19 @@ const blockCache = new LRU({
   allowStale: true,
 });
 
+const cidToCacheKey = (cidObj) => base64.baseEncode(cidObj.multihash.bytes);
+
 export function respondFromLassie(req, res, { cidObj, format }) {
   debug(`Fetch ${req.path} from Lassie`);
 
+  const cacheKey = cidToCacheKey(cidObj);
   const cidV1 = cidObj.toV1();
   const cid = cidV1.toString();
   const isRawFormat = format === "raw";
-  const isInBlockCache = isRawFormat && !req.params.path && blockCache.has(cid);
+  const isInBlockCache = isRawFormat && !req.params.path && blockCache.has(cacheKey);
 
   if (isInBlockCache) {
-    const block = blockCache.get(cid);
+    const block = blockCache.get(cacheKey);
     return respondFromBlockCache(res, cid, block);
   }
 
@@ -154,7 +158,8 @@ async function getRequestedBlockFromCar(streamIn, streamOut, requestedCidV1, pat
       await write(streamOut, bytes);
       streamOut.end();
     } else {
-      blockCache.set(cidV1.toString(), bytes);
+      const cacheKey = cidToCacheKey(cidV1);
+      blockCache.set(cacheKey, bytes);
     }
     count++;
   }
