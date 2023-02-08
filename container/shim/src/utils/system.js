@@ -33,6 +33,7 @@ export async function getMemoryStats() {
     totalMemoryKB: values.MemTotalKB,
     freeMemoryKB: values.MemFreeKB,
     availableMemoryKB: values.MemAvailableKB,
+    raw: result,
   };
 }
 
@@ -60,6 +61,7 @@ export async function getDiskStats() {
     totalDiskMB: valuesMB[1],
     usedDiskMB: valuesMB[2],
     availableDiskMB: valuesMB[3],
+    raw: resultMB,
   };
 }
 
