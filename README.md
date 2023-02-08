@@ -52,7 +52,9 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 - CPU with 6 cores (12+ cores recommended). [CPU Mark](https://www.cpubenchmark.net/cpu_list.php) of 8,000+ (20,000+ recommended)
 - 10Gbps upload link minimum<sup>1</sup> ([Why 10Gbps?](https://github.com/filecoin-saturn/L1-node/blob/main/docs/faq.md#why-is-10-gbps-uplink-required))
 - 32GB RAM minimum (128GB+ recommended)
-- 2TB SSD storage minimum (8TB+ recommended)<sup>2</sup>
+- 2TB SSD storage minimum (8TB+ NVMe recommended)<sup>2</sup>
+
+**Only one node per host is allowed. If you want to run multiple nodes, you need to run them on different hardware.**
 
 <sub>
 <sup>1</sup> The more you can serve &rarr; greater FIL earnings<br>

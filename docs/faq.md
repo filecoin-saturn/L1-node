@@ -58,6 +58,7 @@ These are the current penalties that affect both DNS weight and earned FIL:
 - High error rate
 - High CPU/Memory usage
 - Fraudulent logging (e.g. self-dealing)
+- Multi-noding (Running multiple nodes on the same host)
 
 ## Registration
 
@@ -74,9 +75,14 @@ If you've fallen too far behind and can't register, make sure to run `docker pul
 
 **You should update your node to the latest version within 24 hours of the last release.**
 
-### How do I run multiple nodes?
+### Can I run multiple nodes?
 
-Yes, multiple nodes can be ran pointing to the same wallet and email address, just follow the same setup instructions on each node. However, we don't recommended running multiple nodes in the same location as cache will be fragmented, increasing the TTFB and error rate. Also for the same region the DNS weight will just compete.
+Yes, multiple nodes can be ran pointing to the same wallet and email address, just follow the same setup instructions on each host.
+
+⚠️ We do **NOT** allow multiple nodes on the same host. Each node should run on its own hardware. ⚠️
+
+We don't recommended running multiple nodes in the same region (country) as cache will be fragmented, increasing the TTFB and error rate.
+Also for the same region (country) the DNS weight will just compete with each other.
 
 ## Wallet
 
@@ -86,10 +92,9 @@ Retrievals that have already been submitted will be to paid to the configured wa
 
 ### How can I change my wallet address?
 
-1. Set the new wallet address in the `FIL_WALLET_ADDRESS` environment variable in `.bashrc` and `/etc/environment`
-2. Load the new variable
-3. Gracefully stop your node
-4. Restart your L1 node and check in the logs that the new wallet address is set
+1. Set the new wallet address in the `FIL_WALLET_ADDRESS` environment variable of your `$SATURN_HOME/.env` file
+2. Gracefully stop your node
+3. Restart your L1 node and check in the logs that the new wallet address is set
 
 ### When can I change my wallet address?
 
