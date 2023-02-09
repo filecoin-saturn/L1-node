@@ -102,7 +102,7 @@ export function respondFromLassie(req, res, { cidObj, format }) {
   req.on("close", () => {
     clearTimeout(timeout);
     if (!res.writableEnded) {
-      debug.extend("error")("Client aborted early, terminating gateway request");
+      debug.extend("error")("Client aborted early, terminating lassie request");
       lassieReq.destroy();
     }
   });
