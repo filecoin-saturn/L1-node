@@ -43,7 +43,7 @@ fi
 
 nginx -g "daemon off;" &
 
-if [ "$LASSIE_ORIGIN" != "" ]; then
+if [ "${LASSIE_ORIGIN:-}" != "" ]; then
   lassie daemon -p 7766 &
   LASSIE_PID=$!
 
