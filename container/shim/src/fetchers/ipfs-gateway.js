@@ -28,9 +28,7 @@ export function respondFromIPFSGateway(req, res, { cid, format }) {
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => {
-    controller.abort();
-  }, GATEWAY_TIMEOUT);
+  const timeout = setTimeout(() => controller.abort(), GATEWAY_TIMEOUT);
 
   const _http = ipfsUrl.protocol === "https:" ? https : http;
   const agent = ipfsUrl.protocol === "https:" ? httpsAgent : httpAgent;
@@ -44,7 +42,7 @@ export function respondFromIPFSGateway(req, res, { cid, format }) {
         headers: proxyRequestHeaders(req.headers),
         signal: controller.signal,
       },
-      async (fetchRes) => {
+      (fetchRes) => {
         clearTimeout(timeout);
         const { statusCode } = fetchRes;
         if (statusCode === 200) {

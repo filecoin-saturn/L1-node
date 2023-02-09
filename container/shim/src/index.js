@@ -10,7 +10,7 @@ import { respondFromIPFSGateway } from "./fetchers/ipfs-gateway.js";
 import { respondFromLassie } from "./fetchers/lassie.js";
 import { maybeRespondFromL2, registerL2Node, cancelCarRequest } from "./fetchers/l2-node.js";
 import { addRegisterCheckRoute } from "./modules/registration.js";
-import { NODE_VERSION, SATURN_NETWORK, TESTING_CID } from "./config.js";
+import { LASSIE_ORIGIN, NODE_VERSION, SATURN_NETWORK, TESTING_CID } from "./config.js";
 import { getResponseFormat } from "./utils/http.js";
 import { debug } from "./utils/logging.js";
 
@@ -38,8 +38,9 @@ const handleCID = asyncHandler(async (req, res) => {
   }
 
   const cid = req.params.cid;
+  let cidObj;
   try {
-    CID.parse(cid);
+    cidObj = CID.parse(cid);
   } catch (err) {
     debug.extend("error")(`Invalid CID "${cid}"`);
     return res.status(400).end("Invalid CID");
@@ -69,8 +70,9 @@ const handleCID = asyncHandler(async (req, res) => {
 
   debug(`Cache miss for ${req.path}`);
 
-  if (req.headers["x-fetcher"]?.includes("bifrost-gateway")) {
-    return respondFromLassie(req, res, { cid, format });
+  const useLassie = req.headers["x-fetcher"]?.includes("bifrost-gateway");
+  if (useLassie && LASSIE_ORIGIN) {
+    return respondFromLassie(req, res, { cidObj, format });
   }
 
   if (SATURN_NETWORK !== "main" && !req.params.path && (await maybeRespondFromL2(req, res, { cid, format }))) {
@@ -82,7 +84,7 @@ const handleCID = asyncHandler(async (req, res) => {
 
 // Whenever nginx doesn't have a CAR file in cache, this is called
 app.get("/ipfs/:cid", handleCID);
-app.get("/ipfs/:cid/:path*", handleCID);
+app.get("/ipfs/:cid/:path(*)", handleCID);
 
 app.get("/register/:l2NodeId", asyncHandler(registerL2Node));
 app.post("/data/:cid", cancelCarRequest);

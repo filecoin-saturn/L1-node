@@ -21,6 +21,7 @@
     "fast-glob": "^3.2.12",
     "ipfs-unixfs-exporter": "^10.0.0",
     "logfmt": "^1.3.2",
+    "lru-cache": "^7.14.1",
     "mime-types": "^2.1.35",
     "multiformats": "^11.0.1",
     "node-fetch": "^3.3.0",
