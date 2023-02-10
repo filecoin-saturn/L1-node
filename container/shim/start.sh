@@ -13,7 +13,8 @@ if [ ! -f "/usr/src/app/shared/nodeId.txt" ]; then
   cat /proc/sys/kernel/random/uuid > /usr/src/app/shared/nodeId.txt
 fi
 
-echo "$(date -u) [container] Booting L1 $(cat /usr/src/app/shared/nodeId.txt)"
+echo "$(date -u) [container] Booting $SATURN_NETWORK network L1 v$NODE_VERSION"
+echo "$(date -u) [container] ID: $(cat /usr/src/app/shared/nodeId.txt)"
 echo "$(date -u) [container] CPUs: $(nproc --all)"
 echo "$(date -u) [container] Memory: $(awk '(NR<4)' /proc/meminfo | tr -d '  ' | tr '\n' ' ')"
 echo "$(date -u) [container] Disk: $(df -h /usr/src/app/shared | awk '(NR>1)')"
@@ -36,6 +37,7 @@ else
 fi
 
 sed -i "s@\$node_id@$(cat /usr/src/app/shared/nodeId.txt)@g" /etc/nginx/conf.d/shared.conf
+sed -i "s@\$node_version@$NODE_VERSION@g" /etc/nginx/conf.d/shared.conf
 
 if [ -n "${IPFS_GATEWAY_ORIGIN:-}" ]; then
   sed -i "s@https://ipfs.io;@$IPFS_GATEWAY_ORIGIN;@g" /etc/nginx/conf.d/shared.conf;
