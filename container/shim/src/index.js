@@ -69,7 +69,7 @@ const handleCID = asyncHandler(async (req, res) => {
 
   debug(`Cache miss for ${req.path}`);
 
-  const useLassie = req.headers["x-fetcher"]?.includes("bifrost-gateway");
+  const useLassie = req.headers["user-agent"]?.includes("bifrost-gateway");
   if (useLassie && LASSIE_ORIGIN) {
     return respondFromLassie(req, res, { cidObj, format });
   }
