@@ -45,7 +45,7 @@ fi
 
 nginx -g "daemon off;" &
 
-export LASSIE_ORIGIN=http://localhost:7766
+export LASSIE_ORIGIN=http://127.0.0.1:7766
 
 if [ "${LASSIE_ORIGIN:-}" != "" ]; then
   lassie daemon -p 7766 &
