@@ -1,5 +1,5 @@
 import fsPromises from "node:fs/promises";
-import { join, dirname } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import express from "express";
 import mimeTypes from "mime-types";
@@ -8,9 +8,9 @@ import { CID } from "multiformats";
 
 import { respondFromIPFSGateway } from "./fetchers/ipfs-gateway.js";
 import { respondFromLassie } from "./fetchers/lassie.js";
-import { maybeRespondFromL2, registerL2Node, cancelCarRequest } from "./fetchers/l2-node.js";
+import { cancelCarRequest, maybeRespondFromL2, registerL2Node } from "./fetchers/l2-node.js";
 import { addRegisterCheckRoute } from "./modules/registration.js";
-import { LASSIE_ORIGIN, NODE_VERSION, SATURN_NETWORK, TESTING_CID } from "./config.js";
+import { LASSIE_ORIGIN, SATURN_NETWORK, TESTING_CID } from "./config.js";
 import { getResponseFormat } from "./utils/http.js";
 import { debug } from "./utils/logging.js";
 
@@ -64,7 +64,6 @@ const handleCID = asyncHandler(async (req, res) => {
 
   // Testing CID
   if (cid === TESTING_CID) {
-    res.set("Saturn-Node-Version", NODE_VERSION);
     return res.send(testCAR);
   }
 
