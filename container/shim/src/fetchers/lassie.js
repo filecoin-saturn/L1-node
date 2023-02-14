@@ -4,7 +4,6 @@ import https from "node:https";
 import { CarBlockIterator } from "@ipld/car";
 import LRU from "lru-cache";
 import { base64 } from "multiformats/bases/base64";
-import write from "stream-write";
 
 import { LASSIE_ORIGIN } from "../config.js";
 import { streamCAR, validateCarBlock } from "../utils/car.js";
@@ -41,7 +40,7 @@ export function respondFromLassie(req, res, { cidObj, format }) {
 
   if (isInBlockCache) {
     const block = blockCache.get(cacheKey);
-    return respondFromBlockCache(res, cid, block);
+    return sendBlockResponse(res, block, cid);
   }
 
   const lassieUrl = new URL(LASSIE_ORIGIN + toUtf8(req.path));
@@ -112,14 +111,14 @@ export function respondFromLassie(req, res, { cidObj, format }) {
 
 /**
  * @param {Response} res
- * @param {string} cid
  * @param {Uint8Array} block
+ * @param {string} cid
  */
-function respondFromBlockCache(res, cid, block) {
+function sendBlockResponse(res, block, cid) {
   res.status(200);
   res.set("content-length", Buffer.byteLength(block));
   res.set("content-type", "application/vnd.ipld.raw");
-  // TODO: Write headers
+  res.set("content-disposition", `attachment; filename="${cid}.bin"`);
   res.end(block);
 }
 
@@ -157,8 +156,7 @@ async function getRequestedBlockFromCar(streamIn, streamOut, requestedCidV1, pat
         throw new Error(`Requested CID ${requestedCidV1} doesn't equal first block CID ${rootCid}.`);
       }
 
-      await write(streamOut, bytes);
-      streamOut.end();
+      sendBlockResponse(streamOut, bytes, cidV1.toString())
     } else {
       const cacheKey = cidToCacheKey(cidV1);
       blockCache.set(cacheKey, bytes);
