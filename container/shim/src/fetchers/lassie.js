@@ -2,6 +2,7 @@ import http from "node:http";
 import https from "node:https";
 
 import { CarBlockIterator } from "@ipld/car";
+import DebugModule from "debug";
 import LRU from "lru-cache";
 import { base64 } from "multiformats/bases/base64";
 import write from "stream-write";
@@ -12,6 +13,8 @@ import { proxyResponseHeaders, toUtf8 } from "../utils/http.js";
 import { debug as Debug } from "../utils/logging.js";
 
 const debug = Debug.extend("lassie");
+debug.enabled = false // temporary until Lassie is stable.
+
 const LASSIE_TIMEOUT = 120_000;
 
 const agentOpts = {
@@ -29,7 +32,7 @@ const blockCache = new LRU({
 const cidToCacheKey = (cidObj) => base64.baseEncode(cidObj.multihash.bytes);
 
 export function respondFromLassie(req, res, { cidObj, format }) {
-  debug(`Fetch ${req.path} from Lassie`);
+  debug(`Fetch ${req.path}`);
 
   const cacheKey = cidToCacheKey(cidObj);
   const cidV1 = cidObj.toV1();
@@ -71,7 +74,7 @@ export function respondFromLassie(req, res, { cidObj, format }) {
         if (statusCode === 200) {
           res.set("Cache-Control", "public, max-age=29030400, immutable");
         } else if (statusCode >= 400) {
-          debug.extend("error")(`Invalid response from Lassie (${statusCode}) for ${cid}`);
+          debug.extend("error")(`Invalid status (${statusCode}) for ${cid}`);
           res.end();
           return;
         }
@@ -86,7 +89,7 @@ export function respondFromLassie(req, res, { cidObj, format }) {
     )
     .on("error", (err) => {
       clearTimeout(timeout);
-      debug.extend("error")(`Error fetching from Lassie for ${cid}: ${err.name} ${err.message}`);
+      debug.extend("error")(`Error fetching ${cid}: ${err.name} ${err.message}`);
       if (controller.signal.aborted) {
         return res.sendStatus(504);
       }
@@ -94,7 +97,7 @@ export function respondFromLassie(req, res, { cidObj, format }) {
     })
     .on("timeout", () => {
       clearTimeout(timeout);
-      debug.extend("error")(`Timeout from Lassie for ${cid}`);
+      debug.extend("error")(`Timeout for ${cid}`);
       lassieReq.destroy();
       res.destroy();
     });
@@ -102,7 +105,7 @@ export function respondFromLassie(req, res, { cidObj, format }) {
   req.on("close", () => {
     clearTimeout(timeout);
     if (!res.writableEnded) {
-      debug.extend("error")("Client aborted early, terminating lassie request");
+      debug.extend("error")("Client aborted early, terminating request");
       lassieReq.destroy();
     }
   });
