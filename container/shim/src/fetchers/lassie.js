@@ -2,7 +2,6 @@ import http from "node:http";
 import https from "node:https";
 
 import { CarBlockIterator } from "@ipld/car";
-import DebugModule from "debug";
 import LRU from "lru-cache";
 import { base64 } from "multiformats/bases/base64";
 import write from "stream-write";
@@ -13,7 +12,7 @@ import { proxyResponseHeaders, toUtf8 } from "../utils/http.js";
 import { debug as Debug } from "../utils/logging.js";
 
 const debug = Debug.extend("lassie");
-debug.enabled = false // temporary until Lassie is stable.
+debug.enabled = false; // temporary until Lassie is stable.
 
 const LASSIE_TIMEOUT = 120_000;
 
