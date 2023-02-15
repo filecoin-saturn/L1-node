@@ -1,9 +1,11 @@
 import http from "node:http";
 import https from "node:https";
+import { Transform } from "node:stream"
 
 import { CarBlockIterator } from "@ipld/car";
 import LRU from "lru-cache";
 import { base64 } from "multiformats/bases/base64";
+import fetch from "node-fetch";
 
 import { LASSIE_ORIGIN } from "../config.js";
 import { streamCAR, validateCarBlock } from "../utils/car.js";
@@ -11,7 +13,8 @@ import { proxyResponseHeaders, toUtf8 } from "../utils/http.js";
 import { debug as Debug } from "../utils/logging.js";
 
 const debug = Debug.extend("lassie");
-debug.enabled = false; // temporary until Lassie is stable.
+const debugErr = debug.extend("error")
+debug.enabled = false // temporary until Lassie is stable.
 
 const LASSIE_TIMEOUT = 120_000;
 
@@ -29,7 +32,7 @@ const blockCache = new LRU({
 
 const cidToCacheKey = (cidObj) => base64.baseEncode(cidObj.multihash.bytes);
 
-export function respondFromLassie(req, res, { cidObj, format }) {
+export async function respondFromLassie(req, res, { cidObj, format }) {
   debug(`Fetch ${req.path}`);
 
   const cacheKey = cidToCacheKey(cidObj);
@@ -49,64 +52,71 @@ export function respondFromLassie(req, res, { cidObj, format }) {
   }
   lassieUrl.searchParams.set("format", "car");
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), LASSIE_TIMEOUT);
+  const startTime = new Date()
+  let endTime = null
+  let ttfbMs = null
+  let numBytesDownloaded = 0
 
-  const _http = lassieUrl.protocol === "https:" ? https : http;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), LASSIE_TIMEOUT);
+
   const agent = lassieUrl.protocol === "https:" ? httpsAgent : httpAgent;
 
-  const lassieReq = _http
-    .get(
-      lassieUrl,
-      {
-        agent,
-        timeout: LASSIE_TIMEOUT,
-        signal: controller.signal,
-      },
-      (fetchRes) => {
-        clearTimeout(timeout);
-        const { statusCode } = fetchRes;
-
-        res.status(statusCode);
-
-        if (statusCode === 200) {
-          res.set("Cache-Control", "public, max-age=29030400, immutable");
-        } else if (statusCode >= 400) {
-          debug.extend("error")(`Invalid status (${statusCode}) for ${cid}`);
-          res.end();
-          return;
-        }
-
-        if (isRawFormat) {
-          getRequestedBlockFromCar(fetchRes, res, cidV1, req.params.path).catch((err) => debug(err));
-        } else {
-          proxyResponseHeaders(fetchRes, res);
-          streamCAR(fetchRes, res).catch(() => {});
-        }
+  // No transform, just observe data to record metrics.
+  const metricsStream = new Transform({
+    transform(chunk, encoding, cb) {
+      if (ttfbMs === null) {
+          ttfbMs = new Date() - startTime
       }
-    )
-    .on("error", (err) => {
-      clearTimeout(timeout);
-      debug.extend("error")(`Error fetching ${cid}: ${err.name} ${err.message}`);
-      if (controller.signal.aborted) {
-        return res.sendStatus(504);
-      }
-      if (!res.headersSent) res.sendStatus(502);
-    })
-    .on("timeout", () => {
-      clearTimeout(timeout);
-      debug.extend("error")(`Timeout for ${cid}`);
-      lassieReq.destroy();
-      res.destroy();
-    });
+      numBytesDownloaded += chunk.length
+      cb(null, chunk);
+    },
+  });
 
   req.on("close", () => {
-    clearTimeout(timeout);
+    clearTimeout(timeoutId);
     if (!res.writableEnded) {
-      debug.extend("error")("Client aborted early, terminating request");
-      lassieReq.destroy();
+      debugErr("Client aborted early, terminating request");
+      controller.abort()
     }
   });
+
+  let lassieRes
+
+  try {
+    lassieRes = await fetch(lassieUrl, { agent, signal: controller.signal });
+    const { status } = lassieRes;
+    res.status(status);
+
+    if (!lassieRes.ok) {
+      debugErr(`Invalid status (${status}) for ${cid}`);
+      return res.end();
+    } else {
+      res.set("Cache-Control", "public, max-age=29030400, immutable");
+    }
+    const carStream = lassieRes.body.pipe(metricsStream)
+
+    if (isRawFormat) {
+      await getRequestedBlockFromCar(carStream, res, cidV1, req.params.path)
+    } else {
+      proxyResponseHeaders(lassieRes, res);
+      await streamCAR(carStream, res)
+    }
+  } catch (err) {
+    if (controller.signal.aborted) {
+      debugErr(`Timeout for ${cid}`);
+      res.sendStatus(504);
+    } else {
+      debugErr(`Error fetching ${cid}: ${err.name} ${err.message}`);
+
+      if (!res.headersSent) res.sendStatus(502);
+    }
+  } finally {
+    clearTimeout(timeoutId);
+    endTime = new Date()
+
+  }
+
 }
 
 /**
@@ -119,6 +129,7 @@ function sendBlockResponse(res, block, cid) {
   res.set("content-length", Buffer.byteLength(block));
   res.set("content-type", "application/vnd.ipld.raw");
   res.set("content-disposition", `attachment; filename="${cid}.bin"`);
+  res.set("etag", `"${cid}.raw"`);
   res.end(block);
 }
 
