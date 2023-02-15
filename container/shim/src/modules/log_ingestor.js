@@ -113,7 +113,7 @@ function parseSingleLine(line) {
  * @param {Array} logs - array of parsed bandwidth logs
  * @returns {Promise<void>} - resolves once the logs are successfully submitted to the orchestrator
  */
-async function submitLogs(logs) {
+async function submitBandwidthLogs(logs) {
   // calculate total bytes sent to clients and cache hit rate for this batch or retrievals
   const { bytesSent, cacheHits } = logs.reduce(
     (acc, log) => ({
@@ -129,13 +129,23 @@ async function submitLogs(logs) {
 
   const submitTime = Date.now();
 
-  await fetch(LOG_INGESTOR_URL, {
-    method: "POST",
-    body: JSON.stringify({ nodeId, filAddress: FIL_WALLET_ADDRESS, bandwidthLogs: logs }),
-    headers: { Authentication: nodeToken, "Content-Type": "application/json", "User-Agent": NODE_UA },
-  });
+  const body = JSON.stringify({ nodeId, filAddress: FIL_WALLET_ADDRESS, bandwidthLogs: logs })
+  await submitLogs(body)
 
   debug(`Retrievals submitted succesfully to wallet ${FIL_WALLET_ADDRESS} in ${Date.now() - submitTime}ms`);
+}
+
+export async function submitLassieLogs(lassieLogs) {
+  const body = JSON.stringify({ nodeId, lassieLogs })
+  await submitLogs(body)
+}
+
+async function submitLogs (body) {
+  await fetch(LOG_INGESTOR_URL, {
+    method: "POST",
+    body,
+    headers: { Authentication: nodeToken, "Content-Type": "application/json", "User-Agent": NODE_UA },
+  });
 }
 
 /**
@@ -192,7 +202,7 @@ async function executeLogIngestor() {
     if (logs.length) {
       try {
         // submit parsed logs to the orchestrator
-        await submitLogs(logs);
+        await submitBandwidthLogs(logs);
 
         // mark the lines as read once they have been submitted successfully
         // which persists new read bytes offset to the disk so it will not be read again

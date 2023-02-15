@@ -8,6 +8,7 @@ import { base64 } from "multiformats/bases/base64";
 import fetch from "node-fetch";
 
 import { LASSIE_ORIGIN } from "../config.js";
+import { submitLassieLogs } from "../modules/log_ingestor.js";
 import { streamCAR, validateCarBlock } from "../utils/car.js";
 import { proxyResponseHeaders, toUtf8 } from "../utils/http.js";
 import { debug as Debug } from "../utils/logging.js";
@@ -18,9 +19,7 @@ debug.enabled = false // temporary until Lassie is stable.
 
 const LASSIE_TIMEOUT = 120_000;
 
-const agentOpts = {
-  keepAlive: true,
-};
+const agentOpts = { keepAlive: true };
 const httpsAgent = new https.Agent(agentOpts);
 const httpAgent = new http.Agent(agentOpts);
 
@@ -29,12 +28,16 @@ const blockCache = new LRU({
   sizeCalculation: (block) => Buffer.byteLength(block),
   allowStale: true,
 });
-
 const cidToCacheKey = (cidObj) => base64.baseEncode(cidObj.multihash.bytes);
+
+const metrics = []
+const METRICS_REPORT_INTERVAL = 5_000
+let lastMetricsReportDate = null
 
 export async function respondFromLassie(req, res, { cidObj, format }) {
   debug(`Fetch ${req.path}`);
 
+  const requestId = req.headers['saturn-transfer-id']
   const cacheKey = cidToCacheKey(cidObj);
   const cidV1 = cidObj.toV1();
   const cid = cidV1.toString();
@@ -46,16 +49,16 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     return sendBlockResponse(res, block, cid);
   }
 
+  const startTime = new Date()
+  let endTime = null
+  let ttfbTime = null
+  let numBytesDownloaded = 0
+
   const lassieUrl = new URL(LASSIE_ORIGIN + toUtf8(req.path));
   for (const [key, val] of Object.entries(req.query)) {
     lassieUrl.searchParams.set(key, toUtf8(val));
   }
   lassieUrl.searchParams.set("format", "car");
-
-  const startTime = new Date()
-  let endTime = null
-  let ttfbMs = null
-  let numBytesDownloaded = 0
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), LASSIE_TIMEOUT);
@@ -65,8 +68,8 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
   // No transform, just observe data to record metrics.
   const metricsStream = new Transform({
     transform(chunk, encoding, cb) {
-      if (ttfbMs === null) {
-          ttfbMs = new Date() - startTime
+      if (ttfbTime === null) {
+          ttfbTime = new Date()
       }
       numBytesDownloaded += chunk.length
       cb(null, chunk);
@@ -82,9 +85,18 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
   });
 
   let lassieRes
+  let requestErr
 
   try {
-    lassieRes = await fetch(lassieUrl, { agent, signal: controller.signal });
+    const fetchOpts = {
+      agent,
+      signal: controller.signal,
+      headers: {
+        'X-Request-ID': requestId
+      }
+    }
+    lassieRes = await fetch(lassieUrl, fetchOpts);
+
     const { status } = lassieRes;
     res.status(status);
 
@@ -111,10 +123,23 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
 
       if (!res.headersSent) res.sendStatus(502);
     }
+
+    requestErr = err.message
   } finally {
     clearTimeout(timeoutId);
     endTime = new Date()
 
+    metrics.push({
+      startTime,
+      ttfbTime,
+      endTime,
+      numBytesDownloaded,
+      requestId,
+      url: req.protocol + '://' + req.get('host') + req.originalUrl,
+      httpStatusCode: lassieRes?.status ?? null,
+      requestErr
+    })
+    queueMetricsReport()
   }
 
 }
@@ -173,5 +198,30 @@ async function getRequestedBlockFromCar(streamIn, streamOut, requestedCidV1, pat
       blockCache.set(cacheKey, bytes);
     }
     count++;
+  }
+}
+
+async function queueMetricsReport () {
+  const date = lastMetricsReportDate
+  const canReport = !date || (new Date() - date) > METRICS_REPORT_INTERVAL
+  if (!canReport || !metrics.length) {
+    return
+  }
+
+  const logsToReport = metrics.splice(0)
+  const chunkSize = 500
+  const promises = []
+
+  for (let i = 0; i < logsToReport.length; i += chunkSize) {
+      const logs = logsToReport.slice(i, i + chunkSize)
+      promises.push(submitLassieLogs(logs))
+  }
+
+  lastMetricsReportDate = new Date()
+
+  try {
+    await Promise.all(promises)
+  } catch (err) {
+    debugErr(err)
   }
 }
