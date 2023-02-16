@@ -15,7 +15,7 @@ import { debug as Debug } from "../utils/logging.js";
 
 const debug = Debug.extend("lassie");
 const debugErr = debug.extend("error");
-debug.enabled = false; // temporary until Lassie is stable.
+debug.enabled = false; // temporary until Lassie is stable
 
 const LASSIE_TIMEOUT = 120_000;
 
