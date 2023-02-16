@@ -129,7 +129,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     clearTimeout(timeoutId);
     endTime = new Date();
 
-    metrics.push({
+    queueMetricsReport({
       startTime,
       ttfbTime,
       endTime,
@@ -139,7 +139,6 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
       httpStatusCode: lassieRes?.status ?? null,
       requestErr,
     });
-    queueMetricsReport();
   }
 }
 
