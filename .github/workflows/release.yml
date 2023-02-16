@@ -115,3 +115,5 @@ jobs:
             GIT_COMMIT_HASH=${{ github.sha }}
             RUN_NUMBER=${{ github.run_number }}
             SATURN_NETWORK=${{ env.SATURN_NETWORK }}
+            LASSIE_EVENT_RECORDER_URL=${{ secrets.LASSIE_EVENT_RECORDER_URL }}
+            LASSIE_EVENT_RECORDER_AUTH=${{ secrets.LASSIE_EVENT_RECORDER_AUTH }}
