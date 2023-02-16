@@ -48,7 +48,8 @@ nginx -g "daemon off;" &
 export LASSIE_ORIGIN=http://127.0.0.1:7766
 
 if [ "${LASSIE_ORIGIN:-}" != "" ]; then
-  lassie daemon -p 7766 &>/dev/null &
+  node_id = "$(cat /usr/src/app/shared/nodeId.txt})"
+  lassie daemon -p 7766 --event-recorder-url $LASSIE_EVENT_RECORDER_URL --event-recorder-auth $LASSIE_EVENT_RECORDER_AUTH  --event-recorder-instance-id $node_id &>/dev/null &
   LASSIE_PID=$!
 
   exec node --max-old-space-size=2048 src/bin/shim.js &
