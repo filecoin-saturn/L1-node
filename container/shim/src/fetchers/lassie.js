@@ -30,9 +30,9 @@ const blockCache = new LRU({
 });
 const cidToCacheKey = (cidObj) => base64.baseEncode(cidObj.multihash.bytes);
 
-const metrics = [];
-const METRICS_REPORT_INTERVAL = 5_000;
+let metrics = [];
 let lastMetricsReportDate = null;
+const METRICS_REPORT_INTERVAL = 5_000;
 
 export async function respondFromLassie(req, res, { cidObj, format }) {
   debug(`Fetch ${req.path}`);
@@ -199,23 +199,24 @@ async function getRequestedBlockFromCar(streamIn, streamOut, requestedCidV1, pat
   }
 }
 
-async function queueMetricsReport(newMetrics) {
-  metrics.push(newMetrics)
+async function queueMetricsReport(newMetric) {
+  metrics.push(newMetric);
+
   const date = lastMetricsReportDate;
   const canReport = !date || new Date() - date > METRICS_REPORT_INTERVAL;
-  if (!canReport || !metrics.length) {
+  if (!canReport) {
     return;
   }
 
-  const logsToReport = metrics.splice(0);
   const chunkSize = 500;
   const promises = [];
 
-  for (let i = 0; i < logsToReport.length; i += chunkSize) {
-    const logs = logsToReport.slice(i, i + chunkSize);
+  for (let i = 0; i < metrics.length; i += chunkSize) {
+    const logs = metrics.slice(i, i + chunkSize);
     promises.push(submitLassieLogs(logs));
   }
 
+  metrics = [];
   lastMetricsReportDate = new Date();
 
   try {
