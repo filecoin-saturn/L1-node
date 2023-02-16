@@ -129,18 +129,18 @@ async function submitBandwidthLogs(logs) {
 
   const submitTime = Date.now();
 
-  const body = JSON.stringify({ nodeId, filAddress: FIL_WALLET_ADDRESS, bandwidthLogs: logs })
-  await submitLogs(body)
+  const body = JSON.stringify({ nodeId, filAddress: FIL_WALLET_ADDRESS, bandwidthLogs: logs });
+  await submitLogs(body);
 
   debug(`Retrievals submitted succesfully to wallet ${FIL_WALLET_ADDRESS} in ${Date.now() - submitTime}ms`);
 }
 
 export async function submitLassieLogs(lassieLogs) {
-  const body = JSON.stringify({ nodeId, lassieLogs })
-  await submitLogs(body)
+  const body = JSON.stringify({ nodeId, lassieLogs });
+  await submitLogs(body);
 }
 
-async function submitLogs (body) {
+async function submitLogs(body) {
   await fetch(LOG_INGESTOR_URL, {
     method: "POST",
     body,
