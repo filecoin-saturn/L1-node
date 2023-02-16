@@ -72,7 +72,7 @@ export async function register(initial = false) {
       debug(error.message);
       throw error;
     }
-    verifyUplinkRequirements(requirements.minUploadSpeedMbps, speedtest);
+    verifyLinkRequirements(requirements, speedtest);
     Object.assign(stats, { speedtest });
   }
 
@@ -226,16 +226,28 @@ function verifyHWRequirements(requirements, stats) {
   debug("All requirements met");
 }
 
-function verifyUplinkRequirements(minUploadSpeedMbps, speedtest) {
-  if (!speedtest || speedtest?.upload.bandwidth < (minUploadSpeedMbps * 1_000_000) / 8) {
+function verifyLinkRequirements(requirements, speedtest) {
+  if (!speedtest) {
+    throw new Error("No speedtest result");
+  }
+
+  if (speedtest.upload.bandwidth < (requirements.minUploadSpeedMbps * 1_000_000) / 8) {
     throw new Error(
-      `Not enough upload speed. Required: ${minUploadSpeedMbps} Mbps, current: ${
+      `Not enough upload speed. Required: ${requirements.minUploadSpeedMbps} Mbps, current: ${
         (speedtest.upload.bandwidth / 1_000_000) * 8
       } Mbps`
     );
   }
 
-  debug("Speed requirement met");
+  if (speedtest.download.bandwidth < (requirements.minDownloadSpeedMbps * 1_000_000) / 8) {
+    throw new Error(
+      `Not enough download speed. Required: ${requirements.minDownloadSpeedMbps} Mbps, current: ${
+        (speedtest.download.bandwidth / 1_000_000) * 8
+      } Mbps`
+    );
+  }
+
+  debug("Speeds requirements met");
 }
 
 function postOptions(body) {
