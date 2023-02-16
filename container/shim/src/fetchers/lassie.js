@@ -200,7 +200,8 @@ async function getRequestedBlockFromCar(streamIn, streamOut, requestedCidV1, pat
   }
 }
 
-async function queueMetricsReport() {
+async function queueMetricsReport(newMetrics) {
+  metrics.push(newMetrics)
   const date = lastMetricsReportDate;
   const canReport = !date || new Date() - date > METRICS_REPORT_INTERVAL;
   if (!canReport || !metrics.length) {
