@@ -1,6 +1,6 @@
 import http from "node:http";
 import https from "node:https";
-import { Transform } from "node:stream"
+import { Transform } from "node:stream";
 
 import { CarBlockIterator } from "@ipld/car";
 import LRU from "lru-cache";
@@ -8,19 +8,18 @@ import { base64 } from "multiformats/bases/base64";
 import fetch from "node-fetch";
 
 import { LASSIE_ORIGIN } from "../config.js";
+import { submitLassieLogs } from "../modules/log_ingestor.js";
 import { streamCAR, validateCarBlock } from "../utils/car.js";
 import { proxyResponseHeaders, toUtf8 } from "../utils/http.js";
 import { debug as Debug } from "../utils/logging.js";
 
 const debug = Debug.extend("lassie");
-const debugErr = debug.extend("error")
-debug.enabled = false // temporary until Lassie is stable.
+const debugErr = debug.extend("error");
+debug.enabled = false; // temporary until Lassie is stable.
 
 const LASSIE_TIMEOUT = 120_000;
 
-const agentOpts = {
-  keepAlive: true,
-};
+const agentOpts = { keepAlive: true };
 const httpsAgent = new https.Agent(agentOpts);
 const httpAgent = new http.Agent(agentOpts);
 
@@ -29,12 +28,16 @@ const blockCache = new LRU({
   sizeCalculation: (block) => Buffer.byteLength(block),
   allowStale: true,
 });
-
 const cidToCacheKey = (cidObj) => base64.baseEncode(cidObj.multihash.bytes);
+
+let metrics = [];
+let lastMetricsReportDate = null;
+const METRICS_REPORT_INTERVAL = 5_000;
 
 export async function respondFromLassie(req, res, { cidObj, format }) {
   debug(`Fetch ${req.path}`);
 
+  const requestId = req.headers["saturn-transfer-id"];
   const cacheKey = cidToCacheKey(cidObj);
   const cidV1 = cidObj.toV1();
   const cid = cidV1.toString();
@@ -46,16 +49,16 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     return sendBlockResponse(res, block, cid);
   }
 
+  const startTime = new Date();
+  let endTime = null;
+  let ttfbTime = null;
+  let numBytesDownloaded = 0;
+
   const lassieUrl = new URL(LASSIE_ORIGIN + toUtf8(req.path));
   for (const [key, val] of Object.entries(req.query)) {
     lassieUrl.searchParams.set(key, toUtf8(val));
   }
   lassieUrl.searchParams.set("format", "car");
-
-  const startTime = new Date()
-  let endTime = null
-  let ttfbMs = null
-  let numBytesDownloaded = 0
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), LASSIE_TIMEOUT);
@@ -65,10 +68,10 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
   // No transform, just observe data to record metrics.
   const metricsStream = new Transform({
     transform(chunk, encoding, cb) {
-      if (ttfbMs === null) {
-          ttfbMs = new Date() - startTime
+      if (ttfbTime === null) {
+        ttfbTime = new Date();
       }
-      numBytesDownloaded += chunk.length
+      numBytesDownloaded += chunk.length;
       cb(null, chunk);
     },
   });
@@ -77,14 +80,23 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     clearTimeout(timeoutId);
     if (!res.writableEnded) {
       debugErr("Client aborted early, terminating request");
-      controller.abort()
+      controller.abort();
     }
   });
 
-  let lassieRes
+  let lassieRes;
+  let requestErr;
 
   try {
-    lassieRes = await fetch(lassieUrl, { agent, signal: controller.signal });
+    const fetchOpts = {
+      agent,
+      signal: controller.signal,
+      headers: {
+        "X-Request-ID": requestId,
+      },
+    };
+    lassieRes = await fetch(lassieUrl, fetchOpts);
+
     const { status } = lassieRes;
     res.status(status);
 
@@ -94,13 +106,13 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     } else {
       res.set("Cache-Control", "public, max-age=29030400, immutable");
     }
-    const carStream = lassieRes.body.pipe(metricsStream)
+    const carStream = lassieRes.body.pipe(metricsStream);
 
     if (isRawFormat) {
-      await getRequestedBlockFromCar(carStream, res, cidV1, req.params.path)
+      await getRequestedBlockFromCar(carStream, res, cidV1, req.params.path);
     } else {
       proxyResponseHeaders(lassieRes, res);
-      await streamCAR(carStream, res)
+      await streamCAR(carStream, res);
     }
   } catch (err) {
     if (controller.signal.aborted) {
@@ -111,12 +123,23 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
 
       if (!res.headersSent) res.sendStatus(502);
     }
+
+    requestErr = err.message;
   } finally {
     clearTimeout(timeoutId);
-    endTime = new Date()
+    endTime = new Date();
 
+    queueMetricsReport({
+      startTime,
+      ttfbTime,
+      endTime,
+      numBytesDownloaded,
+      requestId,
+      url: req.protocol + "://" + req.get("host") + req.originalUrl,
+      httpStatusCode: lassieRes?.status ?? null,
+      requestErr,
+    });
   }
-
 }
 
 /**
@@ -167,11 +190,38 @@ async function getRequestedBlockFromCar(streamIn, streamOut, requestedCidV1, pat
         throw new Error(`Requested CID ${requestedCidV1} doesn't equal first block CID ${rootCid}.`);
       }
 
-      sendBlockResponse(streamOut, bytes, cidV1.toString())
+      sendBlockResponse(streamOut, bytes, cidV1.toString());
     } else {
       const cacheKey = cidToCacheKey(cidV1);
       blockCache.set(cacheKey, bytes);
     }
     count++;
+  }
+}
+
+async function queueMetricsReport(newMetric) {
+  metrics.push(newMetric);
+
+  const date = lastMetricsReportDate;
+  const canReport = !date || new Date() - date > METRICS_REPORT_INTERVAL;
+  if (!canReport) {
+    return;
+  }
+
+  const chunkSize = 500;
+  const promises = [];
+
+  for (let i = 0; i < metrics.length; i += chunkSize) {
+    const logs = metrics.slice(i, i + chunkSize);
+    promises.push(submitLassieLogs(logs));
+  }
+
+  metrics = [];
+  lastMetricsReportDate = new Date();
+
+  try {
+    await Promise.all(promises);
+  } catch (err) {
+    debugErr(err);
   }
 }
