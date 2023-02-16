@@ -65,7 +65,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
 
   const agent = lassieUrl.protocol === "https:" ? httpsAgent : httpAgent;
 
-  // No transform, just observe data to record metrics.
+  // No transform, just record metrics.
   const metricsStream = new Transform({
     transform(chunk, encoding, cb) {
       if (ttfbTime === null) {
