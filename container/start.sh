@@ -55,7 +55,7 @@ if [ "${LASSIE_ORIGIN:-}" != "" ]; then
     &>/dev/null &
   LASSIE_PID=$!
 
-  exec node --max-old-space-size=2048 src/bin/shim.js &
+  exec node --max-old-space-size=2048 /usr/src/app/src/bin/shim.js &
   SHIM_PID=$!
 
   wait -n $LASSIE_PID $SHIM_PID
