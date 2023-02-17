@@ -120,7 +120,7 @@ RUN npm ci --production --ignore-scripts
 COPY container/shim ./
 COPY container/nginx /etc/nginx/
 
-ARG RUN_NUMBER="9999"
+ARG RUN_NUMBER="0"
 ARG GIT_COMMIT_HASH="dev"
 ARG SATURN_NETWORK="local"
 ARG ORCHESTRATOR_URL
