@@ -58,6 +58,12 @@ if [ "${LASSIE_ORIGIN:-}" != "" ]; then
   exec node --max-old-space-size=2048 /usr/src/app/src/bin/shim.js &
   SHIM_PID=$!
 
+  _term() {
+    kill -TERM "$SHIM_PID" 2>/dev/null
+  }
+
+  trap _term SIGTERM
+
   wait -n $LASSIE_PID $SHIM_PID
   exit $?
 else
