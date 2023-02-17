@@ -117,6 +117,7 @@ COPY container/shim/package*.json ./
 RUN npm ci --production --ignore-scripts
 
 # copy the generated modules and all other files to the container
+COPY container/start.sh ./
 COPY container/shim ./
 COPY container/nginx /etc/nginx/
 

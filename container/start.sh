@@ -61,5 +61,5 @@ if [ "${LASSIE_ORIGIN:-}" != "" ]; then
   wait -n $LASSIE_PID $SHIM_PID
   exit $?
 else
-  exec node src/bin/shim.js
+  exec node /usr/src/app/src/bin/shim.js
 fi
