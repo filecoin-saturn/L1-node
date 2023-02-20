@@ -144,7 +144,7 @@ async function submitLogs(body) {
   await fetch(LOG_INGESTOR_URL, {
     method: "POST",
     body,
-    headers: { Authentication: nodeToken, "Content-Type": "application/json", "User-Agent": NODE_UA },
+    headers: { Authorization: `Bearer ${nodeToken}`, "Content-Type": "application/json", "User-Agent": NODE_UA },
   });
 }
 
