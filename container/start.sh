@@ -52,6 +52,7 @@ if [ "${LASSIE_ORIGIN:-}" != "" ]; then
     --event-recorder-url $LASSIE_EVENT_RECORDER_URL \
     --event-recorder-auth $LASSIE_EVENT_RECORDER_AUTH \
     --event-recorder-instance-id "$(cat /usr/src/app/shared/nodeId.txt)" \
+    --temp-dir /usr/src/app/shared
     &>/dev/null &
   LASSIE_PID=$!
 
