@@ -43,7 +43,7 @@ if [ -n "${IPFS_GATEWAY_ORIGIN:-}" ]; then
   sed -i "s@https://ipfs.io;@$IPFS_GATEWAY_ORIGIN;@g" /etc/nginx/conf.d/shared.conf;
 fi
 
-nginx -g "daemon off;" &
+nginx
 
 export LASSIE_ORIGIN=http://127.0.0.1:7766
 
@@ -56,11 +56,28 @@ if [ "${LASSIE_ORIGIN:-}" != "" ]; then
     &>/dev/null &
   LASSIE_PID=$!
 
-  exec node --max-old-space-size=2048 /usr/src/app/src/bin/shim.js &
+  node --max-old-space-size=4096 /usr/src/app/src/bin/shim.js &
   SHIM_PID=$!
 
+  _quit() {
+    kill -INT "$SHIM_PID" 2>/dev/null # trigger shutdown
+
+    wait "$SHIM_PID" # let shim exit itself
+
+    exit $?
+  }
+
+  _term() {
+    trap _quit SIGINT SIGQUIT # handle next wave of signals
+
+    kill -TERM "$SHIM_PID" 2>/dev/null # trigger deregistration
+
+    wait "$SHIM_PID" # keep shim alive while draining
+  }
+
+  trap _term SIGTERM
+
   wait -n $LASSIE_PID $SHIM_PID
-  exit $?
 else
-  exec node /usr/src/app/src/bin/shim.js
+  exec node --max-old-space-size=4096 /usr/src/app/src/bin/shim.js
 fi

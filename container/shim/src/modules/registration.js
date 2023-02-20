@@ -9,6 +9,7 @@ import {
   NODE_UA,
   NODE_VERSION,
   nodeId,
+  ORCHESTRATOR_REGISTRATION,
   ORCHESTRATOR_URL,
   SATURN_NETWORK,
   updateNodeToken,
@@ -171,6 +172,7 @@ export async function register(initial = false) {
 
 let deregistering;
 export async function deregister() {
+  if (!ORCHESTRATOR_REGISTRATION) return;
   if (!deregistering) deregistering = _deregister();
   return deregistering;
 }
