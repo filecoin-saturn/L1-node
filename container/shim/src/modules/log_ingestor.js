@@ -75,9 +75,6 @@ function parseSingleLine(line) {
 
   if (vars.clientAddress === "127.0.0.1") return null;
 
-  // Disable lassie logs until logging backend is updated.
-  if (vars.userAgent.includes("bifrost-gateway")) return null;
-
   const isIPFS = vars.url.pathname.startsWith("/ipfs/");
   const isIPNS = vars.url.pathname.startsWith("/ipns/");
 
