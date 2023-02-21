@@ -15,7 +15,7 @@ const limitConcurrency = pLimit(1); // setup concurrency limit to execute one at
 const NGINX_LOG_KEYS_MAP = {
   clientAddress: (values) => values.addr,
   numBytesSent: (values) => parseInt(values.bytes, 10),
-  localTime: (values) => values.time,
+  startTime: (values) => values.time,
   referrer: (values) => values.ref,
   requestId: (values) => values.id,
   requestDuration: (values) => parseFloat(values.rt),
@@ -92,7 +92,7 @@ function parseSingleLine(line) {
   return {
     cacheHit: vars.cacheHit,
     clientAddress: vars.clientAddress,
-    localTime: vars.localTime,
+    startTime: vars.startTime,
     numBytesSent: vars.numBytesSent,
     range: vars.range,
     referrer: vars.referrer,
