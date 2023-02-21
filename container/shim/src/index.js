@@ -70,8 +70,6 @@ const handleCID = asyncHandler(async (req, res) => {
   const useLassie = req.headers["user-agent"]?.includes("bifrost-gateway");
   if (useLassie && LASSIE_ORIGIN) {
     return respondFromLassie(req, res, { cidObj, format });
-  } else {
-    debug(`Cache miss for ${req.path}`);
   }
 
   if (SATURN_NETWORK !== "main" && !req.params.path && (await maybeRespondFromL2(req, res, { cid, format }))) {

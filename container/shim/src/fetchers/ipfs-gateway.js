@@ -4,8 +4,11 @@ import https from "node:https";
 
 import { streamCAR } from "../utils/car.js";
 import { proxyRequestHeaders, proxyResponseHeaders, toUtf8 } from "../utils/http.js";
-import { debug } from "../utils/logging.js";
+import { debug as Debug } from "../utils/logging.js";
 import { IPFS_GATEWAY_ORIGIN } from "../config.js";
+
+const debug = Debug.extend("ipfs-gw");
+const debugErr = debug.extend("error");
 
 const GATEWAY_TIMEOUT = 120_000;
 
@@ -17,7 +20,7 @@ const httpsAgent = new https.Agent(agentOpts);
 const httpAgent = new http.Agent(agentOpts);
 
 export function respondFromIPFSGateway(req, res, { cid, format }) {
-  debug(`Fetch ${req.path} from IPFS`);
+  debug(`Fetch ${req.path}`);
 
   const ipfsUrl = new URL(IPFS_GATEWAY_ORIGIN + toUtf8(req.path));
   if (format) {
@@ -48,7 +51,7 @@ export function respondFromIPFSGateway(req, res, { cid, format }) {
         if (statusCode === 200) {
           res.set("Cache-Control", "public, max-age=29030400, immutable");
         } else if (statusCode >= 400) {
-          debug.extend("error")(`Invalid response from IPFS gateway (${statusCode}) for ${cid}`);
+          debugErr(`Invalid response (${statusCode}) for ${cid}`);
         }
 
         res.status(statusCode);
@@ -64,7 +67,7 @@ export function respondFromIPFSGateway(req, res, { cid, format }) {
     )
     .on("error", (err) => {
       clearTimeout(timeout);
-      debug.extend("error")(`Error fetching from IPFS gateway for ${cid}: ${err.name} ${err.message}`);
+      debugErr(`Error fetching ${cid}: ${err.name} ${err.message}`);
       if (controller.signal.aborted) {
         return res.sendStatus(504);
       }
@@ -72,7 +75,7 @@ export function respondFromIPFSGateway(req, res, { cid, format }) {
     })
     .on("timeout", () => {
       clearTimeout(timeout);
-      debug.extend("error")(`Timeout from IPFS gateway for ${cid}`);
+      debugErr(`Timeout for ${cid}`);
       ipfsReq.destroy();
       res.destroy();
     });
@@ -80,7 +83,7 @@ export function respondFromIPFSGateway(req, res, { cid, format }) {
   req.on("close", () => {
     clearTimeout(timeout);
     if (!res.writableEnded) {
-      debug.extend("error")("Client aborted early, terminating gateway request");
+      debugErr("Client aborted early, terminating request");
       ipfsReq.destroy();
     }
   });

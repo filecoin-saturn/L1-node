@@ -6,8 +6,10 @@ import pDefer from "p-defer";
 import pTimeout from "p-timeout";
 
 import { streamCAR, streamRawFromCAR } from "../utils/car.js";
-import { debug } from "../utils/logging.js";
+import { debug as Debug } from "../utils/logging.js";
 import { L2_FIRE_AND_FORGET } from "../config.js";
+
+const debug = Debug.extend("L2-node");
 
 const connectedL2Nodes = new Map();
 const openCARRequests = new Map();
@@ -20,7 +22,8 @@ function removeConnectedL2Node(id) {
 }
 
 export async function maybeRespondFromL2(req, res, { cid, format }) {
-  debug(`Fetch ${req.path} from L2s`);
+  debug(`Fetch ${req.path}`);
+
   const cidHash = crypto.createHash("sha512").update(cid).digest();
   Array.from(connectedL2Nodes.values())
     .map((l2Node) => ({
