@@ -5,7 +5,6 @@ services:
     container_name: saturn-node
     restart: unless-stopped
     environment:
-      SATURN_NETWORK: "${SATURN_NETWORK:?please make sure to set your SATURN_NETWORK environment variable with either 'test' or 'main' in the .env file}"
       FIL_WALLET_ADDRESS: "${FIL_WALLET_ADDRESS:?please make sure to set your FIL_WALLET_ADDRESS environment variable in the .env file}"
       NODE_OPERATOR_EMAIL: "${NODE_OPERATOR_EMAIL:?please make sure to set your NODE_OPERATOR_EMAIL environment variable in the .env file}"
       SPEEDTEST_SERVER_CONFIG: "${SPEEDTEST_SERVER_CONFIG}"
