@@ -22,8 +22,9 @@ const agentOpts = { keepAlive: true };
 const httpsAgent = new https.Agent(agentOpts);
 const httpAgent = new http.Agent(agentOpts);
 
+const ONE_GB = 1024 ** 3;
 const blockCache = new LRU({
-  maxSize: 1024 ** 3, // 1 GB
+  maxSize: ONE_GB * 3,
   sizeCalculation: (block) => Buffer.byteLength(block),
   allowStale: true,
 });
