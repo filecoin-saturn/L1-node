@@ -76,7 +76,6 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
   });
 
   req.on("close", () => {
-    clearTimeout(timeoutId);
     if (!res.writableEnded) {
       debugErr("Client aborted early, terminating request");
       controller.abort();
@@ -105,7 +104,8 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     } else {
       res.set("Cache-Control", "public, max-age=29030400, immutable");
     }
-    pipeline(lassieRes.body, metricsStream, (err) => {});
+    // Stream errors will be propagated to the catch block.
+    pipeline(lassieRes.body, metricsStream, () => {});
 
     if (isRawFormat) {
       await getRequestedBlockFromCar(metricsStream, res, cidV1, req.params.path);
@@ -116,7 +116,8 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
   } catch (err) {
     if (controller.signal.aborted) {
       debugErr(`Timeout for ${cid}`);
-      res.sendStatus(504);
+
+      if (!res.headersSent) res.sendStatus(504);
     } else {
       debugErr(`Error fetching ${cid}: ${err.name} ${err.message}`);
 
