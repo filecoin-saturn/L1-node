@@ -1,6 +1,6 @@
 import http from "node:http";
 import https from "node:https";
-import { Transform } from "node:stream";
+import { Transform, pipeline } from "node:stream";
 
 import { CarBlockIterator } from "@ipld/car";
 import LRU from "lru-cache";
@@ -105,13 +105,13 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     } else {
       res.set("Cache-Control", "public, max-age=29030400, immutable");
     }
-    const carStream = lassieRes.body.pipe(metricsStream);
+    pipeline(lassieRes.body, metricsStream, (err) => {});
 
     if (isRawFormat) {
-      await getRequestedBlockFromCar(carStream, res, cidV1, req.params.path);
+      await getRequestedBlockFromCar(metricsStream, res, cidV1, req.params.path);
     } else {
       proxyResponseHeaders(lassieRes, res);
-      await streamCAR(carStream, res);
+      await streamCAR(metricsStream, res);
     }
   } catch (err) {
     if (controller.signal.aborted) {
