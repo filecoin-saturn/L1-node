@@ -99,14 +99,18 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     lassieRes = await fetch(lassieUrl, fetchOpts);
 
     const { status } = lassieRes;
-    res.status(status);
 
     if (!lassieRes.ok) {
-      debugErr(`Invalid status (${status}) for ${cid}`);
-      return res.end();
-    } else {
-      res.set("Cache-Control", "public, max-age=29030400, immutable");
+      const body = await lassieRes.text();
+      debugErr(`Invalid status (${status}) for ${cid}. ${body}`);
+
+      res.status(getSemanticErrorStatus(status, body));
+      return res.end(body);
     }
+
+    res.status(status);
+    res.set("Cache-Control", "public, max-age=29030400, immutable");
+
     // Stream errors will be propagated to the catch block.
     pipeline(lassieRes.body, metricsStream, () => {});
 
@@ -144,6 +148,14 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
       requestErr,
     });
   }
+}
+
+function getSemanticErrorStatus(status, body) {
+  // 404 should only be used for DAG traversal errors.
+  if (status === 404) {
+    status = 502;
+  }
+  return status;
 }
 
 /**
