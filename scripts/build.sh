@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 echo $(date -u) "[host] Building docker image"
 
 # Build the docker image and tag it

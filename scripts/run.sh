@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 : "${FIL_WALLET_ADDRESS:=f012356}"
 : "${NODE_OPERATOR_EMAIL:=dev@strn.pl}"
 : "${IPFS_GATEWAY_ORIGIN:=https://ipfs.io}"
