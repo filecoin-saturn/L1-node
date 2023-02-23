@@ -55,7 +55,7 @@ export function respondFromIPFSGateway(req, res, { cid, format }) {
         }
 
         res.status(statusCode);
-        proxyResponseHeaders(fetchRes, res);
+        proxyResponseHeaders(fetchRes.headers, res);
 
         if (format === "car") {
           streamCAR(fetchRes, res).catch(() => {});

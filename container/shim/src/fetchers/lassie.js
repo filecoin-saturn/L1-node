@@ -111,7 +111,8 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     if (isRawFormat) {
       await getRequestedBlockFromCar(metricsStream, res, cidV1, req.params.path);
     } else {
-      proxyResponseHeaders(lassieRes, res);
+      const headersObj = Object.fromEntries(lassieRes.headers.entries());
+      proxyResponseHeaders(headersObj, res);
       await streamCAR(metricsStream, res);
     }
   } catch (err) {

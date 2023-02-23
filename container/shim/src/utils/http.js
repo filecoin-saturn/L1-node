@@ -48,10 +48,10 @@ export function proxyRequestHeaders(reqHeaders) {
 }
 
 // https://github.com/ipfs/specs/blob/main/http-gateways/PATH_GATEWAY.md#response-headers
-export function proxyResponseHeaders(ipfsRes, nodeRes) {
+export function proxyResponseHeaders(headersObj, nodeRes) {
   for (const key of PROXY_RESPONSE_HEADERS) {
-    if (key in ipfsRes.headers) {
-      nodeRes.set(key, ipfsRes.headers[key]);
+    if (key in headersObj) {
+      nodeRes.set(key, headersObj[key]);
     }
   }
 }
