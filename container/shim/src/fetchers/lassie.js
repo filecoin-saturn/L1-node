@@ -16,7 +16,8 @@ import { debug as Debug } from "../utils/logging.js";
 const debug = Debug.extend("lassie");
 const debugErr = debug.extend("error");
 
-const LASSIE_TIMEOUT = 120_000;
+// Should there even be a timeout?
+const LASSIE_TIMEOUT = 1_000 * 60 * 10;
 
 const agentOpts = { keepAlive: true };
 const httpsAgent = new https.Agent(agentOpts);
