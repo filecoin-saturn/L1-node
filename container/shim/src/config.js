@@ -16,7 +16,6 @@ export const NODE_OPERATOR_EMAIL = process.env.NODE_OPERATOR_EMAIL || error("NOD
 export const IPFS_GATEWAY_ORIGIN = process.env.IPFS_GATEWAY_ORIGIN || "https://ipfs.io";
 export const LASSIE_ORIGIN = process.env.LASSIE_ORIGIN || null;
 export const TESTING_CID = "QmXjYBY478Cno4jzdCcPy4NcJYFrwHZ51xaCP8vUwN9MGm";
-export const IS_CI = process.env.CI === "true";
 
 export const nodeId = await readOrCreateNodeId();
 export const L2_FIRE_AND_FORGET = process.env.L2_FIRE_AND_FORGET

@@ -10,7 +10,7 @@ import { respondFromIPFSGateway } from "./fetchers/ipfs-gateway.js";
 import { respondFromLassie } from "./fetchers/lassie.js";
 import { cancelCarRequest, maybeRespondFromL2, registerL2Node } from "./fetchers/l2-node.js";
 import { addRegisterCheckRoute } from "./modules/registration.js";
-import { LASSIE_ORIGIN, SATURN_NETWORK, TESTING_CID, IS_CI } from "./config.js";
+import { LASSIE_ORIGIN, SATURN_NETWORK, TESTING_CID } from "./config.js";
 import { getResponseFormat } from "./utils/http.js";
 import { debug } from "./utils/logging.js";
 
@@ -70,8 +70,7 @@ const handleCID = asyncHandler(async (req, res) => {
 
   const isBifrostGateway = req.headers["user-agent"]?.includes("bifrost-gateway");
   const isSampled = Math.random() < LASSIE_SAMPLE_RATE;
-  // Disable lassie in CI because kubo-tests create a local CID that's not fetchable.
-  const useLassie = (isBifrostGateway || isSampled) && !IS_CI;
+  const useLassie = isBifrostGateway || isSampled;
 
   if (useLassie && LASSIE_ORIGIN) {
     return respondFromLassie(req, res, { cidObj, format });
