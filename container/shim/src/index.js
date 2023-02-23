@@ -15,6 +15,7 @@ import { getResponseFormat } from "./utils/http.js";
 import { debug } from "./utils/logging.js";
 
 const rootCidRegex = /^\/ip[fn]s\/[^/]+$/;
+const LASSIE_SAMPLE_RATE = 0.1;
 
 const app = express();
 
@@ -67,7 +68,7 @@ const handleCID = asyncHandler(async (req, res) => {
     return res.send(testCAR);
   }
 
-  const useLassie = req.headers["user-agent"]?.includes("bifrost-gateway");
+  const useLassie = req.headers["user-agent"]?.includes("bifrost-gateway") || Math.random() < LASSIE_SAMPLE_RATE;
   if (useLassie && LASSIE_ORIGIN) {
     return respondFromLassie(req, res, { cidObj, format });
   }
