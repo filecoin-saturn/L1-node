@@ -28,7 +28,7 @@ const blockCache = new LRU({
   sizeCalculation: (block) => Buffer.byteLength(block),
   allowStale: true,
 });
-const cidToCacheKey = (cidObj) => base64.baseEncode(cidObj.multihash.bytes);
+const cidToCacheKey = (cidObj) => base64.baseEncode(cidObj.toV1().multihash.bytes);
 
 let metrics = [];
 let lastMetricsReportDate = null;
@@ -39,14 +39,15 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
 
   const requestId = req.headers["saturn-transfer-id"];
   const cacheKey = cidToCacheKey(cidObj);
-  const cidV1 = cidObj.toV1();
-  const cid = cidV1.toString();
+  const cid = cidObj.toString();
   const isRawFormat = format === "raw";
   const isInBlockCache = isRawFormat && !req.params.path && blockCache.has(cacheKey);
+  // TODO: Lassie will error if filename doesn't end in ".car"
+  const blockFilename = req.query.filename ?? `${cid}.bin`;
 
   if (isInBlockCache) {
     const block = blockCache.get(cacheKey);
-    return sendBlockResponse(res, block, cid);
+    return sendBlockResponse(res, block, cidObj, blockFilename);
   }
 
   const startTime = new Date();
@@ -109,7 +110,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     pipeline(lassieRes.body, metricsStream, () => {});
 
     if (isRawFormat) {
-      await getRequestedBlockFromCar(metricsStream, res, cidV1, req.params.path);
+      await getRequestedBlockFromCar(metricsStream, res, cidObj, req.params.path, blockFilename);
     } else {
       const headersObj = Object.fromEntries(lassieRes.headers.entries());
       proxyResponseHeaders(headersObj, res);
@@ -147,14 +148,15 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
 /**
  * @param {Response} res
  * @param {Uint8Array} block
- * @param {string} cid
+ * @param {CID} cidObj
+ * @param {string} filename
  */
-function sendBlockResponse(res, block, cid) {
+function sendBlockResponse(res, block, cidObj, filename) {
   res.status(200);
   res.set("content-length", Buffer.byteLength(block));
   res.set("content-type", "application/vnd.ipld.raw");
-  res.set("content-disposition", `attachment; filename="${cid}.bin"`);
-  res.set("etag", `"${cid}.raw"`);
+  res.set("content-disposition", `attachment; filename="${filename}"`);
+  res.set("etag", `"${cidObj.toString()}.raw"`);
   res.end(block);
 }
 
@@ -164,13 +166,15 @@ function sendBlockResponse(res, block, cid) {
  *
  * @param {IncomingMessage || ReadableStream} streamIn
  * @param {Response} streamOut
- * @param {CID} requestedCidV1
+ * @param {CID} cidObj
  * @param {string} path
+ * @param {string} filename
  */
-async function getRequestedBlockFromCar(streamIn, streamOut, requestedCidV1, path) {
+async function getRequestedBlockFromCar(streamIn, streamOut, cidObj, path, filename) {
   const carBlockIterator = await CarBlockIterator.fromIterable(streamIn);
   const roots = await carBlockIterator.getRoots();
   const rootCid = roots[0];
+  const requestedCidV1 = cidObj.toV1();
 
   if (roots.length > 1) {
     throw new Error(`CAR file has more than one root CID.`);
@@ -192,7 +196,7 @@ async function getRequestedBlockFromCar(streamIn, streamOut, requestedCidV1, pat
         throw new Error(`Requested CID ${requestedCidV1} doesn't equal first block CID ${rootCid}.`);
       }
 
-      sendBlockResponse(streamOut, bytes, cidV1.toString());
+      sendBlockResponse(streamOut, bytes, cidObj, filename);
     } else {
       const cacheKey = cidToCacheKey(cidV1);
       blockCache.set(cacheKey, bytes);
