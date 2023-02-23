@@ -127,7 +127,7 @@ export async function register(initial = false) {
         debug(`Certificate is valid until ${cert.validTo}`);
       }
 
-      if (!cert.subjectAltName.includes("l1s")) {
+      if (cert.subjectAltName && !cert.subjectAltName.includes("l1s")) {
         debug("Certificate is missing l1s SAN, getting a new one...");
         valid = false;
       }
