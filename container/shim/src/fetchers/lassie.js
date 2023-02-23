@@ -102,7 +102,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
 
     if (!lassieRes.ok) {
       const body = await lassieRes.text();
-      debugErr(`Invalid status (${status}) for ${cid}. ${body}`);
+      debugErr(`Invalid status (${status}) for ${cid}. ${body.trim()}`);
 
       res.status(getSemanticErrorStatus(status, body));
       return res.end(body);
