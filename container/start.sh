@@ -46,12 +46,13 @@ fi
 nginx
 
 export LASSIE_ORIGIN=http://127.0.0.1:7766
-export LASSIE_EVENT_RECORDER_INSTANCE_ID = "$(cat /usr/src/app/shared/nodeId.txt)"
+export LASSIE_EVENT_RECORDER_INSTANCE_ID="$(cat /usr/src/app/shared/nodeId.txt)"
 export LASSIE_TEMP_DIRECTORY=/usr/src/app/shared
 export LASSIE_MAX_BLOCKS_PER_REQUEST=10000
 export LASSIE_LIBP2P_CONNECTIONS_LOWWATER=2000
 export LASSIE_LIBP2P_CONNECTIONS_HIGHWATER=3000
 export LASSIE_PORT=7766
+
 if [ "${LASSIE_ORIGIN:-}" != "" ]; then
   lassie daemon &>/dev/null &
   LASSIE_PID=$!
