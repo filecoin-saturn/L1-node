@@ -54,7 +54,7 @@ export LASSIE_LIBP2P_CONNECTIONS_HIGHWATER=3000
 export LASSIE_PORT=7766
 
 # Clean up leftover files in old lassie dir. Can remove this line after L1s update.
-rm /usr/src/app/shared/lassie_carstore*
+rm -f /usr/src/app/shared/lassie_carstore*
 mkdir -p $LASSIE_TEMP_DIRECTORY
 
 if [ "${LASSIE_ORIGIN:-}" != "" ]; then
