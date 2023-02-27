@@ -15,7 +15,7 @@ import { getResponseFormat } from "./utils/http.js";
 import { debug } from "./utils/logging.js";
 
 const rootCidRegex = /^\/ip[fn]s\/[^/]+$/;
-const LASSIE_SAMPLE_RATE = 0.2;
+const LASSIE_SAMPLE_RATE = 0.8;
 
 const app = express();
 
