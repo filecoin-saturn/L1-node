@@ -82,10 +82,10 @@ Multi-noding (Sharing CPU, RAM, Uplink or storage among nodes) is not allowed.**
    Note: the `.env` file [does not take precedence](https://docs.docker.com/compose/envvars-precedence/) over env variables set locally.
 
    - Set the mandatory `FIL_WALLET_ADDRESS` and `NODE_OPERATOR_EMAIL` environment variables in the `.env` file.
-   - Set `SATURN_NETWORK` environment variable in the `env` file.
+   - Set the `SATURN_NETWORK` environment variable in the `.env` file.
      - To join Saturn's Main network and earn FIL rewards, make sure to set `SATURN_NETWORK` to `main`.
      - To join Saturn's Test network, which doesn't earn FIL rewards, set `SATURN_NETWORK` to `test`. Note that this is the default value!
-   - By default, Saturn volume is mounted from `$HOME`. It can be changed by setting `$SATURN_HOME` environment variable.
+   - By default, the Saturn volume is mounted from `$HOME`. It can be changed by setting the `$SATURN_HOME` environment variable.
 
    ```bash
    curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/.env -o .env
