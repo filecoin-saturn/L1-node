@@ -47,11 +47,15 @@ nginx
 
 export LASSIE_ORIGIN=http://127.0.0.1:7766
 export LASSIE_EVENT_RECORDER_INSTANCE_ID="$(cat /usr/src/app/shared/nodeId.txt)"
-export LASSIE_TEMP_DIRECTORY=/usr/src/app/shared
+export LASSIE_TEMP_DIRECTORY=/usr/src/app/shared/lassie
 export LASSIE_MAX_BLOCKS_PER_REQUEST=10000
 export LASSIE_LIBP2P_CONNECTIONS_LOWWATER=2000
 export LASSIE_LIBP2P_CONNECTIONS_HIGHWATER=3000
 export LASSIE_PORT=7766
+
+# Clean up leftover files in old lassie dir. Can remove this line after L1s update.
+rm /usr/src/app/shared/lassie_carstore*
+mkdir -p $LASSIE_TEMP_DIRECTORY
 
 if [ "${LASSIE_ORIGIN:-}" != "" ]; then
   lassie daemon &>/dev/null &
