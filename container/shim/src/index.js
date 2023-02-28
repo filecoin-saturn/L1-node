@@ -72,12 +72,12 @@ const handleCID = asyncHandler(async (req, res) => {
   const isSampled = Math.random() < LASSIE_SAMPLE_RATE;
   const useLassie = isBifrostGateway || isSampled;
 
-  if (useLassie && LASSIE_ORIGIN) {
-    return respondFromLassie(req, res, { cidObj, format });
-  }
-
   if (SATURN_NETWORK !== "main" && !req.params.path && (await maybeRespondFromL2(req, res, { cid, format }))) {
     return;
+  }
+  
+  if (useLassie && LASSIE_ORIGIN) {
+    return respondFromLassie(req, res, { cidObj, format });
   }
 
   respondFromIPFSGateway(req, res, { cid, format });
