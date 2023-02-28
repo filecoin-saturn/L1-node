@@ -55,7 +55,7 @@ export LASSIE_PORT=7766
 export LASSIE_CONCURRENT_SP_RETRIEVALS=1
 
 # Clean up leftover files in old lassie dir. Can remove this line after L1s update.
-rm -f /usr/src/app/shared/lassie_carstore*
+find /usr/src/app/shared -name "lassie_carstore*" -exec rm {} +
 mkdir -p $LASSIE_TEMP_DIRECTORY
 
 if [ "${LASSIE_ORIGIN:-}" != "" ]; then
