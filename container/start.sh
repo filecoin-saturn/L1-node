@@ -52,6 +52,7 @@ export LASSIE_MAX_BLOCKS_PER_REQUEST=10000
 export LASSIE_LIBP2P_CONNECTIONS_LOWWATER=2000
 export LASSIE_LIBP2P_CONNECTIONS_HIGHWATER=3000
 export LASSIE_PORT=7766
+export LASSIE_CONCURRENT_SP_RETRIEVALS=1
 
 # Clean up leftover files in old lassie dir. Can remove this line after L1s update.
 rm -f /usr/src/app/shared/lassie_carstore*
