@@ -93,20 +93,32 @@ Multi-noding (Sharing CPU, RAM, Uplink or storage among nodes) is not allowed.**
 
    You can use the text editor of your choice (e.g. `nano` or `vim` on Linux)
 
-4. Download the docker-compose file
+4. Download the `docker-compose.yaml` file:
 
    ```bash
    curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml -o docker-compose.yml
    ```
 
-5. Launch it:
+5. Set up the cron job to auto-update the `docker-compose.yaml` file:
+
+   ```bash
+   crontab -e
+   ```
+
+   Add the following text to your editor, making sure to replace `$SATURN_HOME` with its value:
+
+   ```
+   */5 * * * * curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml > $SATURN_HOME/docker-compose.yml && sudo docker compose up -d
+   ```
+
+6. Launch it:
 
    ```bash
    sudo docker compose up -d
    ```
 
-6. Check logs with `docker logs -f saturn-node`
-7. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
+7. Check logs with `docker logs -f saturn-node`
+8. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
 
 In most instances speedtest does a good job of picking "close" servers but for small networks it may be incorrect.
 If the speedtest value reported by speedtest seems low, you may want to configure SPEEDTEST_SERVER_CONFIG to point to a different public speedtest server. You will need to install [speedtest CLI](https://www.speedtest.net/apps/cli) in the host and fetch close servers' IDs by doing `speedtest --servers`, then setting `SPEEDTEST_SERVER_CONFIG="--server-id=XXXXX"`
@@ -115,6 +127,7 @@ If the speedtest value reported by speedtest seems low, you may want to configur
 
 We are using a Watchtower container to update the saturn-node container.
 Your node will be updated automatically. You can see the update logs with `docker logs -f saturn-watchtower`.
+Make sure to setup the cron job to auto-update `docker-compose.yaml` as well (see above).
 
 ## Set up a node with [Ansible](https://docs.ansible.com/ansible/latest/index.html)
 
