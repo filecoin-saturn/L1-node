@@ -93,13 +93,13 @@ Multi-noding (Sharing CPU, RAM, Uplink or storage among nodes) is not allowed.**
 
    You can use the text editor of your choice (e.g. `nano` or `vim` on Linux)
 
-4. Download the `docker-compose.yaml` file:
+4. Download the `docker-compose.yml` file:
 
    ```bash
    curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml -o docker-compose.yml
    ```
 
-5. Set up the cron job to auto-update the `docker-compose.yaml` file:
+5. Set up the cron job to auto-update the `docker-compose.yml` file:
 
    ```bash
    crontab -e
@@ -127,7 +127,7 @@ If the speedtest value reported by speedtest seems low, you may want to configur
 
 We are using a Watchtower container to update the saturn-node container.
 Your node will be updated automatically. You can see the update logs with `docker logs -f saturn-watchtower`.
-Make sure to setup the cron job to auto-update `docker-compose.yaml` as well (see above).
+Make sure to setup the cron job to auto-update `docker-compose.yml` as well (see above).
 
 ## Set up a node with [Ansible](https://docs.ansible.com/ansible/latest/index.html)
 
