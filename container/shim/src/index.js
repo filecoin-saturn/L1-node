@@ -68,13 +68,13 @@ const handleCID = asyncHandler(async (req, res) => {
     return res.send(testCAR);
   }
 
-  const isBifrostGateway = req.headers["user-agent"]?.includes("bifrost-gateway");
-  const isSampled = Math.random() < LASSIE_SAMPLE_RATE;
-  const useLassie = isBifrostGateway || isSampled;
-
   if (SATURN_NETWORK !== "main" && !req.params.path && (await maybeRespondFromL2(req, res, { cid, format }))) {
     return;
   }
+
+  const isBifrostGateway = req.headers["user-agent"]?.includes("bifrost-gateway");
+  const isSampled = Math.random() < LASSIE_SAMPLE_RATE;
+  const useLassie = isBifrostGateway || isSampled;
   
   if (useLassie && LASSIE_ORIGIN) {
     return respondFromLassie(req, res, { cidObj, format });
