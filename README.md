@@ -108,7 +108,7 @@ Multi-noding (Sharing CPU, RAM, Uplink or storage among nodes) is not allowed.**
    Add the following text to your editor, making sure to replace `$SATURN_HOME` with its value:
 
    ```
-   */5 * * * * curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml > $SATURN_HOME/docker-compose.yml && sudo docker compose up -d
+   */5 * * * * cd $SATURN_HOME && curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml -o docker-compose.yml.curl && diff docker-compose.yml.curl docker-compose.yml >/dev/null || (mv -f docker-compose.yml.curl docker-compose.yml && sudo docker compose up -d)
    ```
 
 6. Launch it:
