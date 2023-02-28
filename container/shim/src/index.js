@@ -75,7 +75,7 @@ const handleCID = asyncHandler(async (req, res) => {
   const isBifrostGateway = req.headers["user-agent"]?.includes("bifrost-gateway");
   const isSampled = Math.random() < LASSIE_SAMPLE_RATE;
   const useLassie = isBifrostGateway || isSampled;
-  
+
   if (useLassie && LASSIE_ORIGIN) {
     return respondFromLassie(req, res, { cidObj, format });
   }
