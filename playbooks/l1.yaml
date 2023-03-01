@@ -124,8 +124,9 @@
     homedir: "{{ ansible_env.HOME }}"
     saturn_home: "{{ saturn_root if saturn_root is defined else homedir }}"
     env_file: "{{ lookup('file', '../.env' ) }}"
-    docker_compose: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml
-    docker_compose_update: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker_compose_update.sh
+    branch: main
+    docker_compose: "https://raw.githubusercontent.com/filecoin-saturn/L1-node/{{ branch }}/docker-compose.yml"
+    docker_compose_update: "https://raw.githubusercontent.com/filecoin-saturn/L1-node/{{ branch }}/docker_compose_update.sh"
   tasks:
     - name: Copy the .env file
       ansible.builtin.copy:
