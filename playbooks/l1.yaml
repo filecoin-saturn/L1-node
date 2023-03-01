@@ -125,6 +125,7 @@
     saturn_home: "{{ saturn_root if saturn_root is defined else homedir }}"
     env_file: "{{ lookup('file', '../.env' ) }}"
     docker_compose: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml
+    docker_compose_update: https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker_compose_update.sh
   tasks:
     - name: Copy the .env file
       ansible.builtin.copy:
@@ -135,16 +136,18 @@
         path: "{{ saturn_home }}/.env"
         block: SATURN_HOME="{{ saturn_home }}"
     - name: Get docker-compose.yml
-      become: true
-      become_user: root
       ansible.builtin.get_url:
         url: "{{ docker_compose }}"
         dest: "{{ saturn_home }}/docker-compose.yml"
+    - name: Get docker_compose_update.sh
+      ansible.builtin.get_url:
+        url: "{{ docker_compose_update }}"
+        dest: "{{ saturn_home }}/docker_compose_update.sh"
     - name: Add the cronjob to update docker-compose.yml
       ansible.builtin.cron:
         name: "update docker compose"
         minute: "*/5"
-        job: "cd '{{ saturn_home }}' && curl -fs {{ docker_compose }} -o docker-compose.yml.curl && diff docker-compose.yml.curl docker-compose.yml >/dev/null || (mv -f docker-compose.yml.curl docker-compose.yml && sudo docker compose up -d)"
+        job: "cd {{ saturn_home }} && sh docker_compose_update.sh"
     - name: Ensure we have the right $SATURN_HOME/shared permissions
       become: true
       become_user: root

@@ -99,7 +99,13 @@ Multi-noding (Sharing CPU, RAM, Uplink or storage among nodes) is not allowed.**
    curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml -o docker-compose.yml
    ```
 
-5. Set up the cron job to auto-update the `docker-compose.yml` file:
+5. Download the `docker_compose_update.sh` file:
+
+   ```bash
+   curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker_compose_update.sh -o docker_compose_update.sh
+   ```
+
+6. Set up the cron job to auto-update the `docker-compose.yml` file:
 
    ```bash
    crontab -e
@@ -108,17 +114,17 @@ Multi-noding (Sharing CPU, RAM, Uplink or storage among nodes) is not allowed.**
    Add the following text to your editor, making sure to replace `$SATURN_HOME` with its actual value:
 
    ```
-   */5 * * * * cd $SATURN_HOME && curl -fs https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml -o docker-compose.yml.curl && diff docker-compose.yml.curl docker-compose.yml >/dev/null || (mv -f docker-compose.yml.curl docker-compose.yml && sudo docker compose up -d)
+   */5 * * * * cd $SATURN_HOME && sh docker_compose_update.sh
    ```
 
-6. Launch it:
+7. Launch it:
 
    ```bash
    sudo docker compose up -d
    ```
 
-7. Check logs with `docker logs -f saturn-node`
-8. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
+8. Check logs with `docker logs -f saturn-node`
+9. Check there are no errors, registration will happen automatically and node will restart once it receives its TLS certificate
 
 In most instances speedtest does a good job of picking "close" servers but for small networks it may be incorrect.
 If the speedtest value reported by speedtest seems low, you may want to configure SPEEDTEST_SERVER_CONFIG to point to a different public speedtest server. You will need to install [speedtest CLI](https://www.speedtest.net/apps/cli) in the host and fetch close servers' IDs by doing `speedtest --servers`, then setting `SPEEDTEST_SERVER_CONFIG="--server-id=XXXXX"`
