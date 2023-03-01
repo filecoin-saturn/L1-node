@@ -115,7 +115,7 @@ Multi-noding (Sharing CPU, RAM, Uplink or storage among nodes) is not allowed.**
    Add the following text to your editor, making sure to replace `$SATURN_HOME` with its actual value:
 
    ```
-   */5 * * * * cd $SATURN_HOME && sh docker_compose_update.sh
+   */5 * * * * cd $SATURN_HOME && sh docker_compose_update.sh >> docker_compose_update.log 2>&1
    ```
 
 7. Launch it:
