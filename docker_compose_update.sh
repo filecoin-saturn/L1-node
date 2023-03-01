@@ -1,5 +1,5 @@
-#!/bin/bash
-set -eu
+#!/bin/sh
+set -eux
 
 branch="update_docker_compose"
 repo="https://raw.githubusercontent.com/filecoin-saturn/L1-node/$branch"
