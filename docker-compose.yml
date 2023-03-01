@@ -9,7 +9,6 @@ services:
       FIL_WALLET_ADDRESS: "${FIL_WALLET_ADDRESS:?please make sure to set your FIL_WALLET_ADDRESS environment variable in the .env file}"
       NODE_OPERATOR_EMAIL: "${NODE_OPERATOR_EMAIL:?please make sure to set your NODE_OPERATOR_EMAIL environment variable in the .env file}"
       SPEEDTEST_SERVER_CONFIG: "${SPEEDTEST_SERVER_CONFIG}"
-      IS_CORE_L1: "${IS_CORE_L1:=false}"
     ulimits:
       nofile:
         soft: 1000000
