@@ -112,17 +112,21 @@ function parseSingleLine(line) {
  */
 async function submitBandwidthLogs(logs) {
   // calculate total bytes sent to clients and cache hit rate for this batch or retrievals
-  const { bytesSent, cacheHits } = logs.reduce(
+  const { bytesSent, validReqs, cacheHits } = logs.reduce(
     (acc, log) => ({
       bytesSent: acc.bytesSent + log.numBytesSent, // sum of all bytes sent to clients
-      cacheHits: acc.cacheHits + (log.cacheHit ? 1 : 0), // sum of all cache hits
+      validReqs: acc.validReqs + (log.httpStatusCode === 200 ? 1 : 0), // sum of all valid hits
+      cacheHits: acc.cacheHits + (log.httpStatusCode === 200 && log.cacheHit ? 1 : 0), // sum of all cache hits
     }),
-    { bytesSent: 0, cacheHits: 0 }
+    { bytesSent: 0, validReqs: 0, cacheHits: 0 }
   );
-  const cacheHitRate = cacheHits / logs.length;
-  const cacheHitRatePercent = Math.round(cacheHitRate * 100);
+  const cacheHitRate = cacheHits / validReqs;
 
-  debug(`Submitting ${logs.length} retrievals (${prettyBytes(bytesSent)} with cache rate of ${cacheHitRatePercent}%)`);
+  debug(
+    `Submitting ${logs.length} retrievals (${prettyBytes(bytesSent)} with cache rate of ${(cacheHitRate * 100).toFixed(
+      1
+    )}%)`
+  );
 
   const submitTime = Date.now();
 
