@@ -1,4 +1,6 @@
 #!/bin/sh
+
+# keeps docker-compose.yml and itself up to date
 set -eux
 
 branch="update_docker_compose"

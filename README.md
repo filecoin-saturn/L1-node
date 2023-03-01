@@ -99,10 +99,11 @@ Multi-noding (Sharing CPU, RAM, Uplink or storage among nodes) is not allowed.**
    curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml -o docker-compose.yml
    ```
 
-5. Download the `docker_compose_update.sh` file:
+5. Download the `docker_compose_update.sh` script and make it executable:
 
    ```bash
    curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker_compose_update.sh -o docker_compose_update.sh
+   chmod +x docker_compose_update.sh
    ```
 
 6. Set up the cron job to auto-update the `docker-compose.yml` file:

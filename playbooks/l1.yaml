@@ -143,6 +143,7 @@
       ansible.builtin.get_url:
         url: "{{ docker_compose_update }}"
         dest: "{{ saturn_home }}/docker_compose_update.sh"
+        mode: +x
     - name: Add the cronjob to update docker-compose.yml
       ansible.builtin.cron:
         name: "update docker compose"
