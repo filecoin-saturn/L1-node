@@ -109,13 +109,7 @@ Multi-noding (Sharing CPU, RAM, Uplink or storage among nodes) is not allowed.**
 6. Set up the cron job to auto-update the `docker-compose.yml` file:
 
    ```bash
-   crontab -e
-   ```
-
-   Add the following text to your editor, making sure to replace `$SATURN_HOME` with its actual value:
-
-   ```
-   */5 * * * * cd $SATURN_HOME && sh docker_compose_update.sh >> docker_compose_update.log 2>&1
+   (crontab -l 2>/dev/null; echo "*/5 * * * * cd $SATURN_HOME && sh docker_compose_update.sh >> docker_compose_update.log 2>&1") | crontab -
    ```
 
 7. Launch it:
