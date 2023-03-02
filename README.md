@@ -118,8 +118,8 @@ Multi-noding (Sharing CPU, RAM, Uplink or storage among nodes) is not allowed.**
    sudo docker compose up -d
    ```
 
-6. Check logs with `docker logs -f saturn-node`
-7. Check for any errors. Registration will happen automatically and the node will restart once it receives its TLS certificate
+8. Check logs with `docker logs -f saturn-node`
+9. Check for any errors. Registration will happen automatically and the node will restart once it receives its TLS certificate
 
 In most instances speedtest does a good job of picking "close" servers but for small networks it may be incorrect.
 If the speedtest value reported by speedtest seems low, you may want to configure SPEEDTEST_SERVER_CONFIG to point to a different public speedtest server. You will need to install [speedtest CLI](https://www.speedtest.net/apps/cli) in the host and fetch close servers' IDs by doing `speedtest --servers`, then setting `SPEEDTEST_SERVER_CONFIG="--server-id=XXXXX"`
