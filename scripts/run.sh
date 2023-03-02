@@ -8,6 +8,7 @@ set -e
 : "${ORCHESTRATOR_REGISTRATION:=true}"
 : "${HTTP_PORT:=80}"
 : "${HTTPS_PORT:=443}"
+: "${IS_CORE_L1:=true}"
 
 mkdir -p $(pwd)/shared
 echo "$(date -u) [host] Running Saturn node dev, with volume in $(pwd)/shared"
@@ -21,5 +22,6 @@ docker run --name saturn-node -it --rm \
           -e "ORCHESTRATOR_REGISTRATION=$ORCHESTRATOR_REGISTRATION" \
           -e "SPEEDTEST_SERVER_CONFIG=$SPEEDTEST_SERVER_CONFIG" \
           -e "LASSIE_ORIGIN=$LASSIE_ORIGIN" \
+          -e "IS_CORE_L1=$IS_CORE_L1" \
           -p $HTTPS_PORT:443 -p $HTTP_PORT:80 \
           saturn-node

@@ -10,7 +10,7 @@ import { respondFromIPFSGateway } from "./fetchers/ipfs-gateway.js";
 import { respondFromLassie } from "./fetchers/lassie.js";
 import { cancelCarRequest, maybeRespondFromL2, registerL2Node } from "./fetchers/l2-node.js";
 import { addRegisterCheckRoute } from "./modules/registration.js";
-import { LASSIE_ORIGIN, SATURN_NETWORK, TESTING_CID } from "./config.js";
+import { LASSIE_ORIGIN, SATURN_NETWORK, TESTING_CID, IS_CORE_L1 } from "./config.js";
 import { getResponseFormat } from "./utils/http.js";
 import { debug } from "./utils/logging.js";
 
@@ -48,6 +48,12 @@ const handleCID = asyncHandler(async (req, res) => {
   }
 
   const format = getResponseFormat(req);
+  const isVerifiableFormat = ["car", "raw"].includes(format);
+  const isNotImplemented = !isVerifiableFormat && !IS_CORE_L1;
+
+  if (isNotImplemented) {
+    return res.sendStatus(501);
+  }
 
   res.set("Content-Type", mimeTypes.lookup(req.path) || "application/octet-stream");
 

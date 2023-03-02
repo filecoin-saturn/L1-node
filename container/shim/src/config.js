@@ -15,6 +15,7 @@ export const FIL_WALLET_ADDRESS = process.env.FIL_WALLET_ADDRESS || error("FIL_W
 export const NODE_OPERATOR_EMAIL = process.env.NODE_OPERATOR_EMAIL || error("NODE_OPERATOR_EMAIL");
 export const IPFS_GATEWAY_ORIGIN = process.env.IPFS_GATEWAY_ORIGIN || "https://ipfs.io";
 export const LASSIE_ORIGIN = process.env.LASSIE_ORIGIN || null;
+export const IS_CORE_L1 = process.env.IS_CORE_L1 === "true";
 export const TESTING_CID = "QmXjYBY478Cno4jzdCcPy4NcJYFrwHZ51xaCP8vUwN9MGm";
 
 export const nodeId = await readOrCreateNodeId();
