@@ -141,7 +141,7 @@ ARG LASSIE_EVENT_RECORDER_URL
 
 # Load CIDs ban lists
 RUN if [ "$SATURN_NETWORK" != "local" ]; then rm /etc/nginx/conf.d/default.conf \
-  && curl -s https://badbits.dwebops.pub/denylist.json | jq '.[].anchor' | xargs -I{} echo 'location ~ "{}" { return 410; }' >> /etc/nginx/denylist.conf; \
+  && curl -s https://badbits.dwebops.pub/denylist.json > /etc/nginx/denylist.json; \
     else echo "Local"; fi
 
 # need nginx to find the openssl libs
