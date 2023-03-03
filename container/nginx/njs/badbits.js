@@ -6,18 +6,19 @@ const data = JSON.parse(fs.readFileSync("/etc/nginx/denylist.json"));
 
 data.forEach((entry) => (badbits[entry.anchor] = true));
 
-async function filterCID(req) {
+function filterCID(req) {
 	const vars = req.variables;
-	const cid = vars.cid.split("/")[2];
-	const hashedCID = crypto
-		.createHash("sha256")
-		.update(crypto.createHash("sha256").update(cid).digest("hex"))
-		.digest("hex");
+	const cid = vars.cid_path.split("/")[2];
+
+	const hashedCID = crypto.createHash("sha256").update(cid).digest("hex");
+	req.log(cid);
+	req.log(hashedCID);
 
 	if (badbits[hashedCID]) {
 		req.return(403);
+	} else {
+		req.return(200);
 	}
-	req.return(200);
 }
 
 export default { filterCID };
