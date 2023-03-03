@@ -58,14 +58,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
 
   const lassieUrl = new URL(LASSIE_ORIGIN + toUtf8(req.path));
   for (const [key, val] of Object.entries(req.query)) {
-    // translate depth parameter for lassie
-    let newKey = key;
-    let newVal = val;
-    if (key === "depth" && (val === "1" || val === "0")) {
-      newKey = "depthType";
-      newVal = "shallow";
-    }
-    lassieUrl.searchParams.set(newKey, toUtf8(newVal));
+    lassieUrl.searchParams.set(key, toUtf8(val));
   }
   lassieUrl.searchParams.set("format", "car");
 
