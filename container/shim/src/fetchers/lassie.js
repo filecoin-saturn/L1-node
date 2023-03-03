@@ -59,11 +59,11 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
   const lassieUrl = new URL(LASSIE_ORIGIN + toUtf8(req.path));
   for (const [key, val] of Object.entries(req.query)) {
     // translate depth parameter for lassie
-    let newKey = key
-    let newVal = val
+    let newKey = key;
+    let newVal = val;
     if (key === "depth" && (val === "1" || val === "0")) {
-      newKey = "depthType"
-      newVal = "shallow"
+      newKey = "depthType";
+      newVal = "shallow";
     }
     lassieUrl.searchParams.set(newKey, toUtf8(newVal));
   }
@@ -119,7 +119,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     res.set("Cache-Control", "public, max-age=29030400, immutable");
 
     // Stream errors will be propagated to the catch block.
-    pipeline(lassieRes.body, metricsStream, () => { });
+    pipeline(lassieRes.body, metricsStream, () => {});
 
     if (isRawFormat) {
       await getRequestedBlockFromCar(metricsStream, res, cidObj, req.params.path, blockFilename);
