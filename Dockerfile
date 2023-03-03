@@ -9,6 +9,47 @@ ARG NGINX_BRANCH=default
 ARG NGINX_COMMIT=c38588d8376b
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
+ARG NJS_VERSION=0.7.10
+
+# Install dependencies
+# we need an up-to-date cargo
+RUN apt-get update && apt-get install -y \
+  dpkg-dev \
+  build-essential \
+  mercurial \
+  gnupg2 \
+  git \
+  gcc \
+  cmake \
+  libpcre3 libpcre3-dev \
+  zlib1g zlib1g-dev \
+  openssl \
+  libssl-dev \
+  curl \
+  unzip \
+  wget \
+  libxslt-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/src
+
+RUN echo "Cloning brotli $NGX_BROTLI_COMMIT" \
+ && mkdir /usr/src/ngx_brotli \
+ && cd /usr/src/ngx_brotli \
+ && git init \
+ && git remote add origin https://github.com/google/ngx_brotli.git \
+ && git fetch --depth 1 origin $NGX_BROTLI_COMMIT \
+ && git checkout --recurse-submodules -q FETCH_HEAD \
+ && git submodule update --init --depth 1
+
+RUN echo "Cloning njs $NJS_VERSION" \
+ && mkdir /usr/src/njs \
+ && cd /usr/src \
+ && hg clone --rev $NJS_VERSION http://hg.nginx.org/njs /usr/src/njs \
+ && cd /usr/src/njs \
+ && ./configure \
+ && make
+
 ARG CONFIG="--prefix=/etc/nginx \
  --sbin-path=/usr/sbin/nginx \
  --modules-path=/usr/lib/nginx/modules \
@@ -42,39 +83,8 @@ ARG CONFIG="--prefix=/etc/nginx \
  --with-stream_realip_module \
  --with-stream_ssl_module \
  --with-stream_ssl_preread_module \
- --with-compat \
+ --add-dynamic-module=/usr/src/njs/nginx \
  --add-dynamic-module=/usr/src/ngx_brotli"
-
-# Install dependencies
-# we need an up-to-date cargo
-RUN apt-get update && apt-get install -y \
-  dpkg-dev \
-  build-essential \
-  mercurial \
-  gnupg2 \
-  git \
-  gcc \
-  cmake \
-  libpcre3 libpcre3-dev \
-  zlib1g zlib1g-dev \
-  openssl \
-  libssl-dev \
-  curl \
-  unzip \
-  wget \
-  libxslt-dev \
- && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /usr/src
-
-RUN echo "Cloning brotli $NGX_BROTLI_COMMIT" \
- && mkdir /usr/src/ngx_brotli \
- && cd /usr/src/ngx_brotli \
- && git init \
- && git remote add origin https://github.com/google/ngx_brotli.git \
- && git fetch --depth 1 origin $NGX_BROTLI_COMMIT \
- && git checkout --recurse-submodules -q FETCH_HEAD \
- && git submodule update --init --depth 1
 
 RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from '$NGINX_BRANCH' branch)" \
  && hg clone -b $NGINX_BRANCH --rev $NGINX_COMMIT https://hg.nginx.org/nginx-quic /usr/src/nginx-$NGINX_VERSION \
@@ -90,6 +100,7 @@ ARG NGINX_NAME
 COPY --from=build /usr/sbin/nginx /usr/sbin/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_static_module.so /usr/lib/nginx/modules/
+COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_js_module.so /usr/lib/nginx/modules/
 
 # RUN curl -fsSL https://install.speedtest.net/app/cli/install.deb.sh | bash -
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
