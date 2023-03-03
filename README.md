@@ -93,20 +93,33 @@ Multi-noding (Sharing CPU, RAM, Uplink or storage among nodes) is not allowed.**
 
    You can use the text editor of your choice (e.g. `nano` or `vim` on Linux)
 
-4. Download the docker-compose file
+4. Download the `docker-compose.yml` file:
 
    ```bash
    curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker-compose.yml -o docker-compose.yml
    ```
 
-5. Launch it:
+5. Download the `docker_compose_update.sh` script and make it executable:
+
+   ```bash
+   curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/docker_compose_update.sh -o docker_compose_update.sh
+   chmod +x docker_compose_update.sh
+   ```
+
+6. Set up the cron job to auto-update the `docker-compose.yml` file:
+
+   ```bash
+   (crontab -l 2>/dev/null; echo "*/5 * * * * cd $SATURN_HOME && sh docker_compose_update.sh >> docker_compose_update.log 2>&1") | crontab -
+   ```
+
+7. Launch it:
 
    ```bash
    sudo docker compose up -d
    ```
 
-6. Check logs with `docker logs -f saturn-node`
-7. Check for any errors. Registration will happen automatically and the node will restart once it receives its TLS certificate
+8. Check logs with `docker logs -f saturn-node`
+9. Check for any errors. Registration will happen automatically and the node will restart once it receives its TLS certificate
 
 In most instances speedtest does a good job of picking "close" servers but for small networks it may be incorrect.
 If the speedtest value reported by speedtest seems low, you may want to configure SPEEDTEST_SERVER_CONFIG to point to a different public speedtest server. You will need to install [speedtest CLI](https://www.speedtest.net/apps/cli) in the host and fetch close servers' IDs by doing `speedtest --servers`, then setting `SPEEDTEST_SERVER_CONFIG="--server-id=XXXXX"`
@@ -115,6 +128,7 @@ If the speedtest value reported by speedtest seems low, you may want to configur
 
 We are using a Watchtower container to update the saturn-node container.
 Your node will be updated automatically. You can see the update logs with `docker logs -f saturn-watchtower`.
+Make sure to setup the cron job to auto-update `docker-compose.yml` as well (see above).
 
 ## Set up a node with [Ansible](https://docs.ansible.com/ansible/latest/index.html)
 
