@@ -61,7 +61,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     // translate depth parameter for lassie
     let newKey = key
     let newVal = val
-    if (key == "depth" && (value == "1" || value == "0")) {
+    if (key === "depth" && (val === "1" || val === "0")) {
       newKey = "depthType"
       newVal = "shallow"
     }
