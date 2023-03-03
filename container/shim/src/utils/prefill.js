@@ -16,7 +16,7 @@ export const prefillCache = () => {
         for (const cid of topCids) {
           const controller = new AbortController();
           const signal = controller.signal;
-          await fetch(`https://127.0.0.1/ipfs/${cid}`, {
+          await fetch(`https://127.0.0.1/ipfs/${cid}?format=car`, {
             signal,
             agent: new Agent({ rejectUnauthorized: false }),
           });
