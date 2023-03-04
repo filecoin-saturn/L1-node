@@ -141,8 +141,10 @@ export async function register(initial = false) {
     }
 
     const certString = certBuffer.toString();
-    const cert = certString.substring(0, certString.indexOf("-----END CERTIFICATE-----") + 25);
-    const caCert = certString.substring(certString.indexOf("-----END CERTIFICATE-----") + 25);
+    const boundary = "-----END CERTIFICATE-----";
+    const boundaryIndex = certString.indexOf(boundary);
+    const cert = certString.substring(0, boundaryIndex + boundary.length);
+    const caCert = certString.substring(boundaryIndex + boundary.length + 1);
 
     if (caCert) {
       try {
