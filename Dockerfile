@@ -108,7 +108,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
  && apt-get install --no-install-recommends -y \
  nodejs \
  speedtest \
- jq \
  && rm -rf /var/lib/apt/lists/*
 
 # Download lassie
