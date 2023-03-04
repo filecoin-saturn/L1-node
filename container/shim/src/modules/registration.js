@@ -16,7 +16,7 @@ import {
 } from "../config.js";
 import { debug as Debug } from "../utils/logging.js";
 import { getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from "../utils/system.js";
-import { backupCertExists, CERT_PATH, certExists, getNewTLSCert, SSL_PATH } from "./tls.js";
+import { CERT_PATH, certExists, getNewTLSCert, SSL_PATH } from "./tls.js";
 import { parseVersionNumber } from "../utils/version.js";
 import { orchestratorAgent } from "../utils/http.js";
 import { prefillCache } from "../utils/prefill.js";
@@ -144,7 +144,7 @@ export async function register(initial = false) {
     const cert = certString.substring(0, certString.indexOf("-----END CERTIFICATE-----") + 25);
     const caCert = certString.substring(certString.indexOf("-----END CERTIFICATE-----") + 25);
 
-    if (backupCertExists && caCert) {
+    if (caCert) {
       try {
         const response = await new Promise((resolve, reject) => {
           check(cert, caCert, (err, res) => {
