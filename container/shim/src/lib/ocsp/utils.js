@@ -120,11 +120,9 @@ export function getAuthorityInfo(cert, key, done) {
   let exts = cert.tbsCertificate.extensions;
   if (!exts) exts = [];
 
-  const infoAccess = exts.filter(function (ext) {
-    return ext.extnID === "authorityInformationAccess";
-  });
+  const infoAccess = exts.filter((ext) => ext.extnID === "authorityInformationAccess");
 
-  if (infoAccess.length === 0) return done(new Error("AuthorityInfoAccess not found in extensions"));
+  if (infoAccess.length === 0) throw new Error("AuthorityInfoAccess not found in extensions");
 
   let res = null;
   const found = infoAccess.some(function (info) {
@@ -142,7 +140,7 @@ export function getAuthorityInfo(cert, key, done) {
     });
   });
 
-  if (!found) return done(new Error(key + " not found in AuthorityInfoAccess"));
+  if (!found) throw new Error(key + " not found in AuthorityInfoAccess");
 
-  return done(null, res);
+  return res;
 }

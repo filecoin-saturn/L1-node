@@ -29,22 +29,10 @@ function findResponder(issuer, certs, raws) {
 
 export function verify(options, cb) {
   const req = options.request;
-  let issuer;
-  let res;
 
-  function done(err) {
-    process.nextTick(function () {
-      cb(err, res && res.certStatus);
-    });
-  }
+  const issuer = req.issuer || rfc5280.Certificate.decode(toDER(options.issuer, "CERTIFICATE"), "der");
 
-  try {
-    issuer = req.issuer || rfc5280.Certificate.decode(toDER(options.issuer, "CERTIFICATE"), "der");
-
-    res = parseResponse(options.response);
-  } catch (e) {
-    return done(e);
-  }
+  let res = parseResponse(options.response);
 
   const rawTBS = options.response.slice(res.start, res.end);
   const certs = res.certs;
@@ -56,8 +44,7 @@ export function verify(options, cb) {
   // Verify signature using CAs Public Key
   const signAlg = sign[res.signatureAlgorithm.algorithm.join(".")];
   if (!signAlg) {
-    done(new Error("Unknown signature algorithm " + res.signatureAlgorithm.algorithm));
-    return;
+    throw new Error("Unknown signature algorithm " + res.signatureAlgorithm.algorithm);
   }
 
   const responderKey = findResponder(issuer, certs, raws);
@@ -68,35 +55,38 @@ export function verify(options, cb) {
   const signature = res.signature.data;
 
   verify.update(rawTBS);
-  if (!verify.verify(responderKey, signature)) return done(new Error("Invalid signature"));
+  if (!verify.verify(responderKey, signature)) {
+    throw new Error("Invalid signature");
+  }
 
-  if (tbs.responses.length < 1) return done(new Error("Expected at least one response"));
+  if (tbs.responses.length < 1) {
+    throw new Error("Expected at least one response");
+  }
 
   res = tbs.responses[0];
 
   // Verify CertID
-  // XXX(indutny): verify parameters
   if (res.certId.hashAlgorithm.algorithm.join(".") !== req.certID.hashAlgorithm.algorithm.join(".")) {
-    return done(new Error("Hash algorithm mismatch"));
+    throw new Error("Hash algorithm mismatch");
   }
 
   if (res.certId.issuerNameHash.toString("hex") !== req.certID.issuerNameHash.toString("hex")) {
-    return done(new Error("Issuer name hash mismatch"));
+    throw new Error("Issuer name hash mismatch");
   }
 
   if (res.certId.issuerKeyHash.toString("hex") !== req.certID.issuerKeyHash.toString("hex")) {
-    return done(new Error("Issuer key hash mismatch"));
+    throw new Error("Issuer key hash mismatch");
   }
 
-  if (res.certId.serialNumber.cmp(req.certID.serialNumber) !== 0) return done(new Error("Serial number mismatch"));
-
-  if (res.certStatus.type !== "good") {
-    return done(new Error("OCSP Status: " + res.certStatus.type));
+  if (res.certId.serialNumber.cmp(req.certID.serialNumber) !== 0) {
+    throw new Error("Serial number mismatch");
   }
 
   const now = Number(new Date());
   const nudge = options.nudge || 60000;
-  if (res.thisUpdate - nudge > now || res.nextUpdate + nudge < now) return done(new Error("OCSP Response expired"));
+  if (res.thisUpdate - nudge > now || res.nextUpdate + nudge < now) {
+    throw new Error("OCSP Response expired");
+  }
 
-  return done(null);
+  return res.certStatus;
 }
