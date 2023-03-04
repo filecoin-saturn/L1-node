@@ -120,7 +120,7 @@ async function submitBandwidthLogs(logs) {
     }),
     { bytesSent: 0, validReqs: 0, cacheHits: 0 }
   );
-  const cacheHitRate = cacheHits / validReqs;
+  const cacheHitRate = cacheHits / (validReqs || 1);
 
   debug(
     `Submitting ${logs.length} retrievals (${prettyBytes(bytesSent)} with cache rate of ${(cacheHitRate * 100).toFixed(
