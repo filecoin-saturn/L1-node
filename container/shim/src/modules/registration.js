@@ -146,14 +146,7 @@ export async function register(initial = false) {
 
     if (caCert) {
       try {
-        const response = await new Promise((resolve, reject) => {
-          check(cert, caCert, (err, res) => {
-            if (err) {
-              reject(err);
-            }
-            resolve(res);
-          });
-        });
+        const response = await check(cert, caCert);
         if (response.status === "good") {
           debug("OCSP status of certificate is good");
         } else {
