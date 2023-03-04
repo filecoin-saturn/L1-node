@@ -23,8 +23,6 @@ function filterCID(req) {
 		.createHash("sha256")
 		.update(cid + "/")
 		.digest("hex");
-	req.log(cid);
-	req.log(hashedCID);
 
 	if (badbits[hashedCID]) {
 		req.return(403);
