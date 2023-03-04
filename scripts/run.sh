@@ -8,7 +8,7 @@ set -e
 : "${ORCHESTRATOR_REGISTRATION:=true}"
 : "${HTTP_PORT:=80}"
 : "${HTTPS_PORT:=443}"
-: "${IS_CORE_L1:=true}"
+: "${IS_CORE_L1:=false}"
 
 mkdir -p $(pwd)/shared
 echo "$(date -u) [host] Running Saturn node dev, with volume in $(pwd)/shared"

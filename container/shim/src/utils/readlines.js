@@ -1,5 +1,5 @@
 import path from "node:path";
-import { open, stat, readFile, writeFile } from "node:fs/promises";
+import { open, stat, readFile, writeFile, unlink } from "node:fs/promises";
 
 function offsetFilename(filename) {
   const directory = path.dirname(filename);
@@ -23,8 +23,13 @@ async function getResumableOffset(filename) {
 
     return resumable.offset;
   } catch (error) {
-    // file does not exist, create it
-    if (error.code === "ENOENT") {
+    const fileNotExists = error.code === "ENOENT";
+    const fileCorrupted = error.name === "SyntaxError";
+
+    if (fileNotExists || fileCorrupted) {
+      if (fileCorrupted) {
+        await unlink(offsetFilename(filename)).catch(() => {});
+      }
       return setResumableOffset(filename, 0);
     }
 

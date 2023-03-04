@@ -13,6 +13,7 @@ export const BACKUP_CERT_PATH = `${SSL_PATH}/node.backup.crt`;
 export const BACKUP_KEY_PATH = `${SSL_PATH}/node.backup.key`;
 
 export const certExists = await fsPromises.stat(CERT_PATH).catch((_) => false);
+export const backupCertExists = await fsPromises.stat(BACKUP_CERT_PATH).catch((_) => false);
 
 export async function getNewTLSCert(registerOptions) {
   const response = await fetch(`${ORCHESTRATOR_URL}/register`, registerOptions);

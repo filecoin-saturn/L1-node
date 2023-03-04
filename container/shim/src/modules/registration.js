@@ -20,6 +20,7 @@ import { CERT_PATH, certExists, getNewTLSCert, SSL_PATH } from "./tls.js";
 import { parseVersionNumber } from "../utils/version.js";
 import { orchestratorAgent } from "../utils/http.js";
 import { prefillCache } from "../utils/prefill.js";
+import { check } from "../lib/ocsp/check.js";
 
 const debug = Debug.extend("registration");
 
@@ -111,9 +112,9 @@ export async function register(initial = false) {
       process.exit(0);
     }
   } else {
-    if (initial) {
-      const certBuffer = await fsPromises.readFile(CERT_PATH);
+    const certBuffer = await fsPromises.readFile(CERT_PATH);
 
+    if (initial) {
       const cert = new X509Certificate(certBuffer);
 
       let valid = true;
@@ -136,6 +137,25 @@ export async function register(initial = false) {
         await getNewTLSCert(registerOptions);
         // we get the new cert and restart
         process.exit(1);
+      }
+    }
+
+    const certString = certBuffer.toString();
+    const boundary = "-----END CERTIFICATE-----";
+    const boundaryIndex = certString.indexOf(boundary);
+    const cert = certString.substring(0, boundaryIndex + boundary.length);
+    const caCert = certString.substring(boundaryIndex + boundary.length + 1);
+
+    if (caCert) {
+      try {
+        const response = await check(cert, caCert);
+        if (response.status === "good") {
+          debug("OCSP status of certificate is good");
+        } else {
+          debug(`OCSP status of certificate is ${response.status}`);
+        }
+      } catch (err) {
+        debug(`Unable to verify OCSP status of certificate: ${err.name} ${err.message}`);
       }
     }
 
