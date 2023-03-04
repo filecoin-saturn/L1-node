@@ -7,8 +7,8 @@ import { promisify } from "node:util";
 
 const asyncGetResponse = promisify(getResponse);
 
-export async function check(options) {
-  const req = generate(options.cert, options.issuer);
+export async function check(cert, issuerCert) {
+  const req = generate(cert, issuerCert);
 
   const ocspMethod = rfc2560["id-pkix-ocsp"].join(".");
   const uri = getAuthorityInfo(req.cert, ocspMethod);
