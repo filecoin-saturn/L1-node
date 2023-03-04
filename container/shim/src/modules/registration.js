@@ -16,10 +16,11 @@ import {
 } from "../config.js";
 import { debug as Debug } from "../utils/logging.js";
 import { getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from "../utils/system.js";
-import { CERT_PATH, certExists, getNewTLSCert, SSL_PATH } from "./tls.js";
+import { backupCertExists, CERT_PATH, certExists, getNewTLSCert, SSL_PATH } from "./tls.js";
 import { parseVersionNumber } from "../utils/version.js";
 import { orchestratorAgent } from "../utils/http.js";
 import { prefillCache } from "../utils/prefill.js";
+import { check } from "../lib/ocsp/check.js";
 
 const debug = Debug.extend("registration");
 
@@ -111,9 +112,9 @@ export async function register(initial = false) {
       process.exit(0);
     }
   } else {
-    if (initial) {
-      const certBuffer = await fsPromises.readFile(CERT_PATH);
+    const certBuffer = await fsPromises.readFile(CERT_PATH);
 
+    if (initial) {
       const cert = new X509Certificate(certBuffer);
 
       let valid = true;
@@ -136,6 +137,30 @@ export async function register(initial = false) {
         await getNewTLSCert(registerOptions);
         // we get the new cert and restart
         process.exit(1);
+      }
+    }
+
+    const certString = certBuffer.toString();
+    const cert = certString.substring(0, certString.indexOf("-----END CERTIFICATE-----") + 25);
+    const caCert = certString.substring(certString.indexOf("-----END CERTIFICATE-----") + 25);
+
+    if (backupCertExists && caCert) {
+      try {
+        const response = await new Promise((resolve, reject) => {
+          check(cert, caCert, (err, res) => {
+            if (err) {
+              reject(err);
+            }
+            resolve(res);
+          });
+        });
+        if (response.status === "good") {
+          debug("OCSP status of certificate is good");
+        } else {
+          debug(`OCSP status of certificate is ${response.status}`);
+        }
+      } catch (err) {
+        debug(`Unable to verify OCSP status of certificate: ${err.name} ${err.message}`);
       }
     }
 
