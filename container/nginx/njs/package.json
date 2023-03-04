@@ -1,0 +1,14 @@
+{
+  "name": "njs",
+  "type": "module",
+  "eslintConfig": {
+    "extends": "ipfs",
+    "rules": {
+      "no-continue": "off"
+    },
+    "parserOptions": {
+      "ecmaVersion": "latest",
+      "sourceType": "module"
+    }
+  }
+}
