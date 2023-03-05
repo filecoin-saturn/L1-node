@@ -1,6 +1,8 @@
 {
   "name": "njs",
   "type": "module",
+  "private": true,
+  "license": "UNLICENSED"
   "eslintConfig": {
     "extends": "ipfs",
     "rules": {
