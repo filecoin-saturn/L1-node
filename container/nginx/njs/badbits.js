@@ -1,5 +1,5 @@
-const fs = require("fs");
-const crypto = require("crypto");
+import fs from "fs";
+import crypto from "crypto";
 
 const badbits = {};
 const data = JSON.parse(fs.readFileSync("/etc/nginx/denylist.json"));
