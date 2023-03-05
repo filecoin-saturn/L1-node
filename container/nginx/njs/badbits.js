@@ -10,7 +10,7 @@ const ipfsRegex = /^\/ipfs\/(\w+)(\/?.*)/;
 // TODO implement matching CID paths
 // TODO convert CID v0 to CID v1
 // implementation ref: https://github.com/protocol/bifrost-infra/blob/af46340bd830728b38a0ea632ca517d04277f78c/ansible/roles/nginx_conf_denylist/files/lua/helpers.lua#L80
-function filterCID(req) {
+export default function filterCID(req) {
   const vars = req.variables;
   const matches = vars.cid_path.match(ipfsRegex);
   if (!matches) {
@@ -30,5 +30,3 @@ function filterCID(req) {
     req.return(200);
   }
 }
-
-export default { filterCID };
