@@ -31,14 +31,14 @@ jobs:
 
       - name: Run tests
         run: |
-          set -eux
+          set -eu
 
           export HTTP_PORT=8080
           ORCHESTRATOR_REGISTRATION=false sh scripts/run.sh &
 
           url="http://localhost:${HTTP_PORT}"
           # wait for the container to be up
-          until curl -s "$url"; do
+          until curl -s "$url" -o /dev/null; do
               sleep 1;
-          done;
+          done
           sh scripts/test_badbits.sh "$url"
