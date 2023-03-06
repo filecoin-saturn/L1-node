@@ -3,11 +3,13 @@ name: Run integration tests
 on:
   push:
     branches: ["main"]
+    paths:
+      - ".github/workflows/integration-tests.yml"
+      - "container/nginx/**"
+      - "Dockerfile"
   pull_request:
     # The branches below must be a subset of the branches above
     branches: ["main"]
-  schedule:
-    - cron: "24 3 * * 1"
 
 jobs:
   badbits:
