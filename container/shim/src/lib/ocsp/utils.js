@@ -25,13 +25,20 @@ export function getResponse(uri, req, cb) {
     });
   }
 
-  http.request(uri, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/ocsp-request",
-      "Content-Length": req.length,
-    },
-  }, onResponse).on("error", done).end(req);
+  http
+    .request(
+      uri,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/ocsp-request",
+          "Content-Length": req.length,
+        },
+      },
+      onResponse
+    )
+    .on("error", done)
+    .end(req);
 }
 
 export function parseResponse(raw) {

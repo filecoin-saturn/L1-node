@@ -46,7 +46,6 @@ async function saveBackupCertAndKey(backupCert, backupKey) {
   ]);
 }
 
-
 export async function swapCerts() {
   debug("Swapping revoked cert");
 
