@@ -140,19 +140,19 @@ export async function register(initial = false) {
       }
     }
 
-    const certString = certBuffer.toString();
-    const boundary = "-----END CERTIFICATE-----";
-    const boundaryIndex = certString.indexOf(boundary);
-    const cert = certString.substring(0, boundaryIndex + boundary.length);
-    const caCert = certString.substring(boundaryIndex + boundary.length + 1);
+    if (backupCertExists) {
+      const certString = certBuffer.toString();
+      const boundary = "-----END CERTIFICATE-----";
+      const boundaryIndex = certString.indexOf(boundary);
+      const cert = certString.substring(0, boundaryIndex + boundary.length);
+      const caCert = certString.substring(boundaryIndex + boundary.length + 1);
 
-    if (caCert && backupCertExists) {
       try {
         const response = await check(cert, caCert);
         if (response.type === "good") {
           debug("OCSP status of certificate is good");
         } else {
-          debug("OCSP status of certificate is %o", response);
+          debug("OCSP status of certificate is not good %o", response);
           await swapCerts();
           process.exit(1);
         }
