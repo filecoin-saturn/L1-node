@@ -17,6 +17,12 @@ export async function refreshLocalNodes() {
         "User-Agent": NODE_UA,
       },
     });
+
+    const { status } = res;
+    if (status !== 200) {
+      return debug(`Failed to refresh local nodes: got ${status}`);
+    }
+
     localNodes = await res.json();
     debug(`Local nodes refreshed, ${localNodes.length} nodes found`);
   } catch (err) {

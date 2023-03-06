@@ -1,0 +1,46 @@
+name: Run integration tests
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/integration-tests.yml"
+      - "container/nginx/**"
+      - "Dockerfile"
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["main"]
+
+jobs:
+  badbits:
+    name: Validate Badbits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build local Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          tags: saturn-node
+          cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
+          cache-to: type=inline
+          build-args: |
+            SATURN_NETWORK=local
+            ORCHESTRATOR_URL=http://localhost
+            LOG_INGESTOR_URL=http://localhost
+
+      - name: Run tests
+        run: |
+          set -eu
+
+          export HTTP_PORT=8080
+          ORCHESTRATOR_REGISTRATION=false sh scripts/run.sh &
+
+          url="http://localhost:${HTTP_PORT}"
+          # wait for the container to be up
+          until curl -s "$url" -o /dev/null; do
+              sleep 5;
+          done
+          sh scripts/test_badbits.sh "$url"
