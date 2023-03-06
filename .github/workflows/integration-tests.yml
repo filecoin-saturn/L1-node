@@ -26,7 +26,8 @@ jobs:
           cache-to: type=inline
           build-args: |
             SATURN_NETWORK=local
-            ORCHESTRATOR_URL=http://127.0.0.1
+            ORCHESTRATOR_URL=http://localhost
+            LOG_INGESTOR_URL=http://localhost
 
       - name: Run tests
         run: |
@@ -34,4 +35,10 @@ jobs:
 
           export HTTP_PORT=8080
           ORCHESTRATOR_REGISTRATION=false sh scripts/run.sh &
-          sh scripts/test_badbits.sh "$HTTP_PORT"
+
+          url="http://localhost:${HTTP_PORT}"
+          # wait for the container to be up
+          until curl -s "$url"; do
+              sleep 1;
+          done;
+          sh scripts/test_badbits.sh "$url"

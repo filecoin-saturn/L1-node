@@ -1,11 +1,11 @@
 set -eux
 
-port="$1"
+base_url="$1"
 
 test_cid () {
 				cid="$1"
 				expected="$2"
-				code="$(curl -sw '%{http_code}\n' -o /dev/null "http://localhost:${port}/ipfs/${cid}")"
+				code="$(curl -sw '%{http_code}\n' -o /dev/null "${base_url}/ipfs/${cid}")"
 				test "$code" -eq "$expected" || exit 1
 }
 
