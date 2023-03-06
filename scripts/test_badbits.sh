@@ -3,10 +3,10 @@ set -eux
 base_url="$1"
 
 test_cid () {
-				cid="$1"
-				expected="$2"
-				code="$(curl -sw '%{http_code}\n' -o /dev/null "${base_url}/ipfs/${cid}")"
-				test "$code" -eq "$expected" || exit 1
+  cid="$1"
+  expected="$2"
+  code="$(curl -sw '%{http_code}\n' -o /dev/null "${base_url}/ipfs/${cid}")"
+  test "$code" -eq "$expected" || exit 1
 }
 
 not_blocked=501
