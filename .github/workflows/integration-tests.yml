@@ -1,0 +1,50 @@
+name: Run integration tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["main"]
+  schedule:
+    - cron: "24 3 * * 1"
+
+jobs:
+  badbits:
+    name: Validate Badbits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build local Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          tags: saturn-node
+          cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
+          cache-to: type=inline
+          build-args: |
+            SATURN_NETWORK=local
+            ORCHESTRATOR_URL=http://127.0.0.1
+
+      - name: Run the Saturn L1 tests
+        run: |
+          set -eux
+
+          export ORCHESTRATOR_REGISTRATION=false
+          export HTTP_PORT=8080
+          sh scripts/run.sh &
+
+          not_blocked=501
+          blocked=403
+          test_flags="-sw '%{http_code}\n' -o /dev/null"
+          req_path="http://localhost:${HTTP_PORT}/ipfs"
+
+          # negative test case
+          code="$(curl $test_flags "${req_path}/Qmbfrc4cF2X4KXbHuqD593SLnR2xj6hULYTnrj65wKWaKm")"
+          test $code -eq $not_blocked || exit 1
+
+          # positive test case
+          code="$(curl $test_flags "${req_path}/bafybeibvcisellj6bfzbas3csvioltujjmif5jqpdw5ykvvwujtvt6up7u")"
+          test $code -eq $blocked || exit 1
