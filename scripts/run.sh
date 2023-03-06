@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -eu
 
 : "${FIL_WALLET_ADDRESS:=f012356}"
 : "${NODE_OPERATOR_EMAIL:=dev@strn.pl}"
@@ -10,7 +10,7 @@ set -e
 : "${HTTPS_PORT:=443}"
 : "${IS_CORE_L1:=false}"
 
-mkdir -p $(pwd)/shared
+mkdir -p "$(pwd)/shared"
 echo "$(date -u) [host] Running Saturn node dev, with volume in $(pwd)/shared"
 
 # Start the docker image
