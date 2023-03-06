@@ -23,6 +23,6 @@ To fix this, simply run the following:
 docker-compose exec saturn-node chown -R nginx.nginx shared/nginx_cache
 ```
 
-This assumes your node is already running.  If it has been stopped, then change the `exec` to `run`.
+This assumes your node is already running. If it has been stopped, then change the `exec` to `run`.
 
-This is the *proper* way to set your cache permissions.  Do not set your cache folder to mode 777, as this makes your node vulnerable to security exploits.
+This is the _proper_ way to set your cache permissions. Do not set your cache folder to mode 777, as this makes your node vulnerable to security exploits.
