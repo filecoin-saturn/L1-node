@@ -58,7 +58,14 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
 
   const lassieUrl = new URL(LASSIE_ORIGIN + toUtf8(req.path));
   for (const [key, val] of Object.entries(req.query)) {
-    lassieUrl.searchParams.set(key, toUtf8(val));
+    // translate depth parameter for lassie
+    let newKey = key
+    let newVal = val
+    if (key === "depth" && (val === "1" || val === "0")) {
+      newKey = "depthType"
+      newVal = "shallow"
+    }
+    lassieUrl.searchParams.set(newKey, toUtf8(newVal));
   }
   lassieUrl.searchParams.set("format", "car");
 
@@ -112,10 +119,10 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     res.set("Cache-Control", "public, max-age=29030400, immutable");
 
     // Stream errors will be propagated to the catch block.
-    pipeline(lassieRes.body, metricsStream, () => {});
+    pipeline(lassieRes.body, metricsStream, () => { });
 
     if (isRawFormat) {
-      await getRequestedBlockFromCar(metricsStream, res, cidObj, blockFilename);
+      await getRequestedBlockFromCar(metricsStream, res, cidObj, req.params.path, blockFilename);
     } else {
       const headersObj = Object.fromEntries(lassieRes.headers.entries());
       proxyResponseHeaders(headersObj, res);
@@ -180,9 +187,10 @@ function sendBlockResponse(res, block, cidObj, filename) {
  * @param {IncomingMessage || ReadableStream} streamIn
  * @param {Response} streamOut
  * @param {CID} cidObj
+ * @param {string} path
  * @param {string} filename
  */
-async function getRequestedBlockFromCar(streamIn, streamOut, cidObj, filename) {
+async function getRequestedBlockFromCar(streamIn, streamOut, cidObj, path, filename) {
   const carBlockIterator = await CarBlockIterator.fromIterable(streamIn);
   const roots = await carBlockIterator.getRoots();
   const rootCid = roots[0];
@@ -190,7 +198,7 @@ async function getRequestedBlockFromCar(streamIn, streamOut, cidObj, filename) {
 
   if (roots.length > 1) {
     throw new Error(`CAR file has more than one root CID.`);
-  } else if (!rootCid.toV1().equals(requestedCidV1)) {
+  } else if (!path && !rootCid.toV1().equals(requestedCidV1)) {
     throw new Error(`Requested CID ${requestedCidV1} doesn't equal CAR root CID ${rootCid}.`);
   }
 
@@ -204,7 +212,7 @@ async function getRequestedBlockFromCar(streamIn, streamOut, cidObj, filename) {
 
     const cidV1 = cid.toV1();
     if (count === 0) {
-      if (!cidV1.equals(requestedCidV1)) {
+      if (!path && !cidV1.equals(requestedCidV1)) {
         throw new Error(`Requested CID ${requestedCidV1} doesn't equal first block CID ${rootCid}.`);
       }
 
