@@ -39,6 +39,6 @@ jobs:
           url="http://localhost:${HTTP_PORT}"
           # wait for the container to be up
           until curl -s "$url" -o /dev/null; do
-              sleep 1;
+              sleep 5;
           done
           sh scripts/test_badbits.sh "$url"
