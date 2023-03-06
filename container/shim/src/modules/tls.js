@@ -45,3 +45,13 @@ async function saveBackupCertAndKey(backupCert, backupKey) {
     fsPromises.writeFile(BACKUP_KEY_PATH, backupKey),
   ]);
 }
+
+
+export async function swapCerts() {
+  debug("Swapping revoked cert");
+
+  return await Promise.all([
+    fsPromises.copyFile(BACKUP_CERT_PATH, CERT_PATH),
+    fsPromises.copyFile(BACKUP_KEY_PATH, KEY_PATH),
+  ]);
+}

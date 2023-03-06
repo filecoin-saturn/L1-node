@@ -2,16 +2,6 @@ import http from "node:http";
 import rfc2560 from "asn1.js-rfc2560";
 
 export function getResponse(uri, req, cb) {
-  uri = new URL(uri);
-
-  const options = Object.assign(uri, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/ocsp-request",
-      "Content-Length": req.length,
-    },
-  });
-
   function done(err, response) {
     if (cb) cb(err, response);
     cb = null;
@@ -35,7 +25,13 @@ export function getResponse(uri, req, cb) {
     });
   }
 
-  http.request(options, onResponse).on("error", done).end(req);
+  http.request(uri, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/ocsp-request",
+      "Content-Length": req.length,
+    },
+  }, onResponse).on("error", done).end(req);
 }
 
 export function parseResponse(raw) {

@@ -16,7 +16,7 @@ import {
 } from "../config.js";
 import { debug as Debug } from "../utils/logging.js";
 import { getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from "../utils/system.js";
-import { CERT_PATH, certExists, getNewTLSCert, SSL_PATH } from "./tls.js";
+import { backupCertExists, CERT_PATH, certExists, getNewTLSCert, SSL_PATH, swapCerts } from './tls.js'
 import { parseVersionNumber } from "../utils/version.js";
 import { orchestratorAgent } from "../utils/http.js";
 import { prefillCache } from "../utils/prefill.js";
@@ -91,7 +91,7 @@ export async function register(initial = false) {
   const registerOptions = postOptions(body);
 
   // If cert is not yet in the volume, register
-  if (!certExists) {
+  if (!certExists || (!backupCertExists && SATURN_NETWORK === "main")) {
     if (!(await fsPromises.stat(SSL_PATH).catch((_) => false))) {
       debug("Creating SSL folder");
       await fsPromises.mkdir(SSL_PATH, { recursive: true });
@@ -146,13 +146,15 @@ export async function register(initial = false) {
     const cert = certString.substring(0, boundaryIndex + boundary.length);
     const caCert = certString.substring(boundaryIndex + boundary.length + 1);
 
-    if (caCert) {
+    if (caCert && backupCertExists) {
       try {
         const response = await check(cert, caCert);
-        if (response.status === "good") {
+        if (response.type === "good") {
           debug("OCSP status of certificate is good");
         } else {
-          debug(`OCSP status of certificate is ${response.status}`);
+          debug("OCSP status of certificate is %o", response);
+          await swapCerts();
+          process.exit(1);
         }
       } catch (err) {
         debug(`Unable to verify OCSP status of certificate: ${err.name} ${err.message}`);
