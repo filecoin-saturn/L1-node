@@ -160,5 +160,6 @@
       become: true
       become_user: root
       ansible.builtin.command: docker compose up -d
+      async: 10800
       args:
         chdir: "{{ saturn_home }}"
