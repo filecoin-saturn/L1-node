@@ -123,7 +123,6 @@
     # this wasn't consistent between runs, so we need to store it
     homedir: "{{ ansible_env.HOME }}"
     saturn_home: "{{ saturn_root if saturn_root is defined else homedir }}"
-    env_file: "{{ lookup('file', '../.env' ) }}"
     branch: main
     docker_compose: "https://raw.githubusercontent.com/filecoin-saturn/L1-node/{{ branch }}/docker-compose.yml"
     docker_compose_update: "https://raw.githubusercontent.com/filecoin-saturn/L1-node/{{ branch }}/docker_compose_update.sh"
@@ -161,7 +160,5 @@
       become: true
       become_user: root
       ansible.builtin.command: docker compose up -d
-      # ansible.builtin.command: docker compose restart watchtower
-      # ansible.builtin.shell: (docker rm -f saturn-node || true) && (docker rm -f saturn-watchtower) && docker compose up -d
       args:
         chdir: "{{ saturn_home }}"
