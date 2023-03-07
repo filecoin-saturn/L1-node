@@ -148,7 +148,7 @@
       ansible.builtin.cron:
         name: "update docker compose"
         minute: "*/5"
-        job: "cd {{ saturn_home }} && sh docker_compose_update.sh >> docker_compose_update.log 2>&1"
+        job: "cd {{ saturn_home }} && sh docker_compose_update.sh '{{ branch }}' >> docker_compose_update.log 2>&1"
     - name: Ensure we have the right $SATURN_HOME/shared permissions
       become: true
       become_user: root
