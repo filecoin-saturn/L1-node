@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -eux
 
 base_url="$1"
@@ -5,10 +7,11 @@ base_url="$1"
 test_cid () {
   cid="$1"
   expected="$2"
-  code="$(curl -sw '%{http_code}\n' -o /dev/null "${base_url}/ipfs/${cid}")"
+  code="$(curl -sw "%{http_code}\n" -o /dev/null "${base_url}/ipfs/${cid}")"
   test "$code" -eq "$expected" || exit 1
 }
 
+# we're good this this response code, as going further means a Lassie fetch
 not_blocked=501
 blocked=403
 
