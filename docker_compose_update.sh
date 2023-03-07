@@ -3,7 +3,7 @@
 # keeps docker-compose.yml and itself up to date
 set -eux
 
-branch="main"
+branch="${1:-main}"
 repo="https://raw.githubusercontent.com/filecoin-saturn/L1-node/$branch"
 
 curl -fs "$repo/docker_compose_update.sh" -o docker_compose_update.sh
