@@ -14,7 +14,7 @@ const shutdownServer = (server, signal) => () => {
   });
 };
 
-const drainServer = (server) => () => {
+const drainServer = () => {
   debug("Draining server");
   deregister();
 };
@@ -22,5 +22,5 @@ const drainServer = (server) => () => {
 export const trapServer = (server) => {
   process.on("SIGQUIT", shutdownServer(server, "SIGQUIT"));
   process.on("SIGINT", shutdownServer(server, "SIGINT"));
-  process.on("SIGTERM", drainServer(server));
+  process.on("SIGTERM", drainServer);
 };
