@@ -123,7 +123,7 @@ jobs:
             ghcr.io/filecoin-saturn/l1-node:${{ github.run_number}}_${{ steps.git.outputs.sha_short }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ steps.tags.outputs.mutable.mutable_docker_tag }}
+          cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ steps.tags.outputs.mutable_docker_tag }}
           cache-to: type=inline
           build-args: |
             GIT_COMMIT_HASH=${{ github.sha }}
