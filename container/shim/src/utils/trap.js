@@ -9,7 +9,7 @@ const shutdownServer = (server, signal) => () => {
   server.closeIdleConnections();
   server.close(async () => {
     debug("Server closed");
-    await Promise.allSettled([startLogIngestor()]);
+    await Promise.allSettled([startLogIngestor(), deregister()]);
     process.exit(0);
   });
 };
