@@ -31,9 +31,6 @@ debug.extend("important")(`Earnings will be sent to Filecoin wallet address: ${F
 debug.extend("important")(`Payment notifications and important updates will be sent to: ${NODE_OPERATOR_EMAIL}`);
 debug.extend("important")("===== IMPORTANT =====");
 
-process.on("SIGQUIT", shutdown);
-process.on("SIGINT", shutdown);
-
 setTimeout(async function () {
   if (ORCHESTRATOR_REGISTRATION) {
     await register(true).catch((err) => {
@@ -57,14 +54,3 @@ server.listen(PORT, "127.0.0.1", async () => {
 server.keepAliveTimeout = 60 * 60 * 1000;
 
 trapServer(server);
-
-async function shutdown() {
-  try {
-    await Promise.allSettled([startLogIngestor(), ORCHESTRATOR_REGISTRATION ? deregister() : Promise.resolve()]);
-  } catch (err) {
-    debug(`Failed during shutdown: ${err.name} ${err.message}`);
-  } finally {
-    debug("Exiting...");
-    process.exit(0);
-  }
-}
