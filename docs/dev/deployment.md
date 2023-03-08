@@ -1,6 +1,6 @@
 ### Release & Deployment
 
-Note: **Only changes to `container/` and `Dockerfile`** will trigger a build.
+Note: **Only changes to `container/` and `Dockerfile`** will trigger a release.
 
 In development, to avoid an automatic CI/CD release and subsequent deployment to the `test network` when a change is made to the `container/**` directory, include `[skip ci]` in the `git commit` message. Like so:
 
