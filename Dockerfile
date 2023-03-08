@@ -123,7 +123,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
 WORKDIR /usr/src/app
 # copy the package.json files from local machine to the workdir in container
 COPY container/shim/package*.json ./
-# run npm install in our local machine
+# run npm install to install all the dependencies for the shim
 RUN npm ci --production --ignore-scripts
 
 # copy the generated modules and all other files to the container
