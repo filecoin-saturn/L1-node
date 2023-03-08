@@ -3,7 +3,7 @@
 ### Requirements
 
 1. Run [orchestrator](https://github.com/filecoin-saturn/orchestrator) locally
-2. Self-signed 256-bit ECC certificate ([Instructions here](docs/certificate.md)) in `shared/ssl`
+2. Self-signed 256-bit ECC certificate ([Instructions here](docs/dev/certificate.md)) in `shared/ssl`
 
 ### Build
 
