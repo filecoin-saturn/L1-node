@@ -43,6 +43,6 @@ git tag "$(date +%s)"
 git push --follow-tags
 ```
 
-[The release CI pipeline](.github/workflows/release.yml) will handle this process and publish a docker image tagged with `main`. Check your progress [here](https://github.com/filecoin-saturn/L1-node/actions/workflows/release.yml) by looking at the last pipeline targeting a git tag.
+[The release CI pipeline](https://github.com/filecoin-saturn/L1-node/blob/main/.github/workflows/release.yml) will handle this process and publish a docker image tagged with `main`. Check your progress [here](https://github.com/filecoin-saturn/L1-node/actions/workflows/release.yml) by looking at the last pipeline targeting a git tag.
 
 After releasing is over, all `main network` nodes will pick up and deploy the latest `main` mutable docker tag.
