@@ -4,12 +4,12 @@ import startLogIngestor from "../modules/log_ingestor.js";
 
 const debug = Debug.extend("trap");
 
-const shutdownServer = (server, signal) => async () => {
+const shutdownServer = (server, signal) => () => {
   debug(`Shutting down server with signal ${signal}`);
   server.closeIdleConnections();
   server.close(async () => {
     debug("Server closed");
-    await startLogIngestor();
+    await Promise.allSettled([startLogIngestor()]);
     process.exit(0);
   });
 };
