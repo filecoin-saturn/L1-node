@@ -1,12 +1,15 @@
 import { debug as Debug } from "./logging.js";
 import { deregister } from "../modules/registration.js";
+import startLogIngestor from "../modules/log_ingestor.js";
 
 const debug = Debug.extend("trap");
 
 const shutdownServer = (server, signal) => () => {
   debug(`Shutting down server with signal ${signal}`);
-  server.close(() => {
+  server.closeIdleConnections();
+  server.close(async () => {
     debug("Server closed");
+    await Promise.allSettled([startLogIngestor(), deregister()]);
     process.exit(0);
   });
 };
