@@ -2,7 +2,7 @@ import http from "node:http";
 import { validateAddressString } from "@glif/filecoin-address";
 
 import app from "../index.js";
-import { deregister, register } from "../modules/registration.js";
+import { register } from "../modules/registration.js";
 import {
   FIL_WALLET_ADDRESS,
   NODE_OPERATOR_EMAIL,
