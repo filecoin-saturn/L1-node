@@ -3,7 +3,8 @@ name: Create and publish the Docker image
 on:
   push:
     branches: ["main"]
-    tags: ["*"]
+    tags:
+      - "!canary-*"
     paths:
       - ".github/workflows/release.yml"
       - "container/**"
