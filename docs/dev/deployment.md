@@ -35,7 +35,7 @@ git tag "canary-$(date +%s)"
 git push --follow-tags
 ```
 
-[The canary CI pipeline](.github/workflows/canary-release.yml) will handle this process and publish a docker image tagged with `canary`. Check your progress [here](https://github.com/filecoin-saturn/L1-node/actions/workflows/canary-release.yml) by looking at the last pipeline targeting a `canary` git tag.
+[The release CI pipeline](.github/workflows/release.yml) will handle this process and publish a docker image tagged with `canary`. Check your progress [here](https://github.com/filecoin-saturn/L1-node/actions/workflows/release.yml) by looking at the last pipeline targeting a `canary` git tag.
 
 After releasing is over, all `canary network` nodes will pick up and deploy the latest `canary` mutable docker tag.
 

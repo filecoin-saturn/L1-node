@@ -3,8 +3,7 @@ name: Create and publish the Docker image
 on:
   push:
     branches: ["main"]
-    tags:
-      - "!canary-*"
+    tags: ["*"]
     paths:
       - ".github/workflows/release.yml"
       - "container/**"
@@ -102,17 +101,29 @@ jobs:
         id: git
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
+      - name: Compute the mutable docker tag
+        id: tags
+        run: |
+          latest_git_tag="$(git describe --tags --abbrev=0)"
+          network="${{ env.SATURN_NETWORK }}"
+          tag="$network"
+          # ensure test network uses its tag and does not get tagged as canary
+          if [[ $latest_git_tag == canary-* ]] && [[ $network == "main" ]]; then
+            tag="canary"
+          fi
+          echo "mutable_docker_tag=${tag}" >> $GITHUB_OUTPUT
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
           context: .
           push: true
           tags: |
-            ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
+            ghcr.io/filecoin-saturn/l1-node:${{ steps.tags.outputs.mutable_docker_tag }}
             ghcr.io/filecoin-saturn/l1-node:${{ github.run_number}}_${{ steps.git.outputs.sha_short }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
+          cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ steps.tags.outputs.mutable.mutable_docker_tag }}
           cache-to: type=inline
           build-args: |
             GIT_COMMIT_HASH=${{ github.sha }}
