@@ -10,7 +10,7 @@ const exec = promisify(CpExec);
 
 const debug = Debug.extend("system");
 
-const meminfoKBToGB = (bytes) => bytes / 1_000_000;
+const meminfoKBToGB = (bytes) => (bytes / 1024 / 1024).toFixed();
 
 export async function getMemoryStats() {
   const result = await fsPromises.readFile("/proc/meminfo", "utf-8");
@@ -21,55 +21,47 @@ export async function getMemoryStats() {
     .map((res) => res.split(":").map((kv) => kv.trim()))
     .reduce((acc, cv) => {
       return Object.assign(acc, {
-        [`${cv[0]}KB`]: Number(cv[1].split(" ")[0]),
-        [cv[0]]: Number(meminfoKBToGB(cv[1].split(" ")[0]).toFixed(1)),
+        [cv[0]]: Number(cv[1].split(" ")[0]),
       });
     }, {});
-  debug(`Memory Total: ${values.MemTotal} GB Free: ${values.MemFree} GB Available: ${values.MemAvailable} GB`);
+  debug(
+    `Memory Total: ${meminfoKBToGB(values.MemTotal)} GB Free: ${meminfoKBToGB(
+      values.MemFree
+    )} GB Available: ${meminfoKBToGB(values.MemAvailable)} GB`
+  );
   return {
-    totalMemory: values.MemTotal,
-    freeMemory: values.MemFree,
-    availableMemory: values.MemAvailable,
-    totalMemoryKB: values.MemTotalKB,
-    freeMemoryKB: values.MemFreeKB,
-    availableMemoryKB: values.MemAvailableKB,
+    totalMemoryKB: values.MemTotal,
+    freeMemoryKB: values.MemFree,
+    availableMemoryKB: values.MemAvailable,
     raw: result,
   };
 }
 
 export async function getDiskStats() {
-  const { stdout: result } = await exec("df -B GB /usr/src/app/shared");
   const { stdout: resultMB } = await exec("df -B MB /usr/src/app/shared");
-  const values = result
-    .trim()
-    .split("\n")[1]
-    .split(/\s+/)
-    .map((res) => Number(res.replace("GB", "")));
   const valuesMB = resultMB
     .trim()
     .split("\n")[1]
     .split(/\s+/)
     .map((res) => Number(res.replace("MB", "")));
-  const totalDisk = values[1];
-  const usedDisk = values[2];
-  const availableDisk = values[3];
-  debug(`Disk Total: ${totalDisk} GB Used: ${usedDisk} GB Available: ${availableDisk} GB`);
+  const totalDiskMB = valuesMB[1];
+  const usedDiskMB = valuesMB[2];
+  const availableDiskMB = valuesMB[3];
+  debug(`Disk Total: ${totalDiskMB} MB Used: ${usedDiskMB} GB Available: ${availableDiskMB} MB`);
   return {
-    totalDisk,
-    usedDisk,
-    availableDisk,
-    totalDiskMB: valuesMB[1],
-    usedDiskMB: valuesMB[2],
-    availableDiskMB: valuesMB[3],
+    totalDiskMB,
+    usedDiskMB,
+    availableDiskMB,
     raw: resultMB,
   };
 }
 
 export async function getCPUStats() {
+  const { stdout: result } = await exec("lscpu");
   const numCPUs = cpus().length;
   const loadAvgs = loadavg();
   debug(`CPUs: ${numCPUs} (${loadAvgs.join(", ")})`);
-  return { numCPUs, loadAvgs };
+  return { numCPUs, loadAvgs, raw: result };
 }
 
 export async function getNICStats() {
