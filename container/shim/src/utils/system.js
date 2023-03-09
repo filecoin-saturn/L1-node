@@ -10,7 +10,7 @@ const exec = promisify(CpExec);
 
 const debug = Debug.extend("system");
 
-const meminfoKBToGB = (bytes) => (bytes / 1_000_000).toFixed(0);
+const meminfoKBToGB = (bytes) => (bytes / 1024 / 1024).toFixed();
 
 export async function getMemoryStats() {
   const result = await fsPromises.readFile("/proc/meminfo", "utf-8");
