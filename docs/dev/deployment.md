@@ -27,7 +27,7 @@ The `canary subnetwork` is a managed/core node subset of the `main network`. It'
 To release to the `canary subnetwork`, create a tag and push it. For example:
 
 ```bash
-git checkout main
+git checkout dev
 git pull
 git tag "canary-$(date +%s)"
 git push --follow-tags
