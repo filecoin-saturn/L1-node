@@ -245,11 +245,19 @@ function verifyHWRequirements(requirements, stats) {
   }
 
   if (stats.memoryStats.totalMemoryKB / 1024 / 1024 < minMemoryGB) {
-    throw new Error(`Not enough memory. Required: ${minMemoryGB} GB, available: ${stats.memoryStats.totalMemoryKB}`);
+    throw new Error(
+      `Not enough memory. Required: ${minMemoryGB} GB, available: ${(
+        stats.memoryStats.totalMemoryKB /
+        1024 /
+        1024
+      ).toFixed()}`
+    );
   }
 
   if (stats.diskStats.totalDiskMB / 1000 < minDiskGB) {
-    throw new Error(`Not enough disk space. Required: ${minDiskGB} GB, available: ${stats.diskStats.totalDiskMB}`);
+    throw new Error(
+      `Not enough disk space. Required: ${minDiskGB} GB, available: ${(stats.diskStats.totalDiskMB / 1000).toFixed()}`
+    );
   }
 
   debug("All requirements met");
