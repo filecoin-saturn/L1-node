@@ -19,3 +19,5 @@ blocked=403
 test_cid "Qmbfrc4cF2X4KXbHuqD593SLnR2xj6hULYTnrj65wKWaKm" "$not_blocked"
 # positive test case
 test_cid "bafybeibvcisellj6bfzbas3csvioltujjmif5jqpdw5ykvvwujtvt6up7u" "$blocked"
+# positive denylist.conf test case
+test_cid "bafybeidgnebuxvarpnw2grmkgnamu6cv6" "$blocked"
