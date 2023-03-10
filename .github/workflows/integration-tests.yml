@@ -2,7 +2,9 @@ name: Run integration tests
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - "dev"
+      - "main"
     paths:
       - ".github/workflows/integration-tests.yml"
       - "container/nginx/**"
