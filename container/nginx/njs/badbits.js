@@ -1,9 +1,10 @@
-import fs from "fs";
 import crypto from "crypto";
 
 const badbits = {};
-const data = JSON.parse(fs.readFileSync("/etc/nginx/denylist.json"));
-data.forEach((entry) => (badbits[entry.anchor] = true));
+
+for (let i = 0; i < denylist.length; i++) {
+  badbits[denylist[i].anchor] = true;
+}
 
 const ipfsRegex = /^\/ipfs\/(\w+)(\/?.*)/;
 
@@ -11,8 +12,7 @@ const ipfsRegex = /^\/ipfs\/(\w+)(\/?.*)/;
 // TODO convert CID v0 to CID v1
 // implementation ref: https://github.com/protocol/bifrost-infra/blob/af46340bd830728b38a0ea632ca517d04277f78c/ansible/roles/nginx_conf_denylist/files/lua/helpers.lua#L80
 export default function filterCID(req) {
-  const vars = req.variables;
-  const matches = vars.cid_path.match(ipfsRegex);
+  const matches = req.variables.cid_path.match(ipfsRegex);
   if (!matches) {
     return req.return(200);
   }

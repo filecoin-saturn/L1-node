@@ -3,5 +3,8 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "extends": ["eslint:recommended", "ipfs", "prettier"]
+  "extends": ["eslint:recommended", "ipfs", "prettier"],
+  "globals": {
+    "denylist": true
+  }
 }
