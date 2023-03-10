@@ -244,12 +244,12 @@ function verifyHWRequirements(requirements, stats) {
     throw new Error(`Not enough CPU cores. Required: ${minCPUCores}, current: ${stats.cpuStats.numCPUs}`);
   }
 
-  if (stats.memoryStats.totalMemory < minMemoryGB) {
-    throw new Error(`Not enough memory. Required: ${minMemoryGB} GB, available: ${stats.memoryStats.totalMemory}`);
+  if (stats.memoryStats.totalMemoryKB / 1024 / 1024 < minMemoryGB) {
+    throw new Error(`Not enough memory. Required: ${minMemoryGB} GB, available: ${stats.memoryStats.totalMemoryKB}`);
   }
 
-  if (stats.diskStats.totalDisk < minDiskGB) {
-    throw new Error(`Not enough disk space. Required: ${minDiskGB} GB, available: ${stats.diskStats.totalDisk}`);
+  if (stats.diskStats.totalDiskMB / 1000 < minDiskGB) {
+    throw new Error(`Not enough disk space. Required: ${minDiskGB} GB, available: ${stats.diskStats.totalDiskMB}`);
   }
 
   debug("All requirements met");
