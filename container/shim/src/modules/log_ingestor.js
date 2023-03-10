@@ -142,6 +142,10 @@ export async function submitLassieLogs(lassieLogs) {
 }
 
 async function submitLogs(body) {
+  if (!nodeToken) {
+    throw new Error("Missing nodeToken.");
+  }
+
   await fetch(LOG_INGESTOR_URL, {
     method: "POST",
     body,
