@@ -67,11 +67,16 @@ export function getResponseFormat(req) {
   // ipfs gw returns default format for invalid formats
   if (req.query.format) {
     return req.query.format;
-  } else if (req.headers.accept === "application/vnd.ipld.car") {
-    return "car";
-  } else if (req.headers.accept === "application/vnd.ipld.raw") {
-    return "raw";
-  } else {
-    return null;
+  } else if (req.headers.accept) {
+    const keys = req.headers.accept.split(',').map(key => key.trim())
+    for (const key of keys) {
+      if (key.startsWith("application/vnd.ipld.car")) {
+        return 'car'
+      } else if (key.startsWith("application/vnd.ipld.raw")) {
+        return 'raw'
+      }
+    }
   }
+
+  return null;
 }
