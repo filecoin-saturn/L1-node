@@ -47,5 +47,8 @@
       "ecmaVersion": "latest",
       "sourceType": "module"
     }
+  },
+  "imports": {
+    "#src/*": "./src/*"
   }
 }
