@@ -64,8 +64,6 @@ export LASSIE_METRICS_PORT=7776
 export LASSIE_METRICS_ADDRESS=0.0.0.0
 export LASSIE_DISABLE_GRAPHSYNC=true
 
-# Clean up leftover files in old lassie dir. Can remove this line after L1s update.
-find /usr/src/app/shared -name "lassie_carstore*" -exec rm {} +
 mkdir -p $LASSIE_TEMP_DIRECTORY
 
 if [ "${LASSIE_ORIGIN:-}" != "" ]; then
