@@ -68,12 +68,12 @@ export function getResponseFormat(req) {
   if (req.query.format) {
     return req.query.format;
   } else if (req.headers.accept) {
-    const keys = req.headers.accept.split(',').map(key => key.trim())
+    const keys = req.headers.accept.split(",").map((key) => key.trim());
     for (const key of keys) {
       if (key.startsWith("application/vnd.ipld.car")) {
-        return 'car'
+        return "car";
       } else if (key.startsWith("application/vnd.ipld.raw")) {
-        return 'raw'
+        return "raw";
       }
     }
   }
