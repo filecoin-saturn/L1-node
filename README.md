@@ -118,7 +118,7 @@ Multi-noding (Sharing CPU, RAM, Uplink or storage among nodes) is not allowed.**
    sudo docker compose up -d
    ```
 
-8. Check logs with `docker logs -f saturn-node`
+8. Check logs with `docker logs -f -n 100 saturn-node`
 9. Check for any errors. Registration will happen automatically and the node will restart once it receives its TLS certificate
 
 In most instances speedtest does a good job of picking "close" servers but for small networks it may be incorrect.
