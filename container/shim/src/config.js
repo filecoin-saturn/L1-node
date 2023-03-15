@@ -30,7 +30,7 @@ export let nodeToken = "";
 export const updateNodeToken = (newToken) => {
   nodeToken = newToken;
 };
-export const hasNodeToken = () => Boolean(nodeToken)
+export const hasNodeToken = () => Boolean(nodeToken);
 
 function networkToOrchestrator() {
   switch (SATURN_NETWORK) {
