@@ -3,7 +3,6 @@ name: Create and publish the Docker image
 on:
   push:
     branches:
-      - "dev"
       - "main"
     tags: ["*"]
     paths:
@@ -84,11 +83,11 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Set orchestrator env (main)
-        if: (github.ref_type == 'branch' && github.ref_name == 'main') || github.ref_type == 'tag'
+        if: github.ref_type == 'tag'
         run: echo "SATURN_NETWORK=main" >> $GITHUB_ENV
 
       - name: Set orchestrator env (test)
-        if: github.ref_type == 'branch' && github.ref_name == 'dev'
+        if: github.ref_type == 'branch'
         run: echo "SATURN_NETWORK=test" >> $GITHUB_ENV
 
       - name: Set up QEMU
@@ -106,12 +105,12 @@ jobs:
       - name: Compute the mutable docker tag
         id: tags
         run: |
-          tag="$SATURN_NETWORK"
+          docker_tag="$SATURN_NETWORK"
           # ensure canaries gets docker tagged correctly
-          if [ "$GITHUB_REF_NAME" == "dev" ] && [ "$GITHUB_REF_TYPE" == "tag" ]; then
-            tag="canary"
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]] && [[ "$GITHUB_REF_NAME" == canary-* ]]; then
+            docker_tag="canary"
           fi
-          echo "mutable_docker_tag=${tag}" >> $GITHUB_OUTPUT
+          echo "mutable_docker_tag=${docker_tag}" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
