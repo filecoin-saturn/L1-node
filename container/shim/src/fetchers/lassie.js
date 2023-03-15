@@ -7,7 +7,7 @@ import LRU from "lru-cache";
 import { base64 } from "multiformats/bases/base64";
 import fetch from "node-fetch";
 
-import { LASSIE_ORIGIN } from "../config.js";
+import { LASSIE_ORIGIN, hasNodeToken } from "../config.js";
 import { submitLassieLogs } from "../modules/log_ingestor.js";
 import { streamCAR, validateCarBlock } from "../utils/car.js";
 import { proxyResponseHeaders, toUtf8 } from "../utils/http.js";
@@ -229,7 +229,7 @@ async function queueMetricsReport(newMetric) {
 
   const date = lastMetricsReportDate;
   const canReport = !date || new Date() - date > METRICS_REPORT_INTERVAL;
-  if (!canReport) {
+  if (!canReport || !hasNodeToken()) {
     return;
   }
 
