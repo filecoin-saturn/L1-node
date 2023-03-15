@@ -2,7 +2,8 @@ name: Create and publish the Docker image
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - "main"
     tags: ["*"]
     paths:
       - ".github/workflows/release.yml"
@@ -101,17 +102,27 @@ jobs:
         id: git
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
+      - name: Compute the mutable docker tag
+        id: tags
+        run: |
+          docker_tag="$SATURN_NETWORK"
+          # ensure canaries gets docker tagged correctly
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]] && [[ "$GITHUB_REF_NAME" == canary-* ]]; then
+            docker_tag="canary"
+          fi
+          echo "mutable_docker_tag=${docker_tag}" >> $GITHUB_OUTPUT
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
           context: .
           push: true
           tags: |
-            ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
+            ghcr.io/filecoin-saturn/l1-node:${{ steps.tags.outputs.mutable_docker_tag }}
             ghcr.io/filecoin-saturn/l1-node:${{ github.run_number}}_${{ steps.git.outputs.sha_short }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
+          cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ steps.tags.outputs.mutable_docker_tag }}
           cache-to: type=inline
           build-args: |
             GIT_COMMIT_HASH=${{ github.sha }}
