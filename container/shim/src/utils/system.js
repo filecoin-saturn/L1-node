@@ -47,7 +47,7 @@ export async function getDiskStats() {
   const totalDiskMB = valuesMB[1];
   const usedDiskMB = valuesMB[2];
   const availableDiskMB = valuesMB[3];
-  debug(`Disk Total: ${totalDiskMB} MB Used: ${usedDiskMB} GB Available: ${availableDiskMB} MB`);
+  debug(`Disk Total: ${totalDiskMB / 1000} GB Used: ${usedDiskMB / 1000} GB Available: ${availableDiskMB / 1000} MB`);
   return {
     totalDiskMB,
     usedDiskMB,
