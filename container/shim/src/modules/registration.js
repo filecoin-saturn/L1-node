@@ -11,7 +11,7 @@ import {
   nodeId,
   ORCHESTRATOR_REGISTRATION,
   ORCHESTRATOR_URL,
-  SATURN_NETWORK,
+  NETWORK,
   updateNodeToken,
 } from "../config.js";
 import { debug as Debug } from "../utils/logging.js";
@@ -70,7 +70,7 @@ export async function register(initial = false) {
   const registerOptions = postOptions(body);
 
   // If cert is not yet in the volume, register
-  if (!certExists || (!backupCertExists && SATURN_NETWORK === "main")) {
+  if (!certExists || (!backupCertExists && NETWORK === "main")) {
     await handleMissingCert(registerOptions);
     return;
   }
@@ -89,7 +89,7 @@ export async function register(initial = false) {
 
   await sendRegisterRequest(initial, registerOptions);
 
-  setTimeout(register, (SATURN_NETWORK === "local" ? 1 : Math.random() * 5 + 5) * 60 * 1000);
+  setTimeout(register, (NETWORK === "local" ? 1 : Math.random() * 5 + 5) * 60 * 1000);
 }
 
 async function fetchRequirements() {

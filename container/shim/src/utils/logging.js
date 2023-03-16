@@ -1,4 +1,4 @@
 import Debug from "debug";
-import { SATURN_NETWORK } from "../config.js";
+import { NETWORK } from "../config.js";
 
-export const debug = Debug(`node@${SATURN_NETWORK}net`);
+export const debug = Debug(`node@${NETWORK}net`);

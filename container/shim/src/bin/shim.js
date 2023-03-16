@@ -10,7 +10,7 @@ import {
   nodeId,
   PORT,
   ORCHESTRATOR_REGISTRATION,
-  SATURN_NETWORK,
+  NETWORK,
 } from "../config.js";
 import { trapServer } from "../utils/trap.js";
 import { debug } from "../utils/logging.js";
@@ -22,7 +22,7 @@ debug.extend("id")(nodeId);
 debug.extend("version")(NODE_VERSION);
 
 if (!validateAddressString(FIL_WALLET_ADDRESS)) throw new Error("Invalid wallet address");
-if (!FIL_WALLET_ADDRESS.startsWith("f") && SATURN_NETWORK === "main") {
+if (!FIL_WALLET_ADDRESS.startsWith("f") && NETWORK === "main") {
   throw new Error("Invalid testnet wallet address for Saturn Main Network");
 }
 
