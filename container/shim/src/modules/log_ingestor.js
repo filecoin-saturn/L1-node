@@ -1,16 +1,21 @@
 import fs from "node:fs/promises";
+import https from "node:https";
 import fetch from "node-fetch";
 import pLimit from "p-limit";
 import prettyBytes from "pretty-bytes";
 import logfmt from "logfmt";
 import glob from "fast-glob";
-import readlines from "../utils/readlines.js";
+import readLines from "../utils/readLines.js";
 
 import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, NODE_UA, nodeId, nodeToken, TESTING_CID } from "../config.js";
 import { debug as Debug } from "../utils/logging.js";
 
 const debug = Debug.extend("log-ingestor");
 const limitConcurrency = pLimit(1); // setup concurrency limit to execute one at a time
+
+const logIngestorHttpsAgent = new https.Agent({
+  keepAlive: true,
+});
 
 const NGINX_LOG_KEYS_MAP = {
   clientAddress: (values) => values.addr,
@@ -150,6 +155,7 @@ async function submitLogs(body) {
     method: "POST",
     body,
     headers: { Authorization: `Bearer ${nodeToken}`, "Content-Type": "application/json", "User-Agent": NODE_UA },
+    agent: logIngestorHttpsAgent,
   });
 }
 
@@ -177,15 +183,17 @@ async function executeLogIngestor() {
   // to finish parsing the lines before they are compressed, additionally do not use
   // copytruncate to make sure that log file is moved instead of copied and truncated
   // because we want to keep the original log file offset by matching its inode
-  const logFiles = await glob(`${LOG_FILE}*`, { ignore: ["*.gz"] });
+  const logFiles = await glob(`${LOG_FILE}*`, { ignore: ["**.gz"] });
 
   const startTime = Date.now();
 
+  let logsExist = false;
   for (const logFile of logFiles) {
+    debug(`Reading log file: ${logFile}`);
     if (!(await isFileAccessible(logFile))) continue;
 
     // stream the log file and parse the lines
-    const read = await readlines(logFile);
+    const read = await readLines(logFile);
 
     const logs = [];
     for (let i = 0; i < read.lines.length; i++) {
@@ -204,23 +212,25 @@ async function executeLogIngestor() {
     }
 
     // submit the logs to the log ingestor
-    if (logs.length) {
-      try {
+    try {
+      if (logs.length) {
+        logsExist = true;
         // submit parsed logs to the orchestrator
         await submitBandwidthLogs(logs);
-
-        // mark the lines as read once they have been submitted successfully
-        // which persists new read bytes offset to the disk so it will not be read again
-        await read.confirmed();
-      } catch (error) {
-        debug(`Failed to submit ${logs.length} retrievals: ${error.name} ${error.message}`);
       }
-    } else {
-      debug(`No retrievals to submit since ${new Date(startTime).toISOString()}`);
+      // mark the lines as read once they have been submitted successfully
+      // which persists new read bytes offset to the disk so it will not be read again
+      await read.confirmed();
+    } catch (error) {
+      debug(`Failed to submit ${logs.length} retrievals: ${error.name} ${error.message}`);
     }
 
     // run this function again immediately if there were more lines to read (read.eof is false)
     if (read.eof === false) return executeLogIngestor();
+  }
+
+  if (!logsExist) {
+    debug(`No retrievals to submit since ${new Date(startTime).toISOString()}`);
   }
 
   // ... otherwise, wait up to 60 seconds from the start of this function before running again

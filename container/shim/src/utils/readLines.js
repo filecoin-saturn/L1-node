@@ -72,11 +72,11 @@ async function setResumableOffset(filename, offset, currentStat) {
  * @param {number} readSize - max number of bytes to read at a time (default 10MB)
  * @returns {Promise<{lines: string[], offset: number, eof: boolean, confirmed: () => Promise<void>}>
  */
-export default async function readlines(filename, offsetBytes = null, readSize = 10 * 1024 * 1024) {
+export default async function readLines(filename, offsetBytes = null, readSize = 10 * 1024 * 1024) {
   // if no offset is provided, get the last offset from the offsetfile
   if (offsetBytes === null) offsetBytes = await getResumableOffset(filename);
 
-  // open the file for reacding and create a read stream starting at the given offset
+  // open the file for reading and create a read stream starting at the given offset
   const file = await open(filename, "r");
   const stream = file.createReadStream({ encoding: "utf8", start: offsetBytes });
 
@@ -103,12 +103,12 @@ export default async function readlines(filename, offsetBytes = null, readSize =
       }
 
       // after the last line of this chunk is added, check if we have reached the readSize limit
-      if (readSize < stream.bytesRead) {
+      if (stream.bytesRead > readSize) {
         // if the last item is not a new line (results in empty string), it means the last line
         // was not finished and was split across chunks so we need to adjust the offset to not
         // include the last line and pop it from the lines array
         if (items[items.length - 1] !== "") {
-          adjustBytes = new Blob([items[items.length - 1]]).size;
+          adjustBytes = Buffer.byteLength([items[items.length - 1]]);
           lines.pop(); // pop unfinished item
         }
 
@@ -119,7 +119,7 @@ export default async function readlines(filename, offsetBytes = null, readSize =
       }
     });
 
-    stream.on("end", async () => {
+    stream.on("end", () => {
       // calculate the offset of the last line read
       const offset = offsetBytes + stream.bytesRead - adjustBytes;
 
