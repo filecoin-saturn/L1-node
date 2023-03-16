@@ -7,7 +7,7 @@ export const DEV_VERSION = "0_dev";
 export const NODE_VERSION = pVersion(process.env.NODE_VERSION || DEV_VERSION);
 export const NODE_UA = `Saturn/${NODE_VERSION}`;
 export const PORT = 10361;
-export const SATURN_NETWORK = process.env.SATURN_NETWORK?.trim().toLowerCase() || "local";
+export const NETWORK = process.env.NETWORK?.trim().toLowerCase() || "local";
 export const SPEEDTEST_SERVER_CONFIG = process.env.SPEEDTEST_SERVER_CONFIG || "";
 export const ORCHESTRATOR_URL = process.env.ORCHESTRATOR_URL || networkToOrchestrator();
 export const LOG_INGESTOR_URL = process.env.LOG_INGESTOR_URL || networkToIngestor();
@@ -21,7 +21,7 @@ export const TESTING_CID = "QmXjYBY478Cno4jzdCcPy4NcJYFrwHZ51xaCP8vUwN9MGm";
 export const nodeId = await readOrCreateNodeId();
 export const L2_FIRE_AND_FORGET = process.env.L2_FIRE_AND_FORGET
   ? process.env.L2_FIRE_AND_FORGET === "true"
-  : SATURN_NETWORK === "test";
+  : NETWORK === "test";
 export const ORCHESTRATOR_REGISTRATION = process.env.ORCHESTRATOR_REGISTRATION
   ? process.env.ORCHESTRATOR_REGISTRATION === "true"
   : true;
@@ -33,7 +33,7 @@ export const updateNodeToken = (newToken) => {
 export const hasNodeToken = () => Boolean(nodeToken);
 
 function networkToOrchestrator() {
-  switch (SATURN_NETWORK) {
+  switch (NETWORK) {
     case "main": {
       return "https://orchestrator.strn.pl";
     }
@@ -47,7 +47,7 @@ function networkToOrchestrator() {
 }
 
 function networkToIngestor() {
-  switch (SATURN_NETWORK) {
+  switch (NETWORK) {
     case "main": {
       return "https://twb3qukm2i654i3tnvx36char40aymqq.lambda-url.us-west-2.on.aws/";
     }
