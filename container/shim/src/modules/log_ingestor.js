@@ -5,7 +5,7 @@ import pLimit from "p-limit";
 import prettyBytes from "pretty-bytes";
 import logfmt from "logfmt";
 import glob from "fast-glob";
-import readLines from "../utils/readLines.js";
+import readLines from "../utils/readlines.js";
 
 import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, NODE_UA, nodeId, nodeToken, TESTING_CID } from "../config.js";
 import { debug as Debug } from "../utils/logging.js";
