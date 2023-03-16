@@ -32,7 +32,7 @@ To release to the `canary subnetwork`, create a canary tag and push it. For exam
 git checkout main
 git pull
 git tag "canary-$(date +%s)"
-git push --follow-tags
+git push origin "$(git describe --tag)"
 ```
 
 [The release CI pipeline](.github/workflows/release.yml) will handle this process and publish a docker image tagged with `canary`. Check your progress [here](https://github.com/filecoin-saturn/L1-node/actions/workflows/release.yml) by looking at the last pipeline targeting a canary git tag.
@@ -49,7 +49,7 @@ To release to `main network`, create a non-canary git tag and push it. For examp
 git checkout main
 git pull
 git tag "$(date +%s)"
-git push --follow-tags
+git push origin "$(git describe --tag)"
 ```
 
 [The release CI pipeline](https://github.com/filecoin-saturn/L1-node/blob/main/.github/workflows/release.yml) will handle this process and publish a docker image tagged with `main`. Check your progress [here](https://github.com/filecoin-saturn/L1-node/actions/workflows/release.yml) by looking at the last pipeline targeting a non-canary git branch.
