@@ -189,7 +189,6 @@ async function executeLogIngestor() {
 
   let logsExist = false;
   for (const logFile of logFiles) {
-    debug(`Reading log file: ${logFile}`);
     if (!(await isFileAccessible(logFile))) continue;
 
     // stream the log file and parse the lines
