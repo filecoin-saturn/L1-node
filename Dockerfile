@@ -108,6 +108,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
  && apt-get install --no-install-recommends -y \
  nodejs \
  speedtest \
+ logrotate \
  && rm -rf /var/lib/apt/lists/*
 
 # Download lassie
@@ -130,6 +131,7 @@ RUN npm ci --production --ignore-scripts
 COPY container/start.sh ./
 COPY container/shim ./
 COPY container/nginx /etc/nginx/
+COPY container/logrotate/* /etc/logrotate.d/
 
 # Load CIDs ban lists
 RUN rm /etc/nginx/conf.d/default.conf && curl -s https://badbits.dwebops.pub/denylist.json > /etc/nginx/denylist.json
