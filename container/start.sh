@@ -13,7 +13,7 @@ if [ ! -f "/usr/src/app/shared/nodeId.txt" ]; then
   cat /proc/sys/kernel/random/uuid > /usr/src/app/shared/nodeId.txt
 fi
 
-echo "$(date -u) [container] Booting $SATURN_NETWORK network L1 v$NODE_VERSION"
+echo "$(date -u) [container] Booting $NETWORK network L1 v$NODE_VERSION"
 echo "$(date -u) [container] ID: $(cat /usr/src/app/shared/nodeId.txt)"
 echo "$(date -u) [container] CPUs: $(nproc --all)"
 echo "$(date -u) [container] Memory: $(awk '(NR<4)' /proc/meminfo | tr -d '  ' | tr '\n' ' ')"
