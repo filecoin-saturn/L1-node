@@ -108,7 +108,7 @@ export default async function readLines(filename, offsetBytes = null, readSize =
         // was not finished and was split across chunks so we need to adjust the offset to not
         // include the last line and pop it from the lines array
         if (items[items.length - 1] !== "") {
-          adjustBytes = Buffer.byteLength([items[items.length - 1]]);
+          adjustBytes = Buffer.byteLength(items[items.length - 1]);
           lines.pop(); // pop unfinished item
         }
 
