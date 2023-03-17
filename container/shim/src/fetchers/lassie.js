@@ -58,6 +58,10 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
 
   const lassieUrl = new URL(LASSIE_ORIGIN + toUtf8(req.path));
   for (const [key, val] of Object.entries(req.query)) {
+    if (key === "filename") {
+      continue;
+    }
+
     // translate depth parameter for lassie
     let newKey = key;
     let newVal = val;
