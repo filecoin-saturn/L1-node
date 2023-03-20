@@ -69,10 +69,17 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
       newKey = "depthType";
       newVal = "shallow";
     }
+    if (key === "depth" && val === "all") {
+      newKey = "depthType";
+      newVal = "full";
+    }
     lassieUrl.searchParams.set(newKey, toUtf8(newVal));
   }
   lassieUrl.searchParams.set("format", "car");
-
+  // if no depth type set, default to shallow
+  if (!lassieUrl.searchParams.has("depthType")) {
+    lassieUrl.searchParams.set("depthType", "shallow");
+  }
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), LASSIE_TIMEOUT);
 
