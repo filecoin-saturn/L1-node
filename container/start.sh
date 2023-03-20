@@ -63,7 +63,7 @@ export LASSIE_EXPOSE_METRICS=true
 export LASSIE_METRICS_PORT=7776
 export LASSIE_METRICS_ADDRESS=0.0.0.0
 export LASSIE_DISABLE_GRAPHSYNC=true
-
+export LASSIE_EXCLUDE_PROVIDERS=bafzbeibhqavlasjc7dvbiopygwncnrtvjd2xmryk5laib7zyjor6kf3avm
 mkdir -p $LASSIE_TEMP_DIRECTORY
 
 if [ "${LASSIE_ORIGIN:-}" != "" ]; then
