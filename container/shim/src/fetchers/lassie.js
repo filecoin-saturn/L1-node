@@ -77,7 +77,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
   }
   lassieUrl.searchParams.set("format", "car");
   // if no depth type set, default to shallow
-  if (!lassieUrl.searchParams.get("depthType")) {
+  if (!lassieUrl.searchParams.has("depthType")) {
     lassieUrl.searchParams.set("depthType", "shallow");
   }
   const controller = new AbortController();
