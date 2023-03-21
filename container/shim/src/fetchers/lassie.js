@@ -56,33 +56,10 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
   let ttfbTime = null;
   let numBytesDownloaded = 0;
 
-  const lassieUrl = new URL(LASSIE_ORIGIN + toUtf8(req.path));
-  for (const [key, val] of Object.entries(req.query)) {
-    if (key === "filename") {
-      continue;
-    }
-
-    // translate depth parameter for lassie
-    let newKey = key;
-    let newVal = val;
-    if (key === "depth" && (val === "1" || val === "0")) {
-      newKey = "depthType";
-      newVal = "shallow";
-    }
-    if (key === "depth" && val === "all") {
-      newKey = "depthType";
-      newVal = "full";
-    }
-    lassieUrl.searchParams.set(newKey, toUtf8(newVal));
-  }
-  lassieUrl.searchParams.set("format", "car");
-  // if no depth type set, default to shallow
-  if (!lassieUrl.searchParams.has("depthType")) {
-    lassieUrl.searchParams.set("depthType", "shallow");
-  }
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), LASSIE_TIMEOUT);
 
+  const lassieUrl = createLassieURL(req);
   const agent = lassieUrl.protocol === "https:" ? httpsAgent : httpAgent;
 
   // No transform, just record metrics.
@@ -166,6 +143,36 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
       requestErr,
     });
   }
+}
+
+function createLassieURL(req) {
+  const lassieUrl = new URL(LASSIE_ORIGIN + toUtf8(req.path));
+  for (const [key, val] of Object.entries(req.query)) {
+    if (key === "filename") {
+      continue;
+    }
+
+    // translate depth parameter for lassie
+    let newKey = key;
+    let newVal = val;
+    if (key === "depth" && (val === "1" || val === "0")) {
+      newKey = "depthType";
+      newVal = "shallow";
+    }
+    if (key === "depth" && val === "all") {
+      newKey = "depthType";
+      newVal = "full";
+    }
+    lassieUrl.searchParams.set(newKey, toUtf8(newVal));
+  }
+  lassieUrl.searchParams.set("format", "car");
+
+  // if no depth type set, default to shallow
+  if (!lassieUrl.searchParams.has("depthType")) {
+    lassieUrl.searchParams.set("depthType", "shallow");
+  }
+
+  return lassieUrl;
 }
 
 function getSemanticErrorStatus(status, body) {
