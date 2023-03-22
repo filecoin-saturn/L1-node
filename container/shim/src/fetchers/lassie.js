@@ -59,7 +59,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), LASSIE_TIMEOUT);
 
-  const lassieUrl = createLassieURL(req);
+  const lassieUrl = createLassieURL(req, isRawFormat);
   const agent = lassieUrl.protocol === "https:" ? httpsAgent : httpAgent;
 
   // No transform, just record metrics.
@@ -145,7 +145,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
   }
 }
 
-function createLassieURL(req) {
+function createLassieURL(req, isRawFormat) {
   const lassieUrl = new URL(LASSIE_ORIGIN + toUtf8(req.path));
   for (const [key, val] of Object.entries(req.query)) {
     if (key === "filename") {
@@ -167,9 +167,15 @@ function createLassieURL(req) {
   }
   lassieUrl.searchParams.set("format", "car");
 
-  // if no depth type set, default to shallow
+  // if no depth type set
   if (!lassieUrl.searchParams.has("depthType")) {
-    lassieUrl.searchParams.set("depthType", "shallow");
+    if (isRawFormat) {
+      // for raw, default to shallow
+      lassieUrl.searchParams.set("depthType", "shallow");
+    } else {
+      // for everything else, default to full
+      lassieUrl.searchParams.set("depthType", "full");
+    }
   }
 
   return lassieUrl;
