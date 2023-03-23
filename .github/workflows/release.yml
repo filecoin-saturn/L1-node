@@ -115,7 +115,8 @@ jobs:
       - name: Compute version hash
         id: secret
         run: |
-          digest=$(echo -n "${{ github.run_number }}_${{ github.sha }}_${{ secrets.RELEASE_KEY }}" | sha256sum)
+          digest=$(echo -n "${{ github.run_number }}_${{ github.sha }}_${{ secrets.RELEASE_KEY }}" | sha256sum | head -c 64)
+          echo "::add-mask::${digest}"
           echo "VERSION_HASH=${digest}" >> $GITHUB_ENV
 
       - name: Build and push Docker image
