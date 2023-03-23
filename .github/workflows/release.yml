@@ -112,6 +112,12 @@ jobs:
           fi
           echo "mutable_docker_tag=${docker_tag}" >> $GITHUB_OUTPUT
 
+      - name: Compute version hash
+        id: secret
+        run: |
+          digest=$(echo -n "${{ github.run_number }}_${{ github.sha }}_${{ secrets.RELEASE_KEY }}" | sha256sum)
+          echo "VERSION_HASH=${digest}" >> $GITHUB_ENV
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
@@ -130,3 +136,4 @@ jobs:
             NETWORK=${{ env.NETWORK }}
             LASSIE_EVENT_RECORDER_URL=${{ secrets.LASSIE_EVENT_RECORDER_URL }}
             LASSIE_EVENT_RECORDER_AUTH=${{ secrets.LASSIE_EVENT_RECORDER_AUTH }}
+            VERSION_HASH=${{ env.VERSION_HASH }}
