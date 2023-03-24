@@ -136,7 +136,8 @@ jobs:
             ${{ steps.tags.outputs.mutable_docker_tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ steps.tags.outputs.mutable_docker_tag }}
+          cache-from: |
+            ${{ steps.tags.outputs.mutable_docker_tags }}
           cache-to: type=inline
           build-args: |
             GIT_COMMIT_HASH=${{ github.sha }}
