@@ -7,7 +7,7 @@ import logfmt from "logfmt";
 import glob from "fast-glob";
 import readLines from "../utils/readlines.js";
 
-import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, NODE_UA, nodeId, nodeToken, TESTING_CID } from "../config.js";
+import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, NODE_UA, NODE_ID, nodeToken, TESTING_CID } from "../config.js";
 import { debug as Debug } from "../utils/logging.js";
 
 const debug = Debug.extend("log-ingestor");
@@ -135,14 +135,14 @@ async function submitBandwidthLogs(logs) {
 
   const submitTime = Date.now();
 
-  const body = JSON.stringify({ nodeId, filAddress: FIL_WALLET_ADDRESS, bandwidthLogs: logs });
+  const body = JSON.stringify({ nodeId: NODE_ID, filAddress: FIL_WALLET_ADDRESS, bandwidthLogs: logs });
   await submitLogs(body);
 
   debug(`Retrievals submitted succesfully to wallet ${FIL_WALLET_ADDRESS} in ${Date.now() - submitTime}ms`);
 }
 
 export async function submitLassieLogs(lassieLogs) {
-  const body = JSON.stringify({ nodeId, lassieLogs });
+  const body = JSON.stringify({ nodeId: NODE_ID, lassieLogs });
   await submitLogs(body);
 }
 

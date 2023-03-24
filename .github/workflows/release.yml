@@ -102,6 +102,13 @@ jobs:
         id: git
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
+      - name: Compute version hash
+        id: secret
+        run: |
+          digest=$(echo -n "${{ github.run_number }}_${{ steps.git.outputs.sha_short }}${{ secrets.RELEASE_KEY }}" | sha256sum | head -c 64)
+          echo "::add-mask::${digest}"
+          echo "VERSION_HASH=${digest}" >> $GITHUB_ENV
+
       - name: Compute the mutable docker tag
         id: tags
         run: |
@@ -119,13 +126,6 @@ jobs:
           echo "${repo}:${docker_tag}" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Compute version hash
-        id: secret
-        run: |
-          digest=$(echo -n "${{ github.run_number }}_${{ github.sha }}_${{ secrets.RELEASE_KEY }}" | sha256sum | head -c 64)
-          echo "::add-mask::${digest}"
-          echo "VERSION_HASH=${digest}" >> $GITHUB_ENV
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
@@ -140,9 +140,8 @@ jobs:
             ${{ steps.tags.outputs.mutable_docker_tags }}
           cache-to: type=inline
           build-args: |
-            GIT_COMMIT_HASH=${{ github.sha }}
-            RUN_NUMBER=${{ github.run_number }}
             NETWORK=${{ env.NETWORK }}
+            VERSION=${{ github.run_number }}_${{ steps.git.outputs.sha_short }}
+            VERSION_HASH=${{ env.VERSION_HASH }}
             LASSIE_EVENT_RECORDER_URL=${{ secrets.LASSIE_EVENT_RECORDER_URL }}
             LASSIE_EVENT_RECORDER_AUTH=${{ secrets.LASSIE_EVENT_RECORDER_AUTH }}
-            VERSION_HASH=${{ env.VERSION_HASH }}

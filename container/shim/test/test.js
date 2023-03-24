@@ -4,7 +4,7 @@ import app from "../src/index.js";
 import fetch, { Headers } from "node-fetch";
 import http from "node:http";
 import { promisify } from "node:util";
-import { DEV_VERSION, IPFS_GATEWAY_ORIGIN, nodeId, TESTING_CID } from "../src/config.js";
+import { DEV_VERSION, IPFS_GATEWAY_ORIGIN, NODE_ID, TESTING_CID } from "../src/config.js";
 import fsPromises from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -44,7 +44,7 @@ test("L1 node", async (t) => {
     await t.test("response headers", async (t) => {
       const res = await fetch(`${address}/ipfs/${TESTING_CID}`);
       assert.strictEqual(res.headers.get("content-type"), "application/octet-stream");
-      assert.strictEqual(res.headers.get("saturn-node-id"), nodeId);
+      assert.strictEqual(res.headers.get("saturn-node-id"), NODE_ID);
       assert.strictEqual(res.headers.get("saturn-node-version"), DEV_VERSION);
     });
     await t.test("range request", async (t) => {
