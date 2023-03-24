@@ -59,7 +59,6 @@ export async function register(initial = false) {
   }
 
   const body = {
-    id: NODE_ID,
     nodeId: NODE_ID,
     hash: HASH,
     level: 1,
