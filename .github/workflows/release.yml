@@ -110,14 +110,14 @@ jobs:
 
           # ensure canaries gets docker tagged correctly
           # and get moved forward whenever there's a main release
-          echo "mutable_docker_tags<<$EOF" >> $GITHUB_OUTPUT
+          echo "mutable_docker_tags<<EOF" >> $GITHUB_OUTPUT
           if [[ "$GITHUB_REF_TYPE" == "tag" ]] && [[ "$GITHUB_REF_NAME" == canary-* ]]; then
             docker_tag="canary"
           elif [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
             echo "${repo}:canary" >> $GITHUB_OUTPUT
           fi
           echo "${repo}:${docker_tag}" >> $GITHUB_OUTPUT
-          echo "$EOF" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Compute version hash
         id: secret
