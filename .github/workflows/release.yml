@@ -105,12 +105,19 @@ jobs:
       - name: Compute the mutable docker tag
         id: tags
         run: |
+          repo="ghcr.io/filecoin-saturn/l1-node"
           docker_tag="$NETWORK"
+
           # ensure canaries gets docker tagged correctly
+          # and get moved forward whenever there's a main release
+          echo "mutable_docker_tags<<$EOF" >> $GITHUB_OUTPUT
           if [[ "$GITHUB_REF_TYPE" == "tag" ]] && [[ "$GITHUB_REF_NAME" == canary-* ]]; then
             docker_tag="canary"
+          elif [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            echo "${repo}:canary" >> $GITHUB_OUTPUT
           fi
-          echo "mutable_docker_tag=${docker_tag}" >> $GITHUB_OUTPUT
+          echo "${repo}:${docker_tag}" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
 
       - name: Compute version hash
         id: secret
@@ -125,8 +132,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/filecoin-saturn/l1-node:${{ steps.tags.outputs.mutable_docker_tag }}
             ghcr.io/filecoin-saturn/l1-node:${{ github.run_number}}_${{ steps.git.outputs.sha_short }}
+            ${{ steps.tags.outputs.mutable_docker_tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ steps.tags.outputs.mutable_docker_tag }}
