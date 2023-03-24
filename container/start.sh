@@ -51,7 +51,7 @@ fi
 
 nginx
 
-export HASH=$(echo -n "$VERSION_HASH$(cat /usr/src/app/shared/nodeId.txt)" | sha256sum | head -c 64)
+export NODE_VERSION_HASH=$(echo -n "$VERSION_HASH$(cat /usr/src/app/shared/nodeId.txt)" | sha256sum | head -c 64)
 
 export LASSIE_PORT=7766
 export LASSIE_ORIGIN=http://127.0.0.1:$LASSIE_PORT

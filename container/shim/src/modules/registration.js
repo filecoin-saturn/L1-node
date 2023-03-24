@@ -5,7 +5,7 @@ import fetch from "node-fetch";
 import {
   DEV_VERSION,
   FIL_WALLET_ADDRESS,
-  HASH,
+  NODE_VERSION_HASH,
   NETWORK,
   NODE_ID,
   NODE_OPERATOR_EMAIL,
@@ -60,7 +60,7 @@ export async function register(initial = false) {
 
   const body = {
     nodeId: NODE_ID,
-    hash: HASH,
+    nodeVersionHash: NODE_VERSION_HASH,
     level: 1,
     version: VERSION,
     filWalletAddress: FIL_WALLET_ADDRESS,

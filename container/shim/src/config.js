@@ -10,7 +10,7 @@ export const TESTING_CID = "QmXjYBY478Cno4jzdCcPy4NcJYFrwHZ51xaCP8vUwN9MGm";
 export const NODE_ID = (await readFile(NODE_ID_FILE_PATH, "utf8")).trim();
 export const NETWORK = process.env.NETWORK?.trim().toLowerCase() || "local";
 export const VERSION = pVersion(process.env.VERSION || DEV_VERSION);
-export const HASH = process.env.HASH;
+export const NODE_VERSION_HASH = process.env.NODE_VERSION_HASH;
 
 // URLs
 export const ORCHESTRATOR_URL = process.env.ORCHESTRATOR_URL || networkToOrchestrator();
