@@ -5,14 +5,15 @@ import fetch from "node-fetch";
 import {
   DEV_VERSION,
   FIL_WALLET_ADDRESS,
+  HASH,
+  NETWORK,
+  NODE_ID,
   NODE_OPERATOR_EMAIL,
   NODE_UA,
-  NODE_VERSION,
-  nodeId,
   ORCHESTRATOR_REGISTRATION,
   ORCHESTRATOR_URL,
-  NETWORK,
   updateNodeToken,
+  VERSION,
 } from "../config.js";
 import { debug as Debug } from "../utils/logging.js";
 import { getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from "../utils/system.js";
@@ -44,7 +45,7 @@ export async function register(initial = false) {
 
   verifyHWRequirements(requirements, stats);
 
-  if (NODE_VERSION !== DEV_VERSION && initial) {
+  if (VERSION !== DEV_VERSION && initial) {
     let speedtest;
     try {
       speedtest = await getSpeedtest();
@@ -58,12 +59,14 @@ export async function register(initial = false) {
   }
 
   const body = {
-    nodeId,
+    id: NODE_ID,
+    nodeId: NODE_ID,
+    hash: HASH,
     level: 1,
-    initial,
-    version: NODE_VERSION,
+    version: VERSION,
     filWalletAddress: FIL_WALLET_ADDRESS,
     operatorEmail: NODE_OPERATOR_EMAIL,
+    initial,
     ...stats,
   };
 
@@ -108,7 +111,7 @@ async function fetchRequirements() {
 }
 
 function validateVersionNumber() {
-  const versionNumber = parseVersionNumber(NODE_VERSION);
+  const versionNumber = parseVersionNumber(VERSION);
   if (versionNumber < requirements.minVersion) {
     throw new Error(
       `Node version ${versionNumber} is too old. ` +
@@ -241,7 +244,7 @@ async function _deregister() {
 
   try {
     await fetch(`${ORCHESTRATOR_URL}/deregister`, {
-      ...postOptions({ nodeId }),
+      ...postOptions({ nodeId: NODE_ID }),
       signal: controller.signal,
     });
     debug("De-registration successful");
@@ -257,8 +260,8 @@ export const addRegisterCheckRoute = (app) =>
   app.get("/register-check", (req, res) => {
     const ip = req.ip.replace("::ffff:", "");
     const { nodeId: receivedNodeId } = req.query;
-    if (receivedNodeId !== nodeId) {
-      debug.extend("check")(`Check failed, nodeId mismatch. Received: ${receivedNodeId} from IP ${ip}`);
+    if (receivedNodeId !== NODE_ID) {
+      debug.extend("check")(`Check failed, node ID mismatch. Received: ${receivedNodeId} from IP ${ip}`);
       return res.sendStatus(403);
     }
     debug.extend("check")("Successful");

@@ -6,8 +6,8 @@ import { register } from "../modules/registration.js";
 import {
   FIL_WALLET_ADDRESS,
   NODE_OPERATOR_EMAIL,
-  NODE_VERSION,
-  nodeId,
+  VERSION,
+  NODE_ID,
   PORT,
   ORCHESTRATOR_REGISTRATION,
   NETWORK,
@@ -18,8 +18,8 @@ import startLogIngestor from "../modules/log_ingestor.js";
 import { refreshLocalNodes } from "../modules/local_nodes.js";
 
 debug("Saturn L1 Node");
-debug.extend("id")(nodeId);
-debug.extend("version")(NODE_VERSION);
+debug.extend("id")(NODE_ID);
+debug.extend("version")(VERSION);
 
 if (!validateAddressString(FIL_WALLET_ADDRESS)) throw new Error("Invalid wallet address");
 if (!FIL_WALLET_ADDRESS.startsWith("f") && NETWORK === "main") {
