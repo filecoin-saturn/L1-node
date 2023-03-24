@@ -51,7 +51,6 @@ fi
 
 nginx
 
-echo $VERSION_HASH
 export HASH=$(echo -n "$VERSION_HASH$(cat /usr/src/app/shared/nodeId.txt)" | sha256sum | head -c 64)
 
 export LASSIE_PORT=7766
