@@ -167,6 +167,11 @@ function createLassieURL(req, isRawFormat) {
   }
   lassieUrl.searchParams.set("format", "car");
 
+  // add custom limited depth limit on raw requests
+  if (isRawFormat) {
+    lassieUrl.searchParams.set("blockLimit", "10");
+  }
+
   // if no depth type set
   if (!lassieUrl.searchParams.has("depthType")) {
     if (isRawFormat) {
