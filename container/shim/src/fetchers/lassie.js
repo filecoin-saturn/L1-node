@@ -7,7 +7,7 @@ import LRU from "lru-cache";
 import { base64 } from "multiformats/bases/base64";
 import fetch from "node-fetch";
 
-import { LASSIE_ORIGIN, hasNodeToken } from "../config.js";
+import { LASSIE_ORIGIN, LASSIE_SP_ELIGIBLE_PORTION, hasNodeToken } from "../config.js";
 import { submitLassieLogs } from "../modules/log_ingestor.js";
 import { streamCAR, validateCarBlock } from "../utils/car.js";
 import { proxyResponseHeaders, toUtf8 } from "../utils/http.js";
@@ -183,6 +183,18 @@ function createLassieURL(req, isRawFormat) {
     }
   }
 
+  // if protocols is not set and we have a percentage set for sending requests to sps,
+  // add graphsync to the protocols list on a percentage of requests
+  if (!lassieUrl.searchparams.has("protocols")) {
+    const chance = Math.random();
+    if (chance < LASSIE_SP_ELIGIBLE_PORTION) {
+      // if we are making an sp eligible request, add bitswap and graphsync
+      lassieUrl.searchParams.set("protocols", "bitswap,graphsync");
+    } else {
+      // for everything else, just use bitswap
+      lassieUrl.searchParams.set("protocols", "bitswap");
+    }
+  }
   return lassieUrl;
 }
 
