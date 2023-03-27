@@ -185,7 +185,7 @@ function createLassieURL(req, isRawFormat) {
 
   // if protocols is not set and we have a percentage set for sending requests to sps,
   // add graphsync to the protocols list on a percentage of requests
-  if (!lassieUrl.searchparams.has("protocols")) {
+  if (!lassieUrl.searchParams.has("protocols")) {
     const chance = Math.random();
     if (chance < LASSIE_SP_ELIGIBLE_PORTION) {
       // if we are making an sp eligible request, add bitswap and graphsync
