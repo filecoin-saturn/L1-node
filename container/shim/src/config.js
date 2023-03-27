@@ -25,6 +25,7 @@ export const NODE_OPERATOR_EMAIL = process.env.NODE_OPERATOR_EMAIL || error("NOD
 export const IS_CORE_L1 = process.env.IS_CORE_L1 === "true";
 export const SPEEDTEST_SERVER_CONFIG = process.env.SPEEDTEST_SERVER_CONFIG || "";
 export const LASSIE_ORIGIN = process.env.LASSIE_ORIGIN || null;
+export const LASSIE_SP_ELIGIBLE_PORTION = spPortionFromString(process.env.LASSIE_SP_ELIGIBLE_PORTION || null);
 
 export const NODE_UA = `Saturn/${VERSION}`;
 
@@ -75,4 +76,12 @@ function error(requiredVarName) {
 
 function pVersion(version) {
   return version.slice(0, version.indexOf("_") + 8);
+}
+
+function spPortionFromString(portion) {
+  const portionAsFloat = parseFloat(portion);
+  if (Number.isNaN(portionAsFloat)) {
+    return 0.0;
+  }
+  return portionAsFloat;
 }
