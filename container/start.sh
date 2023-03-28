@@ -55,7 +55,7 @@ export NODE_VERSION_HASH=$(echo -n "$VERSION_HASH$(cat /usr/src/app/shared/nodeI
 
 export LASSIE_PORT=7766
 export LASSIE_ORIGIN=http://127.0.0.1:$LASSIE_PORT
-export LASSIE_SP_ELIGIBLE_PORTION=0.0
+export LASSIE_SP_ELIGIBLE_PORTION=0.01
 export LASSIE_EVENT_RECORDER_INSTANCE_ID="$(cat /usr/src/app/shared/nodeId.txt)"
 export LASSIE_TEMP_DIRECTORY=/usr/src/app/shared/lassie
 export LASSIE_MAX_BLOCKS_PER_REQUEST=10000
