@@ -16,7 +16,7 @@ import {
   VERSION,
 } from "../config.js";
 import { debug as Debug } from "../utils/logging.js";
-import { getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from "../utils/system.js";
+import { getBootId, getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from "../utils/system.js";
 import { backupCertExists, CERT_PATH, certExists, getNewTLSCert, SSL_PATH, swapCerts } from "./tls.js";
 import { parseVersionNumber } from "../utils/version.js";
 import { orchestratorAgent } from "../utils/http.js";
@@ -65,6 +65,7 @@ export async function register(initial = false) {
     version: VERSION,
     filWalletAddress: FIL_WALLET_ADDRESS,
     operatorEmail: NODE_OPERATOR_EMAIL,
+    bootId: await getBootId(),
     initial,
     ...stats,
   };

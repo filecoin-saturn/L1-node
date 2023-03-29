@@ -111,6 +111,11 @@ export async function getSpeedtest() {
   return values;
 }
 
+export async function getBootId() {
+  const { stdout: result } = await exec("cat /proc/sys/kernel/random/boot_id");
+  return result.trim();
+}
+
 function bytesToMbps(bytes) {
   return (bytes / 1000 / 1000) * 8;
 }
