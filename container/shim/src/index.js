@@ -1,5 +1,4 @@
 import fsPromises from "node:fs/promises";
-import { setTimeout as setTimeoutPromise } from "node:timers/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import express from "express";
@@ -12,7 +11,7 @@ import { respondFromIPFSGateway } from "./fetchers/ipfs-gateway.js";
 import { respondFromLassie } from "./fetchers/lassie.js";
 import { cancelCarRequest, maybeRespondFromL2, registerL2Node } from "./fetchers/l2-node.js";
 import { addRegisterCheckRoute } from "./modules/registration.js";
-import { LASSIE_ORIGIN, NETWORK, TESTING_CID, IS_CORE_L1 } from "./config.js";
+import { IS_CORE_L1, LASSIE_ORIGIN, NETWORK, TESTING_CID } from "./config.js";
 import { getResponseFormat } from "./utils/http.js";
 import { debug } from "./utils/logging.js";
 
@@ -76,7 +75,6 @@ const handleCID = asyncHandler(async (req, res) => {
 
   // Testing CID
   if (cid === TESTING_CID) {
-    await setTimeoutPromise(10);
     return res.send(testCAR);
   }
 
