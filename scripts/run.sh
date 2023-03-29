@@ -9,6 +9,7 @@ set -e
 : "${HTTP_PORT:=80}"
 : "${HTTPS_PORT:=443}"
 : "${IS_CORE_L1:=false}"
+: "${L2_FIRE_AND_FORGET:=true}"
 
 mkdir -p "$(pwd)/shared"
 echo "$(date -u) [host] Running Saturn node dev, with volume in $(pwd)/shared"
@@ -23,5 +24,6 @@ docker run --name saturn-node --rm \
           -e "SPEEDTEST_SERVER_CONFIG=$SPEEDTEST_SERVER_CONFIG" \
           -e "LASSIE_ORIGIN=$LASSIE_ORIGIN" \
           -e "IS_CORE_L1=$IS_CORE_L1" \
+          -e "L2_FIRE_AND_FORGET=$L2_FIRE_AND_FORGET" \
           -p $HTTPS_PORT:443 -p $HTTP_PORT:80 \
           saturn-node
