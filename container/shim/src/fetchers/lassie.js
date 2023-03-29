@@ -38,6 +38,8 @@ const METRICS_REPORT_INTERVAL = 5_000;
 export async function respondFromLassie(req, res, { cidObj, format }) {
   debug(`Fetch ${req.path}`);
 
+  res.startTime("shim/lassie");
+
   const requestId = req.headers["saturn-transfer-id"];
   const cacheKey = cidToCacheKey(cidObj);
   const cid = cidObj.toString();
@@ -91,7 +93,9 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
         "X-Request-ID": requestId,
       },
     };
+    res.startTime("shim_lassie_headers");
     lassieRes = await fetch(lassieUrl, fetchOpts);
+    res.endTime("shim_lassie_headers");
 
     const { status } = lassieRes;
 

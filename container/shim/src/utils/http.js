@@ -17,6 +17,7 @@ const PROXY_RESPONSE_HEADERS = [
   "etag",
   "last-modified",
   "location",
+  "server-timing",
   "x-ipfs-path",
   "x-ipfs-roots",
   "x-ipfs-datasize",
