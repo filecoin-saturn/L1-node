@@ -88,7 +88,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
       agent,
       signal: controller.signal,
       headers: {
-        "X-Request-ID": requestId,
+        "X-Request-ID": req.headers["x-request-id"] || requestId,
       },
     };
     lassieRes = await fetch(lassieUrl, fetchOpts);
