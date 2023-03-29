@@ -5,6 +5,11 @@ on:
     branches: ["main"]
   pull_request:
 
+concurrency:
+  group: ${{ github.head_ref }}
+  cancel-in-progress: true
+
+
 jobs:
   check:
     name: "Check linting and formatting"
