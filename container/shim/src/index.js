@@ -5,12 +5,13 @@ import express from "express";
 import mimeTypes from "mime-types";
 import asyncHandler from "express-async-handler";
 import { CID } from "multiformats";
+import serverTiming from "server-timing";
 
 import { respondFromIPFSGateway } from "./fetchers/ipfs-gateway.js";
 import { respondFromLassie } from "./fetchers/lassie.js";
 import { cancelCarRequest, maybeRespondFromL2, registerL2Node } from "./fetchers/l2-node.js";
 import { addRegisterCheckRoute } from "./modules/registration.js";
-import { LASSIE_ORIGIN, NETWORK, TESTING_CID, IS_CORE_L1 } from "./config.js";
+import { IS_CORE_L1, LASSIE_ORIGIN, NETWORK, TESTING_CID } from "./config.js";
 import { getResponseFormat } from "./utils/http.js";
 import { debug } from "./utils/logging.js";
 
@@ -25,6 +26,7 @@ const testCAR = await fsPromises.readFile(
 
 app.disable("x-powered-by");
 app.set("trust proxy", true);
+app.use(serverTiming({ total: false }));
 
 app.get("/favicon.ico", (req, res) => {
   res.sendStatus(404);
@@ -37,6 +39,8 @@ const handleCID = asyncHandler(async (req, res) => {
     const msg = "navigator.serviceWorker: registration is not allowed for this scope";
     return res.status(400).send(msg);
   }
+
+  res.startTime("shim");
 
   const cid = req.params.cid;
   let cidObj;
@@ -81,6 +85,8 @@ const handleCID = asyncHandler(async (req, res) => {
   const isBifrostGateway = req.headers["user-agent"]?.includes("bifrost-gateway");
   const isSampled = Math.random() < LASSIE_SAMPLE_RATE;
   const useLassie = isBifrostGateway || isSampled;
+
+  res.endTime("shim");
 
   if (useLassie && LASSIE_ORIGIN) {
     return respondFromLassie(req, res, { cidObj, format });

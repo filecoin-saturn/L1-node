@@ -31,6 +31,7 @@
     "p-limit": "^4.0.0",
     "p-timeout": "^6.1.0",
     "pretty-bytes": "^6.0.0",
+    "server-timing": "^3.3.3",
     "stream-write": "^2.0.0",
     "xor-distance": "^2.0.0"
   },
