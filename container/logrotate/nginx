@@ -1,5 +1,5 @@
 /usr/src/app/shared/nginx_log/*.log {
-        daily
+        hourly
         missingok
         rotate 30
         compress
