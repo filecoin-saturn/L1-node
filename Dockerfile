@@ -132,9 +132,13 @@ COPY container/start.sh ./
 COPY container/shim ./
 COPY container/nginx /etc/nginx/
 COPY container/logrotate/* /etc/logrotate.d/
+COPY container/cron/* /etc/cron.d/
 
 # Load CIDs ban lists
 RUN rm /etc/nginx/conf.d/default.conf && curl -s https://badbits.dwebops.pub/denylist.json > /etc/nginx/denylist.json
+
+# Add logrotate cronjob
+RUN chmod 0644 /etc/cron.d/* && { crontab -l; cat /etc/cron.d/logrotate; } | crontab -
 
 ARG NETWORK="local"
 ARG VERSION="0_dev"
