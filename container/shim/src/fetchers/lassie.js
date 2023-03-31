@@ -91,6 +91,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
       signal: controller.signal,
       headers: {
         "X-Request-ID": req.headers["x-request-id"] || requestId,
+        "User-Agent": req.headers["user-agent"],
       },
     };
     res.startTime("shim_lassie_headers");
