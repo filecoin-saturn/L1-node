@@ -19,7 +19,7 @@ async function getResumableOffset(filename) {
     const resumable = resumables[currentStat.ino];
 
     // file that has not been read yet or brand new file, reset the offset
-    if (!resumable) return setResumableOffset(filename, 0, currentStat);
+    if (!resumable || currentStat.size < resumable.size) return setResumableOffset(filename, 0, currentStat);
 
     return resumable.offset;
   } catch (error) {

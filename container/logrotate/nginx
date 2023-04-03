@@ -1,7 +1,7 @@
 /usr/src/app/shared/nginx_log/*.log {
         hourly
         missingok
-        rotate 30
+        rotate 24
         compress
         delaycompress
         notifempty
