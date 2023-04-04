@@ -86,6 +86,10 @@ const handleCID = asyncHandler(async (req, res) => {
   const isSampled = Math.random() < LASSIE_SAMPLE_RATE;
   const useLassie = isBifrostGateway || isSampled;
 
+  if (!isBifrostGateway) {
+    return res.sendStatus(404);
+  }
+
   res.endTime("shim");
 
   if (useLassie && LASSIE_ORIGIN) {
