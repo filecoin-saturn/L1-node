@@ -12,7 +12,6 @@ ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
 ARG NJS_VERSION=0.7.10
 
 # Install dependencies
-# we need an up-to-date cargo
 RUN apt-get update && apt-get install -y \
   dpkg-dev \
   build-essential \
