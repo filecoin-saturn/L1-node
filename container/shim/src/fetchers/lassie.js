@@ -160,13 +160,17 @@ function createLassieURL(req, isRawFormat) {
     // translate depth parameter for lassie
     let newKey = key;
     let newVal = val;
-    if (key === "depth" && (val === "1" || val === "0")) {
-      newKey = "depthType";
-      newVal = "shallow";
+    if (key === "depth" && val === "1") {
+      newKey = "car-scope";
+      newVal = "file";
+    }
+    if (key === "depth" && val === "0") {
+      newKey = "car-scope";
+      newVal = "root";
     }
     if (key === "depth" && val === "all") {
-      newKey = "depthType";
-      newVal = "full";
+      newKey = "car-scope";
+      newVal = "all";
     }
     lassieUrl.searchParams.set(newKey, toUtf8(newVal));
   }
@@ -178,13 +182,13 @@ function createLassieURL(req, isRawFormat) {
   }
 
   // if no depth type set
-  if (!lassieUrl.searchParams.has("depthType")) {
+  if (!lassieUrl.searchParams.has("car-scope")) {
     if (isRawFormat) {
       // for raw, default to shallow
-      lassieUrl.searchParams.set("depthType", "shallow");
+      lassieUrl.searchParams.set("car-scope", "file");
     } else {
       // for everything else, default to full
-      lassieUrl.searchParams.set("depthType", "full");
+      lassieUrl.searchParams.set("car-scope", "all");
     }
   }
 
