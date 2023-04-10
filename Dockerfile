@@ -153,6 +153,9 @@ ARG LASSIE_EXCLUDE_PROVIDERS
 # need nginx to find the openssl libs
 ENV LD_LIBRARY_PATH=/usr/lib/nginx/modules
 
+# for the watchtower container update 
+ENV PRE_UPDATE_WAIT_DIVISOR=3600
+
 ENV NETWORK=$NETWORK
 ENV VERSION=$VERSION
 ENV VERSION_HASH=$VERSION_HASH
