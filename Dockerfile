@@ -128,7 +128,8 @@ COPY container/shim/package*.json ./
 RUN npm ci --production --ignore-scripts
 
 # copy the generated modules and all other files to the container
-COPY container/start.sh ./
+COPY --chmod=0744 container/start.sh ./
+COPY --chmod=0744 container/reload.sh ./
 COPY container/shim ./
 COPY container/nginx /etc/nginx/
 COPY container/logrotate/* /etc/logrotate.d/
