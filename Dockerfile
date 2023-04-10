@@ -120,6 +120,14 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
   && curl -sS -L -o lassie.tar.gz "https://github.com/filecoin-project/lassie/releases/download/${LASSIE_VERSION}/lassie-${LASSIE_VERSION}-linux-${ARCHITECTURE}.tar.gz" \
   && tar -C /usr/bin -xzf lassie.tar.gz
 
+# Download car-range nginx module
+ARG TARGETPLATFORM
+ARG NGX_CAR_RANGE_VERSION="v0.2.0"
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
+  elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=arm64; \
+  else ARCHITECTURE=386; fi \
+  && curl -sS -L -o /usr/lib/nginx/modules/ngx_http_car_range_module.so "https://github.com/filecoin-saturn/nginx-car-range/releases/download/${NGX_CAR_RANGE_VERSION}/nginx-car-range-linux-${ARCHITECTURE}.so"
+
 # create the directory inside the container
 WORKDIR /usr/src/app
 # copy the package.json files from local machine to the workdir in container
