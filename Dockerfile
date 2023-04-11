@@ -95,7 +95,7 @@ ARG CONFIG="--prefix=/etc/nginx \
  --add-dynamic-module=/usr/src/ngx_brotli"
 
 RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from '$NGINX_BRANCH' branch)" \
- && hg clone -b $NGINX_BRANCH --rev $NGINX_COMMIT https://hg.nginx.org/nginx-quic /usr/src/nginx-$NGINX_VERSION \
+ && hg clone -b $NGINX_VERSION https://hg.nginx.org/nginx /usr/src/nginx-$NGINX_VERSION \
  && cd /usr/src/nginx-$NGINX_VERSION \
  && ./auto/configure $CONFIG \
  && make \
