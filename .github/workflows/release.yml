@@ -20,51 +20,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  # 2023-2-22 Not sure if kubo-tests are helpful anymore.
-  #
-  # test-kubo:
-  #   name: "test:kubo"
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       with:
-  #         path: L1-node
-
-  #     - name: Check out Kubo fork
-  #       uses: actions/checkout@v3
-  #       with:
-  #         repository: filecoin-saturn/kubo
-  #         ref: refs/heads/saturn
-  #         path: kubo
-
-  #     - uses: actions/cache@v3
-  #       with:
-  #         path: |
-  #           ~/.cache/go-build
-  #           ~/go/pkg/mod
-  #         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-go-
-
-  #     - name: Install Kubo gateway test dependencies
-  #       run: |
-  #         cd $GITHUB_WORKSPACE/kubo
-  #         make test_sharness_deps
-
-  #     - name: Run Kubo gateway tests
-  #       run: |
-  #         export L1_NODE_REPO_PATH=$GITHUB_WORKSPACE/L1-node
-  #         export L1_NODE_LOG_FILE=/tmp/node.log
-
-  #         cd $GITHUB_WORKSPACE/kubo/test/sharness/lib
-  #         bash ./test-saturn-L1.sh
-
-  #     - name: Print L1 logs
-  #       if: always()
-  #       run: cat /tmp/node.log
-
   build-and-push-image:
-    #needs: [test-kubo]
     runs-on: ubuntu-latest
     permissions:
       contents: read
