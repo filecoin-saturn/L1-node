@@ -101,15 +101,16 @@ RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from '$NG
  && make \
  && make install
 
-FROM docker.io/library/nginx:${NGINX_VERSION}
-
-ARG NGINX_NAME
 ENV NGINX_DIR=/usr/src/$NGINX_NAME
 
 RUN echo "Cloning car_range $NGX_CAR_RANGE_VERSION" \
   && git clone -b $NGX_CAR_RANGE_VERSION https://github.com/filecoin-saturn/nginx-car-range.git /usr/src/ngx_car_range \
   && cd /usr/src/ngx_car_range \
   && cargo build --release -v --config net.git-fetch-with-cli=true
+
+FROM docker.io/library/nginx:${NGINX_VERSION}
+
+ARG NGINX_NAME
 
 COPY --from=build /usr/sbin/nginx /usr/sbin/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
