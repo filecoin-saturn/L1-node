@@ -108,6 +108,7 @@ RUN curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v22.1
 ENV NGINX_DIR=/usr/src/nginx-$NGINX_VERSION
 
 RUN echo "Cloning car_range $NGX_CAR_RANGE_VERSION, nginx dir: $NGINX_DIR" \
+  && mv $NINGX_DIR/src/http/v2/* $NGINX_DIR/src/http/ \
   && git clone -b $NGX_CAR_RANGE_VERSION https://github.com/filecoin-saturn/nginx-car-range.git /usr/src/ngx_car_range \
   && cd /usr/src/ngx_car_range \
   && cargo build --release -v --config net.git-fetch-with-cli=true
