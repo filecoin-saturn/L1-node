@@ -10,6 +10,7 @@ ARG NGINX_COMMIT=c38588d8376b
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
 ARG NJS_VERSION=0.7.12
+ARG NGX_CAR_RANGE_VERSION="v0.2.0"
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -28,7 +29,15 @@ RUN apt-get update && apt-get install -y \
   unzip \
   wget \
   libxslt-dev \
+  llvm-dev \
+  libclang-dev \
+  clang \
  && rm -rf /var/lib/apt/lists/*
+
+# Get Rust
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /usr/src
 
@@ -58,6 +67,7 @@ ARG CONFIG="--prefix=/etc/nginx \
  --pid-path=/var/run/nginx.pid \
  --lock-path=/var/run/nginx.lock \
  --user=nginx --group=nginx \
+ --with-compat \
  --with-file-aio \
  --with-threads \
  --with-http_addition_module \
@@ -94,11 +104,18 @@ RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from '$NG
 FROM docker.io/library/nginx:${NGINX_VERSION}
 
 ARG NGINX_NAME
+ENV NGINX_DIR=/usr/src/$NGINX_NAME
+
+RUN echo "Cloning car_range $NGX_CAR_RANGE_VERSION" \
+  && git clone -b $NGX_CAR_RANGE_VERSION https://github.com/filecoin-saturn/nginx-car-range.git /usr/src/ngx_car_range \
+  && cd /usr/src/ngx_car_range \
+  && cargo build --release -v --config net.git-fetch-with-cli=true
 
 COPY --from=build /usr/sbin/nginx /usr/sbin/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_static_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_js_module.so /usr/lib/nginx/modules/
+COPY --from=build /usr/src/ngx_car_range/target/release/libnginx_car_range.so /usr/lib/nginx/modules/ngx_http_car_range_module.so
 
 # RUN curl -fsSL https://install.speedtest.net/app/cli/install.deb.sh | bash -
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
@@ -118,14 +135,6 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
   else ARCHITECTURE=386; fi \
   && curl -sS -L -o lassie.tar.gz "https://github.com/filecoin-project/lassie/releases/download/${LASSIE_VERSION}/lassie-${LASSIE_VERSION}-linux-${ARCHITECTURE}.tar.gz" \
   && tar -C /usr/bin -xzf lassie.tar.gz
-
-# Download car-range nginx module
-ARG TARGETPLATFORM
-ARG NGX_CAR_RANGE_VERSION="v0.2.0"
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
-  elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=arm64; \
-  else ARCHITECTURE=386; fi \
-  && curl -sS -L -o /usr/lib/nginx/modules/ngx_http_car_range_module.so "https://github.com/filecoin-saturn/nginx-car-range/releases/download/${NGX_CAR_RANGE_VERSION}/nginx-car-range-linux-${ARCHITECTURE}.so"
 
 # create the directory inside the container
 WORKDIR /usr/src/app
