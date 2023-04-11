@@ -3,8 +3,21 @@
 # keeps docker-compose.yml and itself up to date
 set -eux
 
-branch="${1:-main}"
-repo="https://raw.githubusercontent.com/filecoin-saturn/L1-node/$branch"
+env="$1"
+
+tags="$(curl -fs https://api.github.com/repos/filecoin-saturn/l1-node/tags | grep name | cut -f2 -d ':' | tr -d ',' | tr -d '\"' | tr -d ' ')"
+
+# default to main net
+ref="$(echo "$tags" | grep "^[[:digit:]]" | head -n1)"
+if [ "$env" = "test" ]; then
+    ref="main"
+elif [ "$env" = "canary" ]; then
+    ref="$(echo "$tags" | grep "canary-" | head -n1)"
+elif [ "$env" = "core-L1" ]; then
+    ref="$env"
+fi
+
+repo="https://raw.githubusercontent.com/filecoin-saturn/L1-node/$ref"
 
 curl -fs "$repo/docker_compose_update.sh" -o docker_compose_update.sh
 
