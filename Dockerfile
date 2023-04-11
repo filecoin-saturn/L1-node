@@ -101,6 +101,9 @@ RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from '$NG
  && make \
  && make install
 
+# protobuf. pinned @ v3.22.1
+RUN curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v22.1/protoc-22.1-linux-x86_64.zip && unzip protoc-22.1-linux-x86_64.zip -d /usr/local && rm protoc-22.1-linux-x86_64.zip
+
 ENV NGINX_DIR=/usr/src/$NGINX_NAME
 
 RUN echo "Cloning car_range $NGX_CAR_RANGE_VERSION" \
