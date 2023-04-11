@@ -106,3 +106,4 @@ jobs:
             VERSION_HASH=${{ env.VERSION_HASH }}
             LASSIE_EVENT_RECORDER_URL=${{ secrets.LASSIE_EVENT_RECORDER_URL }}
             LASSIE_EVENT_RECORDER_AUTH=${{ secrets.LASSIE_EVENT_RECORDER_AUTH }}
+            LASSIE_EXCLUDE_PROVIDERS=bafzbeibhqavlasjc7dvbiopygwncnrtvjd2xmryk5laib7zyjor6kf3avm
