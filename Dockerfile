@@ -104,7 +104,7 @@ RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from '$NG
 # protobuf. pinned @ v3.22.1
 RUN curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v22.1/protoc-22.1-linux-x86_64.zip && unzip protoc-22.1-linux-x86_64.zip -d /usr/local && rm protoc-22.1-linux-x86_64.zip
 
-ENV NGINX_DIR=/usr/src/$NGINX_NAME
+ENV NGINX_DIR=/usr/src/nginx-$NGINX_VERSION
 
 RUN echo "Cloning car_range $NGX_CAR_RANGE_VERSION, nginx dir: $NGINX_DIR" \
   && git clone -b $NGX_CAR_RANGE_VERSION https://github.com/filecoin-saturn/nginx-car-range.git /usr/src/ngx_car_range \
