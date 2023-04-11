@@ -1,7 +1,7 @@
 # Saturn L1 Node 🪐
 
 Saturn L1 nodes are CDN edge caches in the outermost layer of the
-[Filecoin Saturn](https://strn.network/) network. L1 nodes serve [CAR
+[Filecoin Saturn](https://saturn.tech/) network. L1 nodes serve [CAR
 files](https://ipld.io/specs/transport/car/) to retrieval clients as
 requested by their [CID](https://docs.filebase.com/ipfs/ipfs-cids)s.
 Cache misses are currently served by the [IPFS
@@ -263,7 +263,7 @@ When payments are scheduled to be sent out, your Filecoin wallet will receive a 
 
 ### Node monitoring
 
-- https://dashboard.strn.network - View historical data on your bandwidth contributions, FIL earnings, and more.
+- https://dashboard.saturn.tech - View historical data on your bandwidth contributions, FIL earnings, and more.
 - https://orchestrator.strn.pl/stats - View detailed, real-time stats on every Saturn node.
 
 ## License
