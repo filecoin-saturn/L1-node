@@ -58,7 +58,6 @@ ARG CONFIG="--prefix=/etc/nginx \
  --pid-path=/var/run/nginx.pid \
  --lock-path=/var/run/nginx.lock \
  --user=nginx --group=nginx \
- --with-compat \
  --with-file-aio \
  --with-threads \
  --with-http_addition_module \
