@@ -35,6 +35,7 @@ jobs:
             SATURN_NETWORK=local
             ORCHESTRATOR_URL=http://localhost
             LOG_INGESTOR_URL=http://localhost
+            LASSIE_EXCLUDE_PROVIDERS=bafzbeigai3eoy2ccc7ybwjfz5r3rdxqrinwi4rwytly24tdbh6yk7zslrm
 
       - name: Run tests
         run: |

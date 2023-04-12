@@ -75,7 +75,6 @@ if [ "${LASSIE_ORIGIN:-}" != "" ]; then
   else
     lassie daemon &
   fi
-
   LASSIE_PID=$!
 
   node --max-old-space-size=4096 /usr/src/app/src/bin/shim.js &
