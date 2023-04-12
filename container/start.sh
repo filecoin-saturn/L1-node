@@ -70,7 +70,12 @@ export LASSIE_SUPPORTED_PROTOCOLS="bitswap,graphsync"
 mkdir -p $LASSIE_TEMP_DIRECTORY
 
 if [ "${LASSIE_ORIGIN:-}" != "" ]; then
-  lassie daemon &>/dev/null &
+  if [ "${NETWORK:-}" = "main" ]; then
+    lassie daemon &>/dev/null &
+  else
+    lassie daemon &
+  fi
+
   LASSIE_PID=$!
 
   node --max-old-space-size=4096 /usr/src/app/src/bin/shim.js &
