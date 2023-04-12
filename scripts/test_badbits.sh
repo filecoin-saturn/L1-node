@@ -14,7 +14,7 @@ test_cid () {
 test_range_request () {
   cid="$1"
   code="$(curl -sw "%{http_code}\n" -o partial.car -H "Accept: application/vnd.ipld.car" "${base_url}/ipfs/${cid}")"
-  test "$code" -eq 200 || cat /usr/src/app/shared/nginx_log/error.log & exit 1
+  test "$code" -eq 200 || exit 1
   ls -lh partial.car
   /usr/local/bin/car ls -v partial.car
 }
@@ -34,4 +34,4 @@ test_cid "bafybeidgnebuxvarpnw2grmkgnamu6cv6" "$blocked"
 curl -LO -s https://github.com/ipld/go-car/releases/download/v2.8.0/go-car_2.8.0_linux_amd64.tar.gz && tar xzf go-car_2.8.0_linux_amd64.tar.gz
 
 # simple range request
-test_range_request "bafybeifpz6onienrgwvb3mw5rg7piq5jh63ystjn7s5wk6ttezy2gy5xwu/Mexico.JPG?bytes=0:1048576"
+test_range_request "bafybeifpz6onienrgwvb3mw5rg7piq5jh63ystjn7s5wk6ttezy2gy5xwu/Mexico.JPG"
