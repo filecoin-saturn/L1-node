@@ -49,3 +49,4 @@ jobs:
               sleep 5;
           done
           sh scripts/test_badbits.sh "$url"
+          cat /usr/src/app/shared/nginx_log/error.log
