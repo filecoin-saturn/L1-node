@@ -31,7 +31,7 @@ test_cid "bafybeibvcisellj6bfzbas3csvioltujjmif5jqpdw5ykvvwujtvt6up7u" "$blocked
 test_cid "bafybeidgnebuxvarpnw2grmkgnamu6cv6" "$blocked"
 
 # download car tooling
-curl -LO https://github.com/ipld/go-car/releases/download/v2.8.0/go-car_2.8.0_linux_amd64.tar.gz && tar xzf go-car_2.8.0_linux_amd64.tar.gz
+curl -LO -s https://github.com/ipld/go-car/releases/download/v2.8.0/go-car_2.8.0_linux_amd64.tar.gz && tar xzf go-car_2.8.0_linux_amd64.tar.gz
 
 # simple range request
 test_range_request "bafybeifpz6onienrgwvb3mw5rg7piq5jh63ystjn7s5wk6ttezy2gy5xwu/Mexico.JPG?bytes=0:1048576"
