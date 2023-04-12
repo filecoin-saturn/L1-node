@@ -14,7 +14,7 @@ test_cid () {
 test_range_request () {
   cid="$1"
   code="$(curl -sw "%{http_code}\n" -o partial.car -H "Accept: application/vnd.ipld.car" "${base_url}/ipfs/${cid}")"
-  test "$code" -eq 200 || exit 1
+  test "$code" -eq 200 || cat /usr/src/app/shared/nginx_log/error.log & exit 1
   ls -lh partial.car
   /usr/local/bin/car ls -v partial.car
 }
