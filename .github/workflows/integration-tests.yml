@@ -50,3 +50,7 @@ jobs:
               sleep 5;
           done
           sh scripts/integration_tests.sh "$url"
+
+      - name: Print L1 logs
+        if: failure()
+        run: cat $HOME/shared/nginx_log/node-access.log
