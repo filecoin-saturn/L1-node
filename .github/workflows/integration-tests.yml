@@ -49,5 +49,4 @@ jobs:
           until curl -s "$url" -o /dev/null; do
               sleep 5;
           done
-          sh scripts/test_badbits.sh "$url"
-          cat /usr/src/app/shared/nginx_log/error.log
+          sh scripts/integration_tests.sh "$url"

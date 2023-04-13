@@ -16,7 +16,7 @@ test_range_request () {
   code="$(curl -sw "%{http_code}\n" -o partial.car -H "Accept: application/vnd.ipld.car" "${base_url}/ipfs/${cid}")"
   test "$code" -eq 200 || exit 1
   ls -lh partial.car
-  /usr/local/bin/car ls -v partial.car
+  car ls -v partial.car
 }
 
 # we're good this this response code, as going further means a Lassie fetch
