@@ -53,4 +53,4 @@ jobs:
 
       - name: Print L1 logs
         if: failure()
-        run: ls /usr/src/app/shared/nginx_log
+        run: docker exec saturn-node "cat /usr/src/app/shared/nginx_log/node-access.log"
