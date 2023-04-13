@@ -53,4 +53,4 @@ jobs:
 
       - name: Print L1 logs
         if: failure()
-        run: cat /usr/src/app/shared/nginx_log/error.log
+        run: ls /usr/src/app/shared/nginx_log
