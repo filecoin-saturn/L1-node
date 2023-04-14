@@ -41,15 +41,6 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /usr/src
 
-RUN echo "Cloning brotli $NGX_BROTLI_COMMIT" \
- && mkdir /usr/src/ngx_brotli \
- && cd /usr/src/ngx_brotli \
- && git init \
- && git remote add origin https://github.com/google/ngx_brotli.git \
- && git fetch --depth 1 origin $NGX_BROTLI_COMMIT \
- && git checkout --recurse-submodules -q FETCH_HEAD \
- && git submodule update --init --depth 1
-
 RUN echo "Cloning njs $NJS_VERSION" \
  && mkdir /usr/src/njs \
  && cd /usr/src \
@@ -106,8 +97,6 @@ FROM docker.io/library/nginx:${NGINX_VERSION}
 ARG NGINX_NAME
 
 COPY --from=build /usr/sbin/nginx /usr/sbin/
-COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
-COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_static_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_js_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/ngx_car_range/target/release/libnginx_car_range.so /usr/lib/nginx/modules/ngx_http_car_range_module.so
 
