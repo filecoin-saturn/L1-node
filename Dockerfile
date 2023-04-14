@@ -67,6 +67,7 @@ ARG CONFIG="--prefix=/etc/nginx \
  --with-http_flv_module \
  --with-http_mp4_module \
  --with-http_ssl_module \
+ --with-http_stub_status_module \
  --with-http_v2_module \
  --with-stream \
  --with-stream_ssl_module \
