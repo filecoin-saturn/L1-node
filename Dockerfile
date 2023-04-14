@@ -71,7 +71,6 @@ ARG CONFIG="--prefix=/etc/nginx \
  --with-compat \
  --with-file-aio \
  --with-threads \
- --with-http_addition_module \
  --with-http_auth_request_module \
  --with-http_dav_module \
  --with-http_flv_module \
@@ -86,14 +85,11 @@ ARG CONFIG="--prefix=/etc/nginx \
  --with-http_stub_status_module \
  --with-http_sub_module \
  --with-http_v2_module \
- --with-mail \
- --with-mail_ssl_module \
  --with-stream \
  --with-stream_realip_module \
  --with-stream_ssl_module \
  --with-stream_ssl_preread_module \
- --add-dynamic-module=/usr/src/njs/nginx \
- --add-dynamic-module=/usr/src/ngx_brotli"
+ --add-dynamic-module=/usr/src/njs/nginx
 
 RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from '$NGINX_BRANCH' branch)" \
  && hg clone https://hg.nginx.org/nginx /usr/src/nginx-$NGINX_VERSION \
