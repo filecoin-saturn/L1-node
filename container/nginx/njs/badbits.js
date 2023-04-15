@@ -1,11 +1,5 @@
 import crypto from "crypto";
 
-const badbits = {};
-
-for (let i = 0; i < denylist.length; i++) {
-  badbits[denylist[i].anchor] = true;
-}
-
 const ipfsRegex = /^\/ipfs\/(\w+)(\/?.*)/;
 
 // TODO implement matching CID paths
@@ -24,7 +18,7 @@ export default function filterCID(req) {
     .update(cid + "/")
     .digest("hex");
 
-  if (badbits[hashedCID]) {
+  if (denylist[hashedCID]) {
     req.return(403);
   } else {
     req.return(200);

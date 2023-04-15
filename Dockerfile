@@ -108,6 +108,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
  nodejs \
  speedtest \
  logrotate \
+ jq \
  && rm -rf /var/lib/apt/lists/*
 
 # Download lassie
@@ -134,7 +135,7 @@ COPY container/logrotate/* /etc/logrotate.d/
 COPY container/cron/* /etc/cron.d/
 
 # Load CIDs ban lists
-RUN rm /etc/nginx/conf.d/default.conf && curl -s https://badbits.dwebops.pub/denylist.json > /etc/nginx/denylist.json
+RUN rm /etc/nginx/conf.d/default.conf && curl -s https://badbits.dwebops.pub/denylist.json | jq 'map({(.anchor): true}) | add' > /etc/nginx/denylist.json
 
 # Add logrotate cronjob
 RUN chmod 0644 /etc/cron.d/* && { crontab -l; cat /etc/cron.d/logrotate; } | crontab -

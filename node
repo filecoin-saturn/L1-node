@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eou pipefail
 
 sh scripts/$1.sh
 
