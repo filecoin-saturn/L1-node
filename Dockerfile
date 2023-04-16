@@ -9,7 +9,7 @@ ARG NGINX_BRANCH=default
 ARG NGINX_COMMIT=c38588d8376b
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
-ARG NJS_VERSION=0.7.10
+ARG NJS_VERSION=0.7.12
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
