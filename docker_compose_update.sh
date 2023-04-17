@@ -13,8 +13,6 @@ if [ "$env" = "test" ]; then
     ref="main"
 elif [ "$env" = "canary" ]; then
     ref="$(echo "$tags" | grep "canary-" | head -n1)"
-elif [ "$env" = "core-L1" ]; then
-    ref="$env"
 fi
 
 repo="https://raw.githubusercontent.com/filecoin-saturn/L1-node/$ref"
