@@ -38,7 +38,7 @@ const METRICS_REPORT_INTERVAL = 5_000;
 export async function respondFromLassie(req, res, { cidObj, format }) {
   debug(`Fetch ${req.path}`);
 
-  res.startTime("shim/lassie");
+  res.startTime("shim_lassie");
 
   const requestId = req.headers["saturn-transfer-id"];
   const cacheKey = cidToCacheKey(cidObj);
@@ -96,7 +96,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     };
     res.startTime("shim_lassie_headers");
     lassieRes = await fetch(lassieUrl, fetchOpts);
-    res.endTime("shim_lassie_headers");
+    res.startTime("shim_lassie_body");
 
     const { status } = lassieRes;
 
@@ -104,6 +104,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
       const body = await lassieRes.text();
       debugErr(`Invalid status (${status}) for ${cid}. ${body.trim()}`);
 
+      res.set("Content-Type", "text/plain; charset=utf-8");
       res.status(getSemanticErrorStatus(status, body));
       return res.end(body);
     }
