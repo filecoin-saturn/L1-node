@@ -147,7 +147,8 @@ ARG ORCHESTRATOR_URL
 
 ARG LASSIE_EVENT_RECORDER_AUTH
 ARG LASSIE_EVENT_RECORDER_URL
-ARG LASSIE_EXCLUDE_PROVIDERS
+# Use random peerId until this is fixed https://github.com/filecoin-project/lassie/issues/191
+ARG LASSIE_EXCLUDE_PROVIDERS="QmcCtpf7ERQWyvDT8RMYWCMjzE74b7HscB3F8gDp5d5yS6"
 
 # need nginx to find the openssl libs
 ENV LD_LIBRARY_PATH=/usr/lib/nginx/modules
