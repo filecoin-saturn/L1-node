@@ -128,7 +128,8 @@ COPY container/shim/package*.json ./
 RUN npm ci --production --ignore-scripts
 
 # copy the generated modules and all other files to the container
-COPY container/start.sh ./
+COPY --chmod=0744 container/start.sh ./
+COPY --chmod=0744 container/reload.sh ./
 COPY container/shim ./
 COPY container/nginx /etc/nginx/
 COPY container/logrotate/* /etc/logrotate.d/
@@ -152,6 +153,9 @@ ARG LASSIE_EXCLUDE_PROVIDERS="QmcCtpf7ERQWyvDT8RMYWCMjzE74b7HscB3F8gDp5d5yS6"
 
 # need nginx to find the openssl libs
 ENV LD_LIBRARY_PATH=/usr/lib/nginx/modules
+
+# for the watchtower container update 
+ENV PRE_UPDATE_WAIT_DIVISOR=3600
 
 ENV NETWORK=$NETWORK
 ENV VERSION=$VERSION

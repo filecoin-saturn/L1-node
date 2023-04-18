@@ -1,6 +1,7 @@
 version: "3.3"
 services:
   saturn-node:
+    init: true
     image: ghcr.io/filecoin-saturn/l1-node:${SATURN_NETWORK:-test}
     container_name: saturn-node
     restart: unless-stopped
@@ -19,8 +20,8 @@ services:
     stop_grace_period: 30m
     labels:
       com.centurylinklabs.watchtower.scope: saturn
-      com.centurylinklabs.watchtower.enable: "true"
-      com.centurylinklabs.watchtower.lifecycle.pre-update: "sleep $$((RANDOM % 3600))"
+      com.centurylinklabs.watchtower.enable: true
+      com.centurylinklabs.watchtower.lifecycle.pre-update: "/usr/src/app/reload.sh"
       com.centurylinklabs.watchtower.lifecycle.pre-update-timeout: 60
     volumes:
       - ${SATURN_HOME:-$HOME}/shared:/usr/src/app/shared
@@ -31,10 +32,10 @@ services:
     restart: always
     environment:
       WATCHTOWER_POLL_INTERVAL: 300
-      WATCHTOWER_LABEL_ENABLE: "true"
-      WATCHTOWER_LIFECYCLE_HOOKS: "true"
+      WATCHTOWER_LABEL_ENABLE: true
+      WATCHTOWER_LIFECYCLE_HOOKS: true
       WATCHTOWER_SCOPE: saturn
-      WATCHTOWER_INCLUDE_RESTARTING: "true"
+      WATCHTOWER_INCLUDE_RESTARTING: true
     labels:
       com.centurylinklabs.watchtower.scope: saturn
     volumes:
