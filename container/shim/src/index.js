@@ -6,17 +6,14 @@ import mimeTypes from "mime-types";
 import asyncHandler from "express-async-handler";
 import { CID } from "multiformats";
 import serverTiming from "server-timing";
-
-import { respondFromIPFSGateway } from "./fetchers/ipfs-gateway.js";
 import { respondFromLassie } from "./fetchers/lassie.js";
 import { cancelCarRequest, maybeRespondFromL2, registerL2Node } from "./fetchers/l2-node.js";
 import { addRegisterCheckRoute } from "./modules/registration.js";
-import { IS_CORE_L1, LASSIE_ORIGIN, NETWORK, TESTING_CID } from "./config.js";
+import { IS_CORE_L1, NETWORK, TESTING_CID } from "./config.js";
 import { getResponseFormat } from "./utils/http.js";
 import { debug } from "./utils/logging.js";
 
 const rootCidRegex = /^\/ip[fn]s\/[^/]+$/;
-const LASSIE_SAMPLE_RATE = 1;
 
 const app = express();
 
@@ -82,15 +79,7 @@ const handleCID = asyncHandler(async (req, res) => {
     return;
   }
 
-  const isBifrostGateway = req.headers["user-agent"]?.includes("bifrost-gateway");
-  const isSampled = Math.random() < LASSIE_SAMPLE_RATE;
-  const useLassie = isBifrostGateway || isSampled;
-
-  if (useLassie && LASSIE_ORIGIN) {
-    return respondFromLassie(req, res, { cidObj, format });
-  }
-
-  respondFromIPFSGateway(req, res, { cid, format });
+  return respondFromLassie(req, res, { cidObj, format });
 });
 
 // Whenever nginx doesn't have a CAR file in cache, this is called
