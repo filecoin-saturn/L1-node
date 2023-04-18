@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # keeps docker-compose.yml and itself up to date
-set -eux
+set -ex
 
 env="$1"
 
