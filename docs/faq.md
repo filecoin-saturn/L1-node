@@ -84,6 +84,15 @@ Yes, multiple nodes can be ran pointing to the same wallet and email address, ju
 We don't recommended running multiple nodes in the same region (country) as cache will be fragmented, increasing the TTFB and error rate.
 Also for the same region (country) the DNS weight will just compete with each other.
 
+### How can I manually deregister my node?
+
+If your node didn't gracefully shutdown and you need to manually deregister the node, from the host (same IP as the node):
+
+Send an HTTP POST to https://orchestrator.strn.pl/deregister with the following body
+```js
+{ nodeId }
+```
+
 ## Wallet
 
 ### What happens if I change my wallet address and restart?
