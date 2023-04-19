@@ -1,7 +1,7 @@
 import https from "node:https";
 import http from "node:http";
 
-import { ORCHESTRATOR_URL, NODE_UA } from "../config.js";
+import { ORCHESTRATOR_URL, NODE_UA, LOG_INGESTOR_URL } from "../config.js";
 
 const PROXY_REQUEST_HEADERS = [
   "cache-control",
@@ -29,6 +29,10 @@ const agentOpts = {
 };
 
 export const orchestratorAgent = ORCHESTRATOR_URL.includes("https")
+  ? new https.Agent(agentOpts)
+  : new http.Agent(agentOpts);
+
+export const logIngestorAgent = LOG_INGESTOR_URL.includes("https")
   ? new https.Agent(agentOpts)
   : new http.Agent(agentOpts);
 
@@ -66,7 +70,9 @@ export function toUtf8(str) {
 
 export function getResponseFormat(req) {
   // ipfs gw returns default format for invalid formats
-  if (req.query.format) {
+  if (req.path.startsWith("/ho/")) {
+    return "car";
+  } else if (req.query.format) {
     return req.query.format;
   } else if (req.headers.accept) {
     const keys = req.headers.accept.split(",").map((key) => key.trim());

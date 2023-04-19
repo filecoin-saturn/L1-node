@@ -12,6 +12,7 @@ import { addRegisterCheckRoute } from "./modules/registration.js";
 import { IS_CORE_L1, NETWORK, TESTING_CID } from "./config.js";
 import { getResponseFormat } from "./utils/http.js";
 import { debug } from "./utils/logging.js";
+import { respondFromHttp } from "#src/fetchers/http.js";
 
 const rootCidRegex = /^\/ip[fn]s\/[^/]+$/;
 
@@ -72,11 +73,16 @@ const handleCID = asyncHandler(async (req, res) => {
 
   // Testing CID
   if (cid === TESTING_CID) {
+    res.set("Content-Type", "application/vnd.ipld.car");
     return res.send(testCAR);
   }
 
   if (NETWORK !== "main" && !req.params.path && (await maybeRespondFromL2(req, res, { cid, format }))) {
     return;
+  }
+
+  if (req.path.startsWith("/ho/")) {
+    return respondFromHttp(req, res, { cidObj });
   }
 
   return respondFromLassie(req, res, { cidObj, format });
@@ -85,6 +91,8 @@ const handleCID = asyncHandler(async (req, res) => {
 // Whenever nginx doesn't have a CAR file in cache, this is called
 app.get("/ipfs/:cid", handleCID);
 app.get("/ipfs/:cid/:path(*)", handleCID);
+app.get("/ho/:origin/:cid", handleCID);
+app.get("/ho/:origin/:cid/:path(*)", handleCID);
 
 app.get("/register/:l2NodeId", asyncHandler(registerL2Node));
 app.post("/data/:cid", cancelCarRequest);

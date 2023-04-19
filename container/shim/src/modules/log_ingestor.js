@@ -1,5 +1,4 @@
 import fs from "node:fs/promises";
-import https from "node:https";
 import fetch from "node-fetch";
 import pLimit from "p-limit";
 import prettyBytes from "pretty-bytes";
@@ -7,15 +6,12 @@ import logfmt from "logfmt";
 import glob from "fast-glob";
 import readLines from "../utils/readlines.js";
 
-import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, NODE_UA, NODE_ID, nodeToken, TESTING_CID } from "../config.js";
+import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, NODE_ID, NODE_UA, nodeToken, TESTING_CID } from "../config.js";
 import { debug as Debug } from "../utils/logging.js";
+import { logIngestorAgent } from "#src/utils/http.js";
 
 const debug = Debug.extend("log-ingestor");
 const limitConcurrency = pLimit(1); // setup concurrency limit to execute one at a time
-
-const logIngestorHttpsAgent = new https.Agent({
-  keepAlive: true,
-});
 
 const NGINX_LOG_KEYS_MAP = {
   clientAddress: (values) => values.addr,
@@ -155,7 +151,7 @@ async function submitLogs(body) {
     method: "POST",
     body,
     headers: { Authorization: `Bearer ${nodeToken}`, "Content-Type": "application/json", "User-Agent": NODE_UA },
-    agent: logIngestorHttpsAgent,
+    agent: logIngestorAgent,
   });
 }
 
