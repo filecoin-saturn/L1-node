@@ -36,6 +36,7 @@ services:
       WATCHTOWER_LIFECYCLE_HOOKS: true
       WATCHTOWER_SCOPE: saturn
       WATCHTOWER_INCLUDE_RESTARTING: true
+      WATCHTOWER_CLEANUP: true
     labels:
       com.centurylinklabs.watchtower.scope: saturn
     volumes:
