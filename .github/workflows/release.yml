@@ -73,7 +73,7 @@ jobs:
       - name: Compute the mutable docker tag
         id: tags
         run: |
-          repo="ghcr.io/filecoin-saturn/l1-node"
+          repo="ghcr.io/$GITHUB_REPOSITORY"
           docker_tag="$NETWORK"
 
           # ensure canaries gets docker tagged correctly
