@@ -73,7 +73,7 @@ jobs:
       - name: Compute the mutable docker tag
         id: tags
         run: |
-          repo="ghcr.io/$GITHUB_REPOSITORY"
+          repo="$REGISTRY/${IMAGE_NAME,,}"
           docker_tag="$NETWORK"
 
           # ensure canaries gets docker tagged correctly
