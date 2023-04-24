@@ -37,3 +37,6 @@ curl -LO -s https://github.com/ipld/go-car/releases/download/v2.8.0/go-car_2.8.0
 
 # simple range request
 test_range_request "bafybeifpz6onienrgwvb3mw5rg7piq5jh63ystjn7s5wk6ttezy2gy5xwu/Mexico.JPG?bytes=0:1048576"
+
+# range request with offset
+test_range_request "bafybeifpz6onienrgwvb3mw5rg7piq5jh63ystjn7s5wk6ttezy2gy5xwu/Mexico.JPG?bytes=1048576:2097152"
