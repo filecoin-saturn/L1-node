@@ -167,7 +167,7 @@ function createLassieURL(req, isRawFormat) {
     }
     if (key === "depth" && val === "0") {
       newKey = "car-scope";
-      newVal = "root";
+      newVal = "block";
     }
     if (key === "depth" && val === "all") {
       newKey = "car-scope";
