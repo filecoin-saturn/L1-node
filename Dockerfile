@@ -10,7 +10,7 @@ ARG NGINX_COMMIT=c38588d8376b
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
 ARG NJS_VERSION=0.7.12
-ARG NGX_CAR_RANGE_VERSION="v0.2.0"
+ARG NGX_CAR_RANGE_VERSION="v0.3.0"
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -89,7 +89,7 @@ ENV NGINX_DIR=/usr/src/nginx-$NGINX_VERSION
 
 RUN echo "Cloning car_range $NGX_CAR_RANGE_VERSION, nginx dir: $NGINX_DIR" \
   && mv $NGINX_DIR/src/http/v2/* $NGINX_DIR/src/http/ \
-  && git clone -b tc/module-order https://github.com/filecoin-saturn/nginx-car-range.git /usr/src/ngx_car_range \
+  && git clone -b $NGX_CAR_RANGE_VERSION https://github.com/filecoin-saturn/nginx-car-range.git /usr/src/ngx_car_range \
   && cd /usr/src/ngx_car_range \
   && cargo build --release -v --config net.git-fetch-with-cli=true
 
