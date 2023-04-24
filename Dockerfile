@@ -32,10 +32,11 @@ RUN apt-get update && apt-get install -y \
   llvm-dev \
   libclang-dev \
   clang \
- && rm -rf /var/lib/apt/lists/*
-
-# Get Rust
-RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+ && rm -rf /var/lib/apt/lists/* \
+ && curl https://sh.rustup.rs -sSf | bash -s -- -y \
+ && curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v22.1/protoc-22.1-linux-x86_64.zip \
+ && unzip protoc-22.1-linux-x86_64.zip -d /usr/local \
+ && rm protoc-22.1-linux-x86_64.zip
 
 ENV PATH="/root/.cargo/bin:${PATH}"
 
@@ -67,7 +68,6 @@ ARG CONFIG="--prefix=/etc/nginx \
  --pid-path=/var/run/nginx.pid \
  --lock-path=/var/run/nginx.lock \
  --user=nginx --group=nginx \
- --with-debug \
  --with-compat \
  --with-file-aio \
  --with-threads \
@@ -100,9 +100,6 @@ RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from '$NG
  && ./auto/configure $CONFIG \
  && make \
  && make install
-
-# protobuf. pinned @ v3.22.1
-RUN curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v22.1/protoc-22.1-linux-x86_64.zip && unzip protoc-22.1-linux-x86_64.zip -d /usr/local && rm protoc-22.1-linux-x86_64.zip
 
 ENV NGINX_DIR=/usr/src/nginx-$NGINX_VERSION
 
