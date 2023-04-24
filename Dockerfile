@@ -41,6 +41,15 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /usr/src
 
+RUN echo "Cloning brotli $NGX_BROTLI_COMMIT" \
+ && mkdir /usr/src/ngx_brotli \
+ && cd /usr/src/ngx_brotli \
+ && git init \
+ && git remote add origin https://github.com/google/ngx_brotli.git \
+ && git fetch --depth 1 origin $NGX_BROTLI_COMMIT \
+ && git checkout --recurse-submodules -q FETCH_HEAD \
+ && git submodule update --init --depth 1
+
 RUN echo "Cloning njs $NJS_VERSION" \
  && mkdir /usr/src/njs \
  && cd /usr/src \
@@ -62,16 +71,26 @@ ARG CONFIG="--prefix=/etc/nginx \
  --with-compat \
  --with-file-aio \
  --with-threads \
+ --with-http_addition_module \
  --with-http_auth_request_module \
  --with-http_dav_module \
  --with-http_flv_module \
+ --with-http_gunzip_module \
+ --with-http_gzip_static_module \
  --with-http_mp4_module \
+ --with-http_random_index_module \
+ --with-http_realip_module \
+ --with-http_secure_link_module \
+ --with-http_slice_module \
  --with-http_ssl_module \
  --with-http_stub_status_module \
+ --with-http_sub_module \
  --with-http_v2_module \
  --with-stream \
+ --with-stream_realip_module \
  --with-stream_ssl_module \
  --with-stream_ssl_preread_module \
+ --add-dynamic-module=/usr/src/ngx_brotli \
  --add-dynamic-module=/usr/src/njs/nginx"
 
 RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from '$NGINX_BRANCH' branch)" \
@@ -98,6 +117,8 @@ FROM docker.io/library/nginx:${NGINX_VERSION}
 ARG NGINX_NAME
 
 COPY --from=build /usr/sbin/nginx /usr/sbin/
+COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
+COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_static_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_js_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/ngx_car_range/target/release/libnginx_car_range.so /usr/lib/nginx/modules/ngx_http_car_range_module.so
 
