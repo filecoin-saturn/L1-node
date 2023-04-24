@@ -48,4 +48,8 @@ jobs:
           until curl -s "$url" -o /dev/null; do
               sleep 5;
           done
-          sh scripts/test_badbits.sh "$url"
+          sh scripts/integration_tests.sh "$url"
+
+      - name: Print L1 logs
+        if: failure()
+        run: cat /home/runner/work/L1-node/L1-node/shared/nginx_log/error.log

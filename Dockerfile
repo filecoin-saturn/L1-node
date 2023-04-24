@@ -10,6 +10,7 @@ ARG NGINX_COMMIT=c38588d8376b
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
 ARG NJS_VERSION=0.7.12
+ARG NGX_CAR_RANGE_VERSION="v0.3.0"
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -28,7 +29,16 @@ RUN apt-get update && apt-get install -y \
   unzip \
   wget \
   libxslt-dev \
- && rm -rf /var/lib/apt/lists/*
+  llvm-dev \
+  libclang-dev \
+  clang \
+ && rm -rf /var/lib/apt/lists/* \
+ && curl https://sh.rustup.rs -sSf | bash -s -- -y \
+ && curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v22.1/protoc-22.1-linux-x86_64.zip \
+ && unzip protoc-22.1-linux-x86_64.zip -d /usr/local \
+ && rm protoc-22.1-linux-x86_64.zip
+
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /usr/src
 
@@ -76,21 +86,28 @@ ARG CONFIG="--prefix=/etc/nginx \
  --with-http_stub_status_module \
  --with-http_sub_module \
  --with-http_v2_module \
- --with-mail \
- --with-mail_ssl_module \
  --with-stream \
  --with-stream_realip_module \
  --with-stream_ssl_module \
  --with-stream_ssl_preread_module \
- --add-dynamic-module=/usr/src/njs/nginx \
- --add-dynamic-module=/usr/src/ngx_brotli"
+ --add-dynamic-module=/usr/src/ngx_brotli \
+ --add-dynamic-module=/usr/src/njs/nginx"
 
 RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from '$NGINX_BRANCH' branch)" \
- && hg clone -b $NGINX_BRANCH --rev $NGINX_COMMIT https://hg.nginx.org/nginx-quic /usr/src/nginx-$NGINX_VERSION \
+ && hg clone https://hg.nginx.org/nginx /usr/src/nginx-$NGINX_VERSION \
  && cd /usr/src/nginx-$NGINX_VERSION \
+ && hg up release-$NGINX_VERSION \
  && ./auto/configure $CONFIG \
  && make \
  && make install
+
+ENV NGINX_DIR=/usr/src/nginx-$NGINX_VERSION
+
+RUN echo "Cloning car_range $NGX_CAR_RANGE_VERSION, nginx dir: $NGINX_DIR" \
+  && mv $NGINX_DIR/src/http/v2/* $NGINX_DIR/src/http/ \
+  && git clone -b $NGX_CAR_RANGE_VERSION --depth 1 https://github.com/filecoin-saturn/nginx-car-range.git /usr/src/ngx_car_range \
+  && cd /usr/src/ngx_car_range \
+  && cargo build --release -v --config net.git-fetch-with-cli=true
 
 FROM docker.io/library/nginx:${NGINX_VERSION}
 
@@ -100,6 +117,7 @@ COPY --from=build /usr/sbin/nginx /usr/sbin/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_static_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_js_module.so /usr/lib/nginx/modules/
+COPY --from=build /usr/src/ngx_car_range/target/release/libnginx_car_range.so /usr/lib/nginx/modules/ngx_http_car_range_module.so
 
 # RUN curl -fsSL https://install.speedtest.net/app/cli/install.deb.sh | bash -
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
@@ -148,6 +166,7 @@ ARG ORCHESTRATOR_URL
 
 ARG LASSIE_EVENT_RECORDER_AUTH
 ARG LASSIE_EVENT_RECORDER_URL
+
 # Use random peerId until this is fixed https://github.com/filecoin-project/lassie/issues/191
 ARG LASSIE_EXCLUDE_PROVIDERS="QmcCtpf7ERQWyvDT8RMYWCMjzE74b7HscB3F8gDp5d5yS6"
 
