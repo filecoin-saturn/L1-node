@@ -147,6 +147,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
       url: req.protocol + "://" + req.get("host") + req.originalUrl,
       httpStatusCode: lassieRes?.status ?? null,
       requestErr,
+      format,
     });
   }
 }
