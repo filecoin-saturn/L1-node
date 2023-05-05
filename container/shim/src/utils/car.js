@@ -14,10 +14,6 @@ import { MemoryBlockstore } from "blockstore-core/memory";
 import { exporter } from "ipfs-unixfs-exporter";
 import write from "stream-write";
 
-import { debug as Debug } from "./logging.js";
-
-const debug = Debug.extend("utils");
-
 const { toHex } = bytes;
 
 const codecs = {
@@ -45,11 +41,7 @@ export async function streamCAR(streamIn, streamOut) {
     promisify(pipeline)(Readable.from(out), streamOut),
     (async () => {
       for await (const { cid, bytes } of carBlockIterator) {
-        if (!validateCarBlock(cid, bytes)) {
-          streamOut.status(502);
-          break;
-        }
-
+        await validateCarBlock(cid, bytes);
         await writer.put({ cid, bytes });
       }
       await writer.close();
@@ -65,11 +57,7 @@ export async function streamRawFromCAR(streamIn, streamOut) {
   const carBlockIterator = await CarBlockIterator.fromIterable(streamIn);
 
   for await (const { cid, bytes } of carBlockIterator) {
-    if (!validateCarBlock(cid, bytes)) {
-      streamOut.status(502);
-      break;
-    }
-
+    await validateCarBlock(cid, bytes);
     await write(streamOut, bytes);
   }
   streamOut.end();
@@ -82,25 +70,20 @@ export async function streamRawFromCAR(streamIn, streamOut) {
  */
 export async function validateCarBlock(cid, bytes) {
   if (!codecs[cid.code]) {
-    debug(`Unexpected codec: 0x${cid.code.toString(16)}`);
-    return false;
+    throw new Error(`Unexpected codec: 0x${cid.code.toString(16)}`);
   }
   if (!hashes[cid.multihash.code]) {
-    debug(`Unexpected multihash code: 0x${cid.multihash.code.toString(16)}`);
-    return false;
+    throw new Error(`Unexpected multihash code: 0x${cid.multihash.code.toString(16)}`);
   }
 
   // Verify step 2: if we hash the bytes, do we get the same digest as reported by the CID?
   // Note that this step is sufficient if you just want to safely verify the CAR's reported CIDs
   const hash = await hashes[cid.multihash.code].digest(bytes);
   if (toHex(hash.digest) !== toHex(cid.multihash.digest)) {
-    debug(
-      `Mismatch: digest of bytes (${toHex(hash.digest)}) does not match digest in CID (${toHex(cid.multihash.digest)})`
+    throw new Error(
+      `Mismatch: digest of bytes (${toHex(hash)}) does not match digest in CID (${toHex(cid.multihash.digest)})`
     );
-    return false;
   }
-
-  return true;
 }
 
 export async function extractPathFromCar(streamIn, path, res) {

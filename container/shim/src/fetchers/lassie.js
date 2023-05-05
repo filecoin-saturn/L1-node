@@ -256,10 +256,7 @@ async function getRequestedBlockFromCar(streamIn, streamOut, cidObj, filename) {
   let count = 0;
 
   for await (const { cid, bytes } of carBlockIterator) {
-    if (!validateCarBlock(cid, bytes)) {
-      streamOut.status(502);
-      break;
-    }
+    await validateCarBlock(cid, bytes);
 
     const cidV1 = cid.toV1();
     if (count === 0) {
