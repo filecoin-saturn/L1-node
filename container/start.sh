@@ -71,7 +71,7 @@ mkdir -p $LASSIE_TEMP_DIRECTORY
 
 if [ "${LASSIE_ORIGIN:-}" != "" ]; then
   if [ "${NETWORK:-}" = "main" ]; then
-    lassie daemon &>/dev/null &
+    lassie daemon >/dev/null 2>&1 & &
   else
     lassie daemon &
   fi
