@@ -131,7 +131,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
 
 # Download lassie
 ARG TARGETPLATFORM
-ARG LASSIE_VERSION="v0.9.0"
+ARG LASSIE_VERSION="v0.8.2"
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
   elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=arm64; \
   else ARCHITECTURE=386; fi \
@@ -166,7 +166,9 @@ ARG ORCHESTRATOR_URL
 
 ARG LASSIE_EVENT_RECORDER_AUTH
 ARG LASSIE_EVENT_RECORDER_URL
-ARG LASSIE_EXCLUDE_PROVIDERS
+
+# Use random peerId until this is fixed https://github.com/filecoin-project/lassie/issues/191
+ARG LASSIE_EXCLUDE_PROVIDERS="QmcCtpf7ERQWyvDT8RMYWCMjzE74b7HscB3F8gDp5d5yS6"
 
 # need nginx to find the openssl libs
 ENV LD_LIBRARY_PATH=/usr/lib/nginx/modules
