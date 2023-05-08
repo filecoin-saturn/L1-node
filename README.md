@@ -234,6 +234,19 @@ If you want to switch your node from Saturn's test network (aka `test`) to Satur
 
 For answers to common questions about operating a node, like about receiving your filecoin payouts, see the L1 node [FAQ](docs/faq.md) page.
 
+### Network Uptime Requirement
+To be eligible for the end of month earnings on the Saturn Network, nodes must satisfy a minimum uptime requirement each month. 
+Having an uptime requirement has the following benefits:
+
+- Addresses node churn on the network. Node churn reduced performance and the stability of the network. Having a minimum uptime requirement incentivizes nodes to remain online for longer periods.
+- Certain malicious nodes on the network run on compromised cloud accounts. Those usually have a lifetime of ~3 days. The uptime requirement ensures that those nodes do not receive earnings.
+
+The current uptime requirement is as follows:
+- For a node operator to qualify for earnings at the end of the month, their node must be online for at least 7 days during the month. It is important to note that earnings for nodes STILL get calculated before the node satisfies the uptime requirement.
+- If a node is registered after the 21st day of a given month, the uptime requirement will be postponed to the following month. Its earnings will remain pending until it has satisfied the uptime requirement.
+- Nodes that join before the 21st of a given month and do not satisfy the uptime requirement will forfeit their earnings for the given month. Their forfeited earnings will be added to the network reward pool for the following month.
+- The uptime requirement must be satisfied on a monthly basis
+
 ### Obtaining a Filecoin wallet address
 
 You need to own a Filecoin wallet to receive FIL payments.
