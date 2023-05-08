@@ -41,7 +41,6 @@ export async function streamCAR(streamIn, streamOut) {
     promisify(pipeline)(Readable.from(out), streamOut),
     (async () => {
       for await (const { cid, bytes } of carBlockIterator) {
-        await validateCarBlock(cid, bytes);
         await writer.put({ cid, bytes });
       }
       await writer.close();
@@ -56,8 +55,7 @@ export async function streamCAR(streamIn, streamOut) {
 export async function streamRawFromCAR(streamIn, streamOut) {
   const carBlockIterator = await CarBlockIterator.fromIterable(streamIn);
 
-  for await (const { cid, bytes } of carBlockIterator) {
-    await validateCarBlock(cid, bytes);
+  for await (const { bytes } of carBlockIterator) {
     await write(streamOut, bytes);
   }
   streamOut.end();

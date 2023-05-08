@@ -9,7 +9,7 @@ import fetch from "node-fetch";
 
 import { LASSIE_ORIGIN, LASSIE_SP_ELIGIBLE_PORTION, hasNodeToken } from "../config.js";
 import { submitLassieLogs } from "../modules/log_ingestor.js";
-import { streamCAR, validateCarBlock } from "../utils/car.js";
+import { streamCAR } from "../utils/car.js";
 import { proxyResponseHeaders, toUtf8 } from "../utils/http.js";
 import { debug as Debug } from "../utils/logging.js";
 
@@ -256,8 +256,6 @@ async function getRequestedBlockFromCar(streamIn, streamOut, cidObj, filename) {
   let count = 0;
 
   for await (const { cid, bytes } of carBlockIterator) {
-    await validateCarBlock(cid, bytes);
-
     const cidV1 = cid.toV1();
     if (count === 0) {
       if (!cidV1.equals(requestedCidV1)) {
