@@ -131,7 +131,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
 
 # Download lassie
 ARG TARGETPLATFORM
-ARG LASSIE_VERSION="v0.8.2"
+ARG LASSIE_VERSION="v0.9.1"
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
   elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=arm64; \
   else ARCHITECTURE=386; fi \
