@@ -77,7 +77,8 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
 
   req.on("close", () => {
     if (!res.writableEnded) {
-      debugErr("Client aborted early, terminating request");
+      const reqDurationMs = new Date() - startTime;
+      debugErr(`Client aborted early for ${cid}, terminating request after ${reqDurationMs}ms`);
       controller.abort();
     }
   });
@@ -124,7 +125,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     }
   } catch (err) {
     if (controller.signal.aborted) {
-      debugErr(`Timeout for ${cid}`);
+      debugErr(`Timeout for ${cid} after ${new Date() - startTime}ms`);
 
       if (!res.headersSent) res.sendStatus(504);
     } else {
