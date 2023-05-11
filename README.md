@@ -54,8 +54,9 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 - 32GB RAM minimum (128GB+ recommended)
 - 2TB SSD storage minimum (16TB+ NVMe recommended)<sup>2</sup>
 
-**Only one node per physical host is allowed. If you want to run multiple nodes, you need to run them on dedicated hardware.<br>
-Multi-noding (Sharing CPU, RAM, Uplink or storage among nodes) is not allowed.**
+> ⚠️ **Warning: Only one node per physical host is allowed.** 
+>
+> If you wish to run multiple nodes, each node must be run on its own dedicated hardware. Sharing CPU, RAM, uplink, or storage among nodes (multi-noding) is strictly prohibited. Violation of this rule may result in your nodes being banned.
 
 <sub>
 <sup>1</sup> The more you can serve &rarr; greater FIL earnings<br>
@@ -132,7 +133,7 @@ Multi-noding (Sharing CPU, RAM, Uplink or storage among nodes) is not allowed.**
 9. Check for any errors. Registration will happen automatically and the node will restart once it receives its TLS certificate
 
 In most instances speedtest does a good job of picking "close" servers but for small networks it may be incorrect.
-If the speedtest value reported by speedtest seems low, you may want to configure SPEEDTEST_SERVER_CONFIG to point to a different public speedtest server. You will need to install [speedtest CLI](https://www.speedtest.net/apps/cli) in the host and fetch close servers' IDs by doing `speedtest --servers`, then setting `SPEEDTEST_SERVER_CONFIG="--server-id=XXXXX"`
+If the speedtest value reported by speedtest seems low, you may want to configure SPEEDTEST_SERVER_CONFIG to point to a different public speedtest server. You will need to install [speedtest CLI](https://www.speedtest.net/apps/cli) in the host and fetch close servers' IDs by doing `speedtest --list`, then setting `SPEEDTEST_SERVER_CONFIG="--server-id=XXXXX"`
 
 ## Update a node
 
