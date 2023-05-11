@@ -320,9 +320,6 @@ function verifyLinkRequirements(requirements, speedtest) {
 }
 
 function verifySpeedtestRequirements(speedtest) {
-  if (speedtest.ping.latency < 1) {
-    throw new Error("Ping too low. Required: > 1ms, current: < 1ms, select another server");
-  }
   if (speedtest.ping.latency > 200) {
     throw new Error(`Ping too high. Required: < 200ms, current: ${speedtest.ping.latency}ms, select another server`);
   }
