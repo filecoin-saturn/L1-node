@@ -69,6 +69,9 @@ export LASSIE_METRICS_ADDRESS=0.0.0.0
 export LASSIE_SUPPORTED_PROTOCOLS="bitswap,graphsync"
 mkdir -p $LASSIE_TEMP_DIRECTORY
 
+# Clean up leftover files in lassie dir.
+find $LASSIE_TEMP_DIRECTORY -name "lassie_carstorage*" -exec rm {} +
+
 if [ "${LASSIE_ORIGIN:-}" != "" ]; then
   if [ "${NETWORK:-}" = "main" ]; then
     lassie daemon 2>&1 1>/dev/null &
