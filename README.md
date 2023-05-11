@@ -54,9 +54,9 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 - 32GB RAM minimum (128GB+ recommended)
 - 2TB SSD storage minimum (16TB+ NVMe recommended)<sup>2</sup>
 
-> ⚠️ **Warning: Only one node per physical host is allowed.** 
->
-> If you wish to run multiple nodes, each node must be run on its own dedicated hardware. Sharing CPU, RAM, uplink, or storage among nodes (multi-noding) is strictly prohibited. Violation of this rule may result in your nodes being banned.
+⚠️ **Warning: Only one node per physical host is allowed.** 
+
+If you wish to run multiple nodes, each node must be run on its own dedicated hardware. Sharing CPU, RAM, uplink, or storage among nodes (multi-noding) is strictly prohibited. Violation of this rule may result in your nodes being banned.
 
 <sub>
 <sup>1</sup> The more you can serve &rarr; greater FIL earnings<br>
