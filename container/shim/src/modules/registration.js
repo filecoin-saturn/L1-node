@@ -55,6 +55,7 @@ export async function register(initial = false) {
       throw error;
     }
     verifyLinkRequirements(requirements, speedtest);
+    verifySpeedtestRequirements(speedtest);
     Object.assign(stats, { speedtest });
   }
 
@@ -316,6 +317,17 @@ function verifyLinkRequirements(requirements, speedtest) {
   }
 
   debug("Speeds requirements met");
+}
+
+function verifySpeedtestRequirements(speedtest) {
+  if (speedtest.ping.latency > 200) {
+    throw new Error(`Ping too high. Required: < 200ms, current: ${speedtest.ping.latency}ms, select another server`);
+  }
+  if (speedtest.interface.externalIp.startsWith("10.") || speedtest.interface.externalIp.startsWith("192.168.")) {
+    throw new Error(`Invalid external IP: ${speedtest.interface.externalIp}`);
+  }
+
+  debug("Speedtest verification met");
 }
 
 function postOptions(body) {
