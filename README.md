@@ -54,7 +54,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 - 32GB RAM minimum (128GB+ recommended)
 - 2TB SSD storage minimum (16TB+ NVMe recommended)<sup>2</sup>
 
-**Warning: Only one node per physical host is allowed.** 
+**Warning: Only one node per physical host is allowed.**
 
 If you wish to run multiple nodes, each node must be run on its own dedicated hardware. Sharing CPU, RAM, uplink, or storage among nodes (multi-noding) is strictly prohibited. Violation of this rule may result in your nodes being banned.
 
@@ -79,10 +79,13 @@ If you wish to run multiple nodes, each node must be run on its own dedicated ha
    ```
 
 3. Download the `.env` file
+
    ```bash
    curl -s https://raw.githubusercontent.com/filecoin-saturn/L1-node/main/.env -o .env
    ```
+
    You can use the text editor of your choice (e.g. `nano` or `vim` on Linux)
+
    ```bash
    nano .env
    ```
@@ -93,15 +96,16 @@ If you wish to run multiple nodes, each node must be run on its own dedicated ha
    NODE_OPERATOR_EMAIL=""
    SPEEDTEST_SERVER_CONFIG=""
    SATURN_HOME=""
-     ```   
+   ```
+
    - Set the mandatory `FIL_WALLET_ADDRESS` and `NODE_OPERATOR_EMAIL` environment variables in the `.env` file.
 
    - Set the `SATURN_NETWORK` environment variable in the `.env` file.
      - To join Saturn's Main network and earn FIL rewards, make sure to set `SATURN_NETWORK` to `main`.
-     - To join Saturn's Test network, which doesn't earn FIL rewards, set `SATURN_NETWORK` to `test`. 
+     - To join Saturn's Test network, which doesn't earn FIL rewards, set `SATURN_NETWORK` to `test`.
      - Note that `test` is the default value!
    - By default, the Saturn volume is mounted from `$HOME`. It can be changed by setting the `$SATURN_HOME` environment variable.
-   
+
    Note: the `.env` file [does not take precedence](https://docs.docker.com/compose/envvars-precedence/) over env variables set locally.
 
 4. Download the `docker-compose.yml` file:
