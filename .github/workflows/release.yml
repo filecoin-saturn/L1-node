@@ -22,6 +22,7 @@ env:
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       packages: write
@@ -70,7 +71,7 @@ jobs:
           echo "::add-mask::${digest}"
           echo "VERSION_HASH=${digest}" >> $GITHUB_ENV
 
-      - name: Compute the mutable docker tag
+      - name: Compute docker tags
         id: tags
         run: |
           repo="$REGISTRY/${IMAGE_NAME,,}"
@@ -87,13 +88,15 @@ jobs:
           echo "${repo}:${docker_tag}" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+          echo "version_docker_tags=$repo:${{ github.run_number}}_${{ steps.git.outputs.sha_short }}"
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
           context: .
           push: true
           tags: |
-            ghcr.io/filecoin-saturn/l1-node:${{ github.run_number}}_${{ steps.git.outputs.sha_short }}
+            ${{ steps.tags.outputs.version_docker_tags }}
             ${{ steps.tags.outputs.mutable_docker_tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
