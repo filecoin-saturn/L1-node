@@ -164,8 +164,13 @@ async function checkCertValidity(certBuffer, registerOptions) {
     debug(`Certificate is valid until ${cert.validTo}`);
   }
 
-  if (cert.subjectAltName && !cert.subjectAltName.includes("l1s")) {
-    debug("Certificate is missing l1s SAN, getting a new one...");
+  if (
+    NETWORK === "main" &&
+    cert.subjectAltName &&
+    !cert.subjectAltName.includes("l1s.saturn.ms") &&
+    Math.random() < 0.01
+  ) {
+    debug("Certificate is missing l1s.saturn.ms SAN, getting a new one...");
     valid = false;
   }
 
