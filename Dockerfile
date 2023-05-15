@@ -131,11 +131,11 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
 
 # Download lassie
 ARG TARGETPLATFORM
-ARG LASSIE_VERSION="v0.9.2"
+ARG LASSIE_VERSION="v0.10.0"
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
   elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=arm64; \
   else ARCHITECTURE=386; fi \
-  && curl -sS -L -o lassie.tar.gz "https://github.com/filecoin-project/lassie/releases/download/${LASSIE_VERSION}/lassie-${LASSIE_VERSION}-linux-${ARCHITECTURE}.tar.gz" \
+  && curl -sS -L -o lassie.tar.gz "https://github.com/filecoin-project/lassie/releases/download/${LASSIE_VERSION}/lassie_${LASSIE_VERSION}_linux_${ARCHITECTURE}.tar.gz" \
   && tar -C /usr/bin -xzf lassie.tar.gz
 
 # create the directory inside the container
@@ -182,8 +182,6 @@ ENV VERSION_HASH=$VERSION_HASH
 ENV ORCHESTRATOR_URL=$ORCHESTRATOR_URL
 
 ENV LASSIE_EVENT_RECORDER_AUTH=$LASSIE_EVENT_RECORDER_AUTH
-ENV LASSIE_EVENT_RECORDER_URL=$LASSIE_EVENT_RECORDER_URL
-ENV LASSIE_EXCLUDE_PROVIDERS=$LASSIE_EXCLUDE_PROVIDERS
 
 ENV DEBUG node*
 
