@@ -111,6 +111,8 @@ RUN echo "Cloning car_range $NGX_CAR_RANGE_VERSION, nginx dir: $NGINX_DIR" \
 
 FROM docker.io/library/nginx:${NGINX_VERSION}
 
+SHELL ["/bin/bash", "-c"]
+
 ARG NGINX_NAME
 
 COPY --from=build /usr/sbin/nginx /usr/sbin/
