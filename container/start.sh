@@ -81,7 +81,6 @@ if [ "${LASSIE_ORIGIN:-}" != "" ]; then
     lassie daemon &
   fi
   LASSIE_PID=$!
-  renice +10 $LASSIE_PID
 
   node --max-old-space-size=4096 /usr/src/app/src/bin/shim.js &
   SHIM_PID=$!
