@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.7"
 services:
   saturn-node:
     init: true
@@ -15,7 +15,15 @@ services:
       nofile:
         soft: 1000000
         hard: 1000000
-    network_mode: host
+    ports:
+      - "80:80"
+      - "443:443"
+    sysctls:
+      net.ipv4.tcp_tw_reuse: 1
+      net.ipv4.tcp_fin_timeout: 15
+      net.core.default_qdisc: fq
+      net.ipv4.tcp_congestion_control: bbr
+      net.ipv4.tcp_notsent_lowat: 16384
     stop_signal: SIGTERM
     stop_grace_period: 30m
     labels:
