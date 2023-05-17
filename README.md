@@ -6,9 +6,8 @@ files](https://ipld.io/specs/transport/car/) to retrieval clients as
 requested by their [CID](https://docs.filebase.com/ipfs/ipfs-cids)s.
 Cache misses are currently served by the [IPFS
 Gateway](https://docs.ipfs.tech/concepts/ipfs-gateway/). In the future,
-cache misses will be served by Saturn [L2
-nodes](https://github.com/filecoin-saturn/L2-node) and Filecoin [Storage
-Providers](https://sp.filecoin.io/).
+cache misses will be served by the [IPFS Network](https://ipfs.tech/)
+and Filecoin [Storage Providers](https://sp.filecoin.io/).
 
 Saturn is live. Do you have a server that meets the minimum [hardware
 requirements](#node-hardware-requirements)? If so, follow the [setup
