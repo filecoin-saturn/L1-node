@@ -17,11 +17,17 @@ export const backupCertExists = await fsPromises.stat(BACKUP_CERT_PATH).catch((_
 
 export async function getNewTLSCert(registerOptions) {
   const response = await fetch(`${ORCHESTRATOR_URL}/register`, registerOptions);
+
+  if (!response.ok) {
+    debug("Received status %d with body: %o", response.status, await response.text());
+    throw new Error("Failed to register with the orchestrator");
+  }
+
   const body = await response.json();
   const { cert, key, backupCert, backupKey } = body;
 
-  if (!response.ok || !cert || !key) {
-    debug("Received status %d with body: %o", response.status, body);
+  if (!cert || !key) {
+    debug("Received empty body: %o", body);
     throw new Error(body?.error || "Empty cert or key received");
   }
 
