@@ -16,6 +16,8 @@ export const certExists = await fsPromises.stat(CERT_PATH).catch((_) => false);
 export const backupCertExists = await fsPromises.stat(BACKUP_CERT_PATH).catch((_) => false);
 
 export async function getNewTLSCert(registerOptions) {
+  debug("Requesting new TLS cert from orchestrator (this could take up to 60 mins)");
+
   const response = await fetch(`${ORCHESTRATOR_URL}/register`, registerOptions);
 
   if (!response.ok) {

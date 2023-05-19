@@ -75,6 +75,7 @@ export async function register(initial = false) {
 
   // If cert is not yet in the volume, register
   if (!certExists || (!backupCertExists && NETWORK === "main")) {
+    debug("First time registering or missing cert");
     await handleMissingCert(registerOptions);
     return;
   }
@@ -135,9 +136,6 @@ async function handleMissingCert(registerOptions) {
     await fsPromises.mkdir(SSL_PATH, { recursive: true });
   }
 
-  debug(
-    "Registering with orchestrator for the first time, requesting new TLS cert with the following config (this could take up to 20 mins)"
-  );
   try {
     await getNewTLSCert(registerOptions);
 
@@ -156,10 +154,12 @@ async function checkCertValidity(certBuffer, registerOptions) {
   const validTo = Date.parse(cert.validTo);
   const expiresSoon = Date.now() > validTo - FIVE_DAYS_MS;
   let valid = true;
+  let soft = false;
 
   if (expiresSoon) {
     debug("Certificate is soon to expire, getting a new one...");
     valid = false;
+    soft = true;
   } else {
     debug(`Certificate is valid until ${cert.validTo}`);
   }
@@ -168,16 +168,23 @@ async function checkCertValidity(certBuffer, registerOptions) {
     NETWORK === "main" &&
     cert.subjectAltName &&
     !cert.subjectAltName.includes("l1s.saturn.ms") &&
-    Math.random() < 0.01
+    Math.random() < 0.1
   ) {
     debug("Certificate is missing l1s.saturn.ms SAN, getting a new one...");
     valid = false;
   }
 
   if (!valid) {
-    await getNewTLSCert(registerOptions);
-    // we get the new cert and restart
-    process.exit(1);
+    try {
+      await getNewTLSCert(registerOptions);
+      // we get the new cert and restart
+      process.exit(1);
+    } catch (e) {
+      if (!soft) {
+        throw e;
+      }
+      debug("Failed to get a new certificate, but we can still continue with the old one");
+    }
   }
 }
 
