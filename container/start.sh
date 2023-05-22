@@ -66,7 +66,7 @@ export LASSIE_CONCURRENT_SP_RETRIEVALS=1
 export LASSIE_EXPOSE_METRICS=true
 export LASSIE_METRICS_PORT=7776
 export LASSIE_METRICS_ADDRESS=0.0.0.0
-export LASSIE_SUPPORTED_PROTOCOLS="bitswap,graphsync"
+export LASSIE_SUPPORTED_PROTOCOLS="bitswap,graphsync,http"
 export LASSIE_EVENT_RECORDER_URL="https://lassie-event-recorder.dev.cid.contact/v2/retrieval-events"
 
 mkdir -p $LASSIE_TEMP_DIRECTORY
