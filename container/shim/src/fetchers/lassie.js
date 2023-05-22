@@ -114,7 +114,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     res.set("Cache-Control", "public, max-age=29030400, immutable");
 
     // Stream errors will be propagated to the catch block.
-    pipeline(lassieRes.body, metricsStream, () => {});
+    pipeline(lassieRes.body, metricsStream, () => { });
 
     if (isRawFormat) {
       await getRequestedBlockFromCar(metricsStream, res, cidObj, blockFilename);
@@ -208,11 +208,11 @@ function createLassieURL(req, isRawFormat) {
   if (!lassieUrl.searchParams.has("protocols")) {
     const chance = Math.random();
     if (chance < LASSIE_SP_ELIGIBLE_PORTION) {
-      // if we are making an sp eligible request, add bitswap and graphsync
-      lassieUrl.searchParams.set("protocols", "bitswap,graphsync");
+      // if we are making an sp eligible request, add bitswap+http and graphsync
+      lassieUrl.searchParams.set("protocols", "bitswap,graphsync,http");
     } else {
-      // for everything else, just use bitswap
-      lassieUrl.searchParams.set("protocols", "bitswap");
+      // for everything else, just use bitswap+http
+      lassieUrl.searchParams.set("protocols", "bitswap,http");
     }
   }
   return lassieUrl;
