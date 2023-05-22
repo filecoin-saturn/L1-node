@@ -127,11 +127,21 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     if (controller.signal.aborted) {
       debugErr(`Timeout for ${cid} after ${new Date() - startTime}ms`);
 
-      if (!res.headersSent) res.sendStatus(504);
+      if (!res.headersSent) {
+        res.sendStatus(504);
+      } else if (!isRawFormat) {
+        res.socket.write("0\r\n");
+        res.socket.end();
+      }
     } else {
       debugErr(`Error fetching ${cid}: ${err.name} ${err.message}`);
 
-      if (!res.headersSent) res.sendStatus(502);
+      if (!res.headersSent) {
+        res.sendStatus(502);
+      } else if (!isRawFormat) {
+        res.socket.write("0\r\n");
+        res.socket.end();
+      }
     }
 
     requestErr = err.message;
