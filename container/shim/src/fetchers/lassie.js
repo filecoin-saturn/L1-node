@@ -130,8 +130,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
       if (!res.headersSent) {
         res.sendStatus(504);
       } else if (!isRawFormat) {
-        res.socket.write("0\r\n");
-        res.socket.end();
+        endResponseWithoutTerminatingChunk(res);
       }
     } else {
       debugErr(`Error fetching ${cid}: ${err.name} ${err.message}`);
@@ -139,8 +138,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
       if (!res.headersSent) {
         res.sendStatus(502);
       } else if (!isRawFormat) {
-        res.socket.write("0\r\n");
-        res.socket.end();
+        endResponseWithoutTerminatingChunk(res);
       }
     }
 
@@ -218,6 +216,12 @@ function createLassieURL(req, isRawFormat) {
     }
   }
   return lassieUrl;
+}
+
+// This prevents nginx from caching an incomplete CAR response.
+function endResponseWithoutTerminatingChunk(res) {
+  res.socket.write("0\r\n");
+  res.socket.end();
 }
 
 function getSemanticErrorStatus(status, body) {
