@@ -114,7 +114,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     res.set("Cache-Control", "public, max-age=29030400, immutable");
 
     // Stream errors will be propagated to the catch block.
-    pipeline(lassieRes.body, metricsStream, () => { });
+    pipeline(lassieRes.body, metricsStream, () => {});
 
     if (isRawFormat) {
       await getRequestedBlockFromCar(metricsStream, res, cidObj, blockFilename);
