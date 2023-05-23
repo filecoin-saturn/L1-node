@@ -17,7 +17,7 @@ const debug = Debug.extend("lassie");
 const debugErr = debug.extend("error");
 
 // Should there even be a timeout?
-const LASSIE_TIMEOUT = 1_000 * 60 * 10;
+const LASSIE_TIMEOUT = 60_000 * 30;
 
 const agentOpts = { keepAlive: true };
 const httpsAgent = new https.Agent(agentOpts);
