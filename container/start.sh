@@ -39,12 +39,6 @@ fi
 sed -i "s@\$node_id@$(cat /usr/src/app/shared/nodeId.txt)@g" /etc/nginx/conf.d/shared.conf
 sed -i "s@\$node_version@$VERSION@g" /etc/nginx/conf.d/shared.conf
 
-min_uses=2
-if [ $(df -h /usr/src/app/shared | awk '(NR>1) { printf "%d", $5}') -lt 90 ]; then
-  min_uses=1;
-fi
-sed -i "s@\$cache_min_uses@$min_uses@g" /etc/nginx/conf.d/shared.conf
-
 if [ -n "${IPFS_GATEWAY_ORIGIN:-}" ]; then
   sed -i "s@https://ipfs.io;@$IPFS_GATEWAY_ORIGIN;@g" /etc/nginx/conf.d/shared.conf;
 fi
