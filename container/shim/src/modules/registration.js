@@ -152,11 +152,13 @@ async function handleMissingCert(registerOptions) {
 async function checkCertValidity(certBuffer, registerOptions) {
   const cert = new X509Certificate(certBuffer);
   const validTo = Date.parse(cert.validTo);
-  const expiresSoon = Date.now() > validTo - FIVE_DAYS_MS;
   let valid = true;
   let soft = false;
 
-  if (expiresSoon) {
+  if (Date.now() > validTo) {
+    debug("Certificate expired, getting a new one...");
+    valid = false;
+  } else if (Date.now() > validTo - FIVE_DAYS_MS) {
     debug("Certificate is soon to expire, getting a new one...");
     valid = false;
     soft = true;
