@@ -277,7 +277,7 @@ export const addRegisterCheckRoute = (app) =>
       debug.extend("check")(`Check failed, node ID mismatch. Received: ${receivedNodeId} from IP ${ip}`);
       return res.sendStatus(403);
     }
-    debug.extend("check")("Successful");
+    debug.extend("check")("Check successful, registration process continues...");
     res.sendStatus(200);
   });
 
