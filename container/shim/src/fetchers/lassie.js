@@ -193,13 +193,13 @@ function createLassieURL(req, isRawFormat) {
   }
 
   // if no depth type set
-  if (!lassieUrl.searchParams.has("car-scope")) {
+  if (!lassieUrl.searchParams.has("dag-scope")) {
     if (isRawFormat) {
       // for raw, default to shallow
-      lassieUrl.searchParams.set("car-scope", "file");
+      lassieUrl.searchParams.set("dag-scope", "entity");
     } else {
       // for everything else, default to full
-      lassieUrl.searchParams.set("car-scope", "all");
+      lassieUrl.searchParams.set("dag-scope", "all");
     }
   }
 
