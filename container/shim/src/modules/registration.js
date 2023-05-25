@@ -280,7 +280,7 @@ export const addRegisterCheckRoute = (app) =>
       return res.sendStatus(403);
     }
     debug.extend("check")("Check successful, registration process continues...");
-    res.sendStatus(200);
+    res.sendStatus(204);
   });
 
 function verifyHWRequirements(requirements, stats) {
