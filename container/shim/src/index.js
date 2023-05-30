@@ -32,7 +32,8 @@ app.get("/favicon.ico", (req, res) => {
 const handleCID = asyncHandler(async (req, res) => {
   // Prevent Service Worker registration on namespace roots
   // https://github.com/ipfs/kubo/issues/4025
-  if (req.headers["service-worker"] === "script" && rootCidRegex.test(req.path)) {
+  const isRootCid = rootCidRegex.test(req.path);
+  if (req.headers["service-worker"] === "script" && isRootCid) {
     const msg = "navigator.serviceWorker: registration is not allowed for this scope";
     return res.status(400).send(msg);
   }
@@ -50,7 +51,8 @@ const handleCID = asyncHandler(async (req, res) => {
 
   const format = getResponseFormat(req);
   const isVerifiableFormat = ["car", "raw"].includes(format);
-  const isNotImplemented = !isVerifiableFormat && !IS_CORE_L1;
+  const isNonRootRaw = format === "raw" && !isRootCid;
+  const isNotImplemented = (!isVerifiableFormat || isNonRootRaw) && !IS_CORE_L1;
 
   if (isNotImplemented) {
     return res.sendStatus(501);
