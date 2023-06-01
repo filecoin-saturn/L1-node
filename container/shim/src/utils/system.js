@@ -48,6 +48,17 @@ export async function getDiskStats() {
   const usedDiskMB = valuesMB[2];
   const availableDiskMB = valuesMB[3];
   debug(`Disk Total: ${totalDiskMB / 1000} GB Used: ${usedDiskMB / 1000} GB Available: ${availableDiskMB / 1000} GB`);
+  if (availableDiskMB <= 50 * 1000) {
+    // 50 GB
+    debug(
+      `WARNING: Full disk. Cache will be rotated and affect performance severely. Please consider upgrading your L1 node disk space.`
+    );
+  } else if (availableDiskMB < 100 * 1000) {
+    // 100 GB
+    debug(
+      `WARNING: Low disk space. Maximum cache size will be reached soon. Please consider upgrading your L1 node disk space.`
+    );
+  }
   return {
     totalDiskMB,
     usedDiskMB,
@@ -61,6 +72,13 @@ export async function getCPUStats() {
   const numCPUs = cpus().length;
   const loadAvgs = loadavg();
   debug(`CPUs: ${numCPUs} (${loadAvgs.join(", ")})`);
+  if (loadAvgs.some((loadAvg) => numCPUs - loadAvg < 1)) {
+    // Less than 1 core available
+    debug(`WARNING: Very high CPU load. Please upgrade your L1 node CPU.`);
+  } else if (loadAvgs.some((loadAvg) => numCPUs - loadAvg < 2)) {
+    // Less than 2 cores available
+    debug(`WARNING: High CPU load. Please consider upgrading your L1 node CPU.`);
+  }
   return { numCPUs, loadAvgs, raw: result };
 }
 
