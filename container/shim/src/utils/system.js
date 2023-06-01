@@ -71,8 +71,10 @@ export async function getCPUStats() {
   const loadAvgs = loadavg();
   debug(`CPUs: ${numCPUs} (${loadAvgs.join(", ")})`);
   if (loadAvgs.some((loadAvg) => numCPUs - loadAvg < 1)) {
+    // Less than 1 core available
     debug(`WARNING: Very high CPU load. Please upgrade your L1 node CPU.`);
   } else if (loadAvgs.some((loadAvg) => numCPUs - loadAvg < 2)) {
+    // Less than 2 cores available
     debug(`WARNING: High CPU load. Please consider upgrading your L1 node CPU.`);
   }
   return { numCPUs, loadAvgs, raw: result };
