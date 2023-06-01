@@ -51,11 +51,13 @@ export async function getDiskStats() {
   if (availableDiskMB <= 50 * 1000) {
     // 50 GB
     debug(
-      `WARNING: Full disk. Cache will be rotated and affect performance severely. Please upgrade your L1 node disk space.`
+      `WARNING: Full disk. Cache will be rotated and affect performance severely. Please consider upgrading your L1 node disk space.`
     );
   } else if (availableDiskMB < 100 * 1000) {
     // 100 GB
-    debug(`WARNING: Low disk space. Maximum cache size will be reached soon. Please upgrade your L1 node disk space.`);
+    debug(
+      `WARNING: Low disk space. Maximum cache size will be reached soon. Please consider upgrading your L1 node disk space.`
+    );
   }
   return {
     totalDiskMB,
