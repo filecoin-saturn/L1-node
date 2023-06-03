@@ -30,5 +30,5 @@ services:
       STRN_ORCHESTRATOR_URL: https://orchestrator.strn.pl
       CABOOSE_BACKEND_OVERRIDE: saturn-node
     ports:
-      - 8083:8081
-      - 8042:8041
+      - 8081:8081
+      - 8041:8041
