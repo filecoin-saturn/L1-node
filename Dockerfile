@@ -10,7 +10,7 @@ ARG NGINX_COMMIT=c38588d8376b
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
 ARG NJS_VERSION=0.7.12
-ARG NGX_CAR_RANGE_VERSION="v0.3.0"
+ARG NGX_CAR_RANGE_VERSION="v0.4.0"
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -174,7 +174,7 @@ ARG LASSIE_EXCLUDE_PROVIDERS="QmcCtpf7ERQWyvDT8RMYWCMjzE74b7HscB3F8gDp5d5yS6"
 # need nginx to find the openssl libs
 ENV LD_LIBRARY_PATH=/usr/lib/nginx/modules
 
-# for the watchtower container update 
+# for the watchtower container update
 ENV PRE_UPDATE_WAIT_DIVISOR=3600
 
 ENV NETWORK=$NETWORK
