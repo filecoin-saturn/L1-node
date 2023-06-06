@@ -79,7 +79,7 @@ export async function validateCarBlock(cid, bytes) {
   const hash = await hashes[cid.multihash.code].digest(bytes);
   if (toHex(hash.digest) !== toHex(cid.multihash.digest)) {
     throw new Error(
-      `Mismatch: digest of bytes (${toHex(hash)}) does not match digest in CID (${toHex(cid.multihash.digest)})`
+      `Mismatch: digest of bytes (${toHex(hash.digest)}) does not match digest in CID (${toHex(cid.multihash.digest)})`
     );
   }
 }
