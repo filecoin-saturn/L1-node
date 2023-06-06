@@ -1,0 +1,34 @@
+version: "3.7"
+services:
+  saturn-node:
+    init: true
+    build:
+      context: ..
+    container_name: saturn-node
+    environment:
+      ORCHESTRATOR_REGISTRATION: false
+      IS_CORE_L1: true
+      FIL_WALLET_ADDRESS: t410f2oekwcmo2pueydmaq53eic2i62crtbeyuzx2gmy
+      NODE_OPERATOR_EMAIL: test@saturn.network
+    ulimits:
+      nofile:
+        soft: 1000000
+        hard: 1000000
+    ports:
+      - 8080:80
+      - 8043:443
+    volumes:
+      - ${SATURN_HOME:-$HOME}/shared:/usr/src/app/shared
+
+  bifrost:
+    build:
+      context: ../../../ipfs/bifrost-gateway
+    container_name: bifrost
+    environment:
+      GRAPH_BACKEND: true
+      GOLOG_LOG_LEVEL: debug
+      STRN_ORCHESTRATOR_URL: https://orchestrator.strn.pl
+      CABOOSE_BACKEND_OVERRIDE: saturn-node
+    ports:
+      - 8081:8081
+      - 8041:8041
