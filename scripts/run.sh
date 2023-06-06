@@ -15,7 +15,7 @@ mkdir -p "$(pwd)/shared"
 echo "$(date -u) [host] Running Saturn node dev, with volume in $(pwd)/shared"
 
 # Start the docker image
-docker run --name saturn-node --rm $( [ "$CI" != "true" ] && echo -n "-it" ) \
+docker run --name saturn-node --rm $( [ "$CI" != "true" ] && printf "%s" "-it" ) \
           -v "$(pwd)/shared:/usr/src/app/shared:Z" \
           -e "FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS" \
           -e "NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL" \
