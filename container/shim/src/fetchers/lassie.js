@@ -102,8 +102,9 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     const { status } = lassieRes;
 
     if (!lassieRes.ok) {
-      const body = await lassieRes.text();
-      debugErr(`Invalid status (${status}) for ${cid}. ${body.trim()}`);
+      const body = (await lassieRes.text()).trim();
+      debugErr(`Invalid status (${status}) for ${cid}. ${body}`);
+      requestErr = body
 
       res.set("Content-Type", "text/plain; charset=utf-8");
       res.status(getSemanticErrorStatus(status, body));
