@@ -3,7 +3,7 @@ services:
   saturn-node:
     init: true
     build:
-      context: ..
+      context: ../..
     container_name: saturn-node
     environment:
       ORCHESTRATOR_REGISTRATION: false
@@ -22,7 +22,7 @@ services:
 
   bifrost:
     build:
-      context: ../../../ipfs/bifrost-gateway
+      context: ../../../../ipfs/bifrost-gateway
     container_name: bifrost
     environment:
       GRAPH_BACKEND: true
