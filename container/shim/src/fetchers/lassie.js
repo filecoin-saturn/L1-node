@@ -78,7 +78,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
   let requestErr;
 
   req.on("close", () => {
-    if (!res.writableEnded && !requestErr.includes("Premature close")) {
+    if (!res.writableEnded && !requestErr?.includes("Premature close")) {
       const reqDurationMs = new Date() - startTime;
       debugErr(`Client aborted early for ${cid}, terminating request after ${reqDurationMs}ms`);
       controller.abort();
