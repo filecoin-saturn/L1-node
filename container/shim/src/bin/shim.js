@@ -47,7 +47,7 @@ setTimeout(async function () {
 }, 500);
 
 const server = http.createServer(app);
-server.listen(PORT, "127.0.0.1", async () => {
+server.listen(PORT, "0.0.0.0", async () => {
   debug.extend("server")("shim process running");
 });
 

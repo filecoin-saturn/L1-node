@@ -23,9 +23,25 @@ services:
   lassie:
     build:
       context: .
+      dockerfile: lassie.Dockerfile
     container_name: lassie
     ports:
       - 7766:7766
       - 7776:7776
+    volumes:
+      - ${SATURN_HOME:-$HOME}/shared:/usr/src/app/shared
+
+  shim:
+    build:
+      context: ../..
+      dockerfile: shim.Dockerfile
+    container_name: shim
+    environment:
+      ORCHESTRATOR_REGISTRATION: false
+      IS_CORE_L1: true
+      FIL_WALLET_ADDRESS: t410f2oekwcmo2pueydmaq53eic2i62crtbeyuzx2gmy
+      NODE_OPERATOR_EMAIL: test@saturn.network
+    ports:
+      - 10361:10361
     volumes:
       - ${SATURN_HOME:-$HOME}/shared:/usr/src/app/shared
