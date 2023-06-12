@@ -76,10 +76,6 @@ const handleCID = asyncHandler(async (req, res) => {
     return res.send(testCAR);
   }
 
-  if (NETWORK !== "main" && !req.params.path) {
-    return;
-  }
-
   return respondFromLassie(req, res, { cidObj, format });
 });
 
