@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
  && rm -rf /var/lib/apt/lists/*
 
 ARG TARGETPLATFORM="linux/arm64"
-ENV LASSIE_VERSION="v0.12.1"
+ARG LASSIE_VERSION
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
   elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=arm64; \
   else ARCHITECTURE=386; fi \

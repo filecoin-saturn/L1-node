@@ -4,6 +4,8 @@ services:
     init: true
     build:
       context: ../..
+      args:
+        LASSIE_VERSION: "v0.12.1"
     container_name: saturn-node
     environment:
       ORCHESTRATOR_REGISTRATION: false
@@ -25,6 +27,8 @@ services:
     build:
       context: ../..
       dockerfile: shim.Dockerfile
+      args:
+        LASSIE_VERSION: "v0.12.1"
     container_name: shim
     environment:
       ORCHESTRATOR_REGISTRATION: false
@@ -41,6 +45,8 @@ services:
     build:
       context: .
       dockerfile: lassie.Dockerfile
+      args:
+        LASSIE_VERSION: "v0.12.1"
     container_name: lassie
     environment:
       GOLOG_LOG_LEVEL: debug
