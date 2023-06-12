@@ -10,6 +10,7 @@ services:
       IS_CORE_L1: true
       FIL_WALLET_ADDRESS: t410f2oekwcmo2pueydmaq53eic2i62crtbeyuzx2gmy
       NODE_OPERATOR_EMAIL: test@saturn.network
+      GOLOG_LOG_LEVEL: debug
     ulimits:
       nofile:
         soft: 1000000
@@ -25,6 +26,8 @@ services:
       context: .
       dockerfile: lassie.Dockerfile
     container_name: lassie
+    environment:
+      GOLOG_LOG_LEVEL: debug
     ports:
       - 7766:7766
       - 7776:7776
@@ -41,6 +44,7 @@ services:
       IS_CORE_L1: true
       FIL_WALLET_ADDRESS: t410f2oekwcmo2pueydmaq53eic2i62crtbeyuzx2gmy
       NODE_OPERATOR_EMAIL: test@saturn.network
+      GOLOG_LOG_LEVEL: debug
     ports:
       - 10361:10361
     volumes:
