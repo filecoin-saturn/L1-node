@@ -5,7 +5,7 @@
     "prepare": "cd ../.. && husky install container/shim/.husky",
     "test": "npm run test:lint && npm run test:unit",
     "test:lint": "eslint --fix .",
-    "test:unit": "FIL_WALLET_ADDRESS=test NODE_OPERATOR_EMAIL=test L2_FIRE_AND_FORGET=true node--test"
+    "test:unit": "FIL_WALLET_ADDRESS=test NODE_OPERATOR_EMAIL=test node--test"
   },
   "dependencies": {
     "@glif/filecoin-address": "^2.0.43",

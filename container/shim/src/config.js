@@ -29,9 +29,6 @@ export const LASSIE_SP_ELIGIBLE_PORTION = spPortionFromString(process.env.LASSIE
 
 export const NODE_UA = `Saturn/${VERSION}`;
 
-export const L2_FIRE_AND_FORGET = process.env.L2_FIRE_AND_FORGET
-  ? process.env.L2_FIRE_AND_FORGET === "true"
-  : NETWORK === "test";
 export const ORCHESTRATOR_REGISTRATION = process.env.ORCHESTRATOR_REGISTRATION
   ? process.env.ORCHESTRATOR_REGISTRATION === "true"
   : true;
