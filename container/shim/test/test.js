@@ -58,9 +58,6 @@ test("L1 node", async (t) => {
       assert.strictEqual(res.headers.get("content-range"), "bytes 10-20/124");
       assert.deepStrictEqual(Buffer.from(await (await res.blob()).arrayBuffer()), testCAR.subarray(10, 21));
     });
-    await t.test("respond from L2", (t) => {
-      t.todo();
-    });
     await t.test("respond from ipfs gateway", async (t) => {
       await t.test("simple response", async (t) => {
         const res = await fetch(`${address}/ipfs/${gatewayCid}`);
@@ -94,12 +91,6 @@ test("L1 node", async (t) => {
     });
   });
   await t.test("GET /ipfs/:cid/:path*", (t) => {
-    t.todo();
-  });
-  await t.test("GET /register/:l2NodeId", (t) => {
-    t.todo();
-  });
-  await t.test("POST /data/:cid", (t) => {
     t.todo();
   });
 
