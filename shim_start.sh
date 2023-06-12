@@ -1,6 +1,13 @@
 #!/bin/bash
 set -eou pipefail
 
+if [ ! -f "/usr/src/app/shared/nodeId.txt" ]; then
+  cat /proc/sys/kernel/random/uuid > /usr/src/app/shared/nodeId.txt
+fi
+
+export LASSIE_TEMP_DIRECTORY=/usr/src/app/shared/lassie
+mkdir -p $LASSIE_TEMP_DIRECTORY
+
 if [ "${LASSIE_ORIGIN:-}" != "" ]; then
   if [ "${NETWORK:-}" = "main" ]; then
     lassie daemon 2>&1 1>/dev/null &

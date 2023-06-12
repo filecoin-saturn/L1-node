@@ -19,20 +19,7 @@ services:
       - 8080:80
       - 8043:443
     volumes:
-      - ${SATURN_HOME:-$HOME}/shared:/usr/src/app/shared
-
-  lassie:
-    build:
-      context: .
-      dockerfile: lassie.Dockerfile
-    container_name: lassie
-    environment:
-      GOLOG_LOG_LEVEL: debug
-    ports:
-      - 7766:7766
-      - 7776:7776
-    volumes:
-      - ${SATURN_HOME:-$HOME}/shared:/usr/src/app/shared
+      - ${SATURN_HOME:-$HOME}/shared/onion_l1:/usr/src/app/shared
 
   shim:
     build:
@@ -48,4 +35,17 @@ services:
     ports:
       - 10361:10361
     volumes:
-      - ${SATURN_HOME:-$HOME}/shared:/usr/src/app/shared
+      - ${SATURN_HOME:-$HOME}/shared/onion_shim:/usr/src/app/shared
+
+  lassie:
+    build:
+      context: .
+      dockerfile: lassie.Dockerfile
+    container_name: lassie
+    environment:
+      GOLOG_LOG_LEVEL: debug
+    ports:
+      - 7766:7766
+      - 7776:7776
+    volumes:
+      - ${SATURN_HOME:-$HOME}/shared/onion_lassie:/usr/src/app/shared
