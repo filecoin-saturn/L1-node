@@ -131,9 +131,9 @@ async function submitBandwidthLogs(logs) {
   // This shouldn't happen, something is wrong with number parsing log fields.
   if (Number.isFinite(bytesSent)) {
     debug(
-      `Submitting ${logs.length} retrievals (${prettyBytes(bytesSent)} with cache rate of ${(cacheHitRate * 100).toFixed(
-        1
-      )}%)`
+      `Submitting ${logs.length} retrievals (${prettyBytes(bytesSent)} with cache rate of ${(
+        cacheHitRate * 100
+      ).toFixed(1)}%)`
     );
   }
 
