@@ -8,7 +8,7 @@ import { CID } from "multiformats";
 import serverTiming from "server-timing";
 import { respondFromLassie } from "./fetchers/lassie.js";
 import { addRegisterCheckRoute } from "./modules/registration.js";
-import { IS_CORE_L1, NETWORK, TESTING_CID } from "./config.js";
+import { IS_CORE_L1, TESTING_CID } from "./config.js";
 import { getResponseFormat } from "./utils/http.js";
 import { debug } from "./utils/logging.js";
 
