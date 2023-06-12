@@ -49,3 +49,8 @@ services:
       - 7776:7776
     volumes:
       - ${SATURN_HOME:-$HOME}/shared/onion_lassie:/usr/src/app/shared
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
