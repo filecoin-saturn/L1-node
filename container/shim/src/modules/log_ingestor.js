@@ -127,11 +127,15 @@ async function submitBandwidthLogs(logs) {
   );
   const cacheHitRate = cacheHits / (validReqs || 1);
 
-  debug(
-    `Submitting ${logs.length} retrievals (${prettyBytes(bytesSent)} with cache rate of ${(cacheHitRate * 100).toFixed(
-      1
-    )}%)`
-  );
+  // pretty-bytes can throw "TypeError Expected a finite number, got number: NaN"
+  // This shouldn't happen, something is wrong with number parsing log fields.
+  if (Number.isFinite(bytesSent)) {
+    debug(
+      `Submitting ${logs.length} retrievals (${prettyBytes(bytesSent)} with cache rate of ${(
+        cacheHitRate * 100
+      ).toFixed(1)}%)`
+    );
+  }
 
   const submitTime = Date.now();
 

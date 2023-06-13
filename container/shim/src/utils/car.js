@@ -12,7 +12,6 @@ import { from as hasher } from "multiformats/hashes/hasher";
 import { blake2b256 } from "@multiformats/blake2/blake2b";
 import { MemoryBlockstore } from "blockstore-core/memory";
 import { exporter } from "ipfs-unixfs-exporter";
-import write from "stream-write";
 
 const { toHex } = bytes;
 
@@ -46,19 +45,6 @@ export async function streamCAR(streamIn, streamOut) {
       await writer.close();
     })(),
   ]);
-}
-
-/**
- * @param {IncomingMessage || ReadableStream} streamIn
- * @param {Response} streamOut
- */
-export async function streamRawFromCAR(streamIn, streamOut) {
-  const carBlockIterator = await CarBlockIterator.fromIterable(streamIn);
-
-  for await (const { bytes } of carBlockIterator) {
-    await write(streamOut, bytes);
-  }
-  streamOut.end();
 }
 
 /**

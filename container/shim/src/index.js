@@ -7,9 +7,8 @@ import asyncHandler from "express-async-handler";
 import { CID } from "multiformats";
 import serverTiming from "server-timing";
 import { respondFromLassie } from "./fetchers/lassie.js";
-import { cancelCarRequest, maybeRespondFromL2, registerL2Node } from "./fetchers/l2-node.js";
 import { addRegisterCheckRoute } from "./modules/registration.js";
-import { IS_CORE_L1, NETWORK, TESTING_CID } from "./config.js";
+import { IS_CORE_L1, TESTING_CID } from "./config.js";
 import { getResponseFormat } from "./utils/http.js";
 import { debug } from "./utils/logging.js";
 
@@ -77,19 +76,12 @@ const handleCID = asyncHandler(async (req, res) => {
     return res.send(testCAR);
   }
 
-  if (NETWORK !== "main" && !req.params.path && (await maybeRespondFromL2(req, res, { cid, format }))) {
-    return;
-  }
-
   return respondFromLassie(req, res, { cidObj, format });
 });
 
 // Whenever nginx doesn't have a CAR file in cache, this is called
 app.get("/ipfs/:cid", handleCID);
 app.get("/ipfs/:cid/:path(*)", handleCID);
-
-app.get("/register/:l2NodeId", asyncHandler(registerL2Node));
-app.post("/data/:cid", cancelCarRequest);
 
 addRegisterCheckRoute(app);
 
