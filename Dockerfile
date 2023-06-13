@@ -1,7 +1,7 @@
 ARG NGINX_VERSION="1.24.0"
 ARG NGINX_NAME="nginx-${NGINX_VERSION}"
 
-FROM docker.io/library/debian:latest AS build
+FROM docker.io/library/debian:bullseye AS build
 
 ARG NGINX_VERSION
 # https://hg.nginx.org/nginx
