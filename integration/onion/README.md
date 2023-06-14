@@ -16,9 +16,11 @@ Note: runtime-associated files will end up in `$HOME/shared` if you do not have 
 
 2. `cd integration/onion`;
 
-3. `docker compose up --build -d`;
+3. setup [mkcert](https://github.com/FiloSottile/mkcert) and run `cd $HOME/shared/onion_l1/ssl && mkcert -key-file node.key -cert-file node.crt localhost`)];
 
-4. check logs with: `docker compose logs <service>`. if the service param is omitted then all logs will show up.
+4. `docker compose up --build -d`;
+
+5. check logs with: `docker compose logs <service>`. if the service param is omitted then all logs will show up.
 
 ## Updating
 
