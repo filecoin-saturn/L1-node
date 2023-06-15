@@ -3,7 +3,7 @@
 set -e
 
 : "${FIL_WALLET_ADDRESS:=f012356}"
-: "${NODE_OPERATOR_EMAIL:=dev@strn.pl}"
+: "${NODE_OPERATOR_EMAIL:=dev@saturn.tech}"
 : "${IPFS_GATEWAY_ORIGIN:=https://ipfs.io}"
 : "${ORCHESTRATOR_REGISTRATION:=true}"
 : "${HTTP_PORT:=80}"

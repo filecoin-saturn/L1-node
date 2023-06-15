@@ -278,7 +278,7 @@ When payments are scheduled to be sent out, your Filecoin wallet will receive a 
 ### Node monitoring
 
 - https://dashboard.saturn.tech - View historical data on your bandwidth contributions, FIL earnings, and more.
-- https://orchestrator.strn.pl/stats - View detailed, real-time stats on every Saturn node.
+- https://dashboard.saturn.tech/stats - View detailed, real-time stats on every Saturn node.
 
 ## License
 

@@ -27,7 +27,7 @@ services:
     environment:
       GRAPH_BACKEND: true
       GOLOG_LOG_LEVEL: debug
-      STRN_ORCHESTRATOR_URL: https://orchestrator.strn.pl
+      STRN_ORCHESTRATOR_URL: https://orchestrator.saturn.tech
       CABOOSE_BACKEND_OVERRIDE: saturn-node
     ports:
       - 8081:8081

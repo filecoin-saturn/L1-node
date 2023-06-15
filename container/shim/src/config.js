@@ -42,10 +42,10 @@ export const hasNodeToken = () => Boolean(nodeToken);
 function networkToOrchestrator() {
   switch (NETWORK) {
     case "main": {
-      return "https://orchestrator.strn.pl";
+      return "https://orchestrator.saturn.tech";
     }
     case "test": {
-      return "https://orchestrator.strn-test.pl";
+      return "https://orchestrator-test.saturn.tech";
     }
     default: {
       return "http://localhost:10365";

@@ -88,7 +88,7 @@ Also for the same region (country) the DNS weight will just compete with each ot
 
 If your node didn't gracefully shutdown and you need to manually deregister the node, from the host (same IP as the node):
 
-Send an HTTP POST to https://orchestrator.strn.pl/deregister with the `Content-Type` header set to `application/json` and the following body
+Send an HTTP POST to https://orchestrator.saturn.tech/deregister with the `Content-Type` header set to `application/json` and the following body
 
 ```json
 { "nodeId": "<NODE ID>" }
