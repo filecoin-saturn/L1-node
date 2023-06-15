@@ -43,11 +43,21 @@ jobs:
           export HTTP_PORT=8080
           ORCHESTRATOR_REGISTRATION=false sh scripts/run.sh &
 
+          num_attempts=0
+          max_attempts=5
           url="http://localhost:${HTTP_PORT}"
+
           # wait for the container to be up
           until curl -s "$url" -o /dev/null; do
+              if [ ${num_attempts} -eq ${max_attempts} ];then
+                  echo "Max attempts reached"
+                  exit 1
+              fi
+
+              num_attempts=$(($num_attempts+1))
               sleep 5;
           done
+
           sh scripts/integration_tests.sh "$url"
 
       - name: Print L1 logs
