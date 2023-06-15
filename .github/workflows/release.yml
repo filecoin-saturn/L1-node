@@ -100,9 +100,8 @@ jobs:
             ${{ steps.tags.outputs.mutable_docker_tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          cache-from: |
-            ${{ steps.tags.outputs.mutable_docker_tags }}
-          cache-to: type=inline
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             NETWORK=${{ env.NETWORK }}
             VERSION=${{ github.run_number }}_${{ steps.git.outputs.sha_short }}
