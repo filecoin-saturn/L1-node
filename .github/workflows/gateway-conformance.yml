@@ -28,7 +28,11 @@ jobs:
 
       # 3. Populate the Kubo gateway with the gateway-conformance fixtures
       - name: Import fixtures
-        run: find "${{ runner.temp }}/fixtures" -name '*.car' -exec ipfs dag import --pin-roots=false {} \;
+        run: |
+            ls -l "${{ runner.temp }}"
+            ls -l "${{ runner.temp }}/fixtures"
+            
+            find "${{ runner.temp }}/fixtures" -name '*.car' -exec ipfs dag import --pin-roots=false {} \;
 
       # 4. Build the L1
       - name: Checkout repository
