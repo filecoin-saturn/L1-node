@@ -24,11 +24,11 @@ jobs:
       - name: Download gateway-conformance fixtures
         uses: ipfs/gateway-conformance/.github/actions/extract-fixtures@v0.0
         with:
-          output: /home/runner/work/_temp/fixtures
+          output: "${{ runner.temp }}/fixtures"
 
       # 3. Populate the Kubo gateway with the gateway-conformance fixtures
       - name: Import fixtures
-        run: find /home/runner/work/_temp/fixtures -name '*.car' -exec ipfs dag import --pin-roots=false {} \;
+        run: find "${{ runner.temp }}/fixtures" -name '*.car' -exec ipfs dag import --pin-roots=false {} \;
 
       # 4. Build the L1
       - name: Checkout repository
