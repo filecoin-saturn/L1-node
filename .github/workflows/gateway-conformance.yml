@@ -1,0 +1,84 @@
+name: Gateway Conformance
+
+on:
+  push:
+    branches:
+      - main
+      - gateway-conformance
+  pull_request:
+
+env:
+    L!_PORT: 8082
+
+jobs:
+  gateway-conformance:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Start the Kubo gateway
+      - name: Download Kubo gateway
+        uses: ipfs/download-ipfs-distribution-action@v1
+      - name: Start Kubo gateway
+        uses: ipfs/start-ipfs-daemon-action@v1
+
+      # 2. Download the gateway-conformance fixtures
+      - name: Download gateway-conformance fixtures
+        uses: ipfs/gateway-conformance/.github/actions/extract-fixtures@v0.0
+        with:
+          output: fixtures
+
+      # 3. Populate the Kubo gateway with the gateway-conformance fixtures
+      - name: Import fixtures
+        run: find ./fixtures -name '*.car' -exec ipfs dag import --pin-roots=false {} \;
+
+      # 4. Build the L1
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build local Docker image
+        uses: docker/build-push-action@v3
+        with:
+            context: .
+            tags: saturn-node
+            cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
+            cache-to: type=inline
+            build-args: |
+                SATURN_NETWORK=local
+                ORCHESTRATOR_URL=http://localhost
+                LOG_INGESTOR_URL=http://localhost
+
+      # 5. Start the L1
+      - name: Start L1
+        run: |
+            export HTTP_PORT=${{ env.L1_PORT }}
+            export ORCHESTRATOR_REGISTRATION=false
+            export LASSIE_ALLOW_PROVIDERS=$(ipfs id | jq --raw-output '.Addresses | @csv | sub("\"";"";"g") ')
+
+            sh scripts/run.sh &
+
+            url="http://localhost:${HTTP_PORT}"
+            # wait for the container to be up
+            until curl -s "$url" -o /dev/null; do
+                sleep 5;
+            done
+
+      # 6. Run the gateway-conformance tests
+      - name: Run gateway-conformance tests
+        uses: ipfs/gateway-conformance/.github/actions/test@v0.0
+        with:
+          gateway-url: http://127.0.0.1:${{ env.L1_PORT }}
+          json: output.json
+          xml: output.xml
+          html: output.html
+          markdown: output.md
+          args: -skip 'TestGatewayCar/GET_response_for_application/vnd.ipld.car/Header_Content-Length -run "TestGatewayCar|TestGatewayBlock"'
+
+      # 7. Upload the results
+      - name: Upload Markdown summary
+        if: failure() || success()
+        run: cat output.md >> $GITHUB_STEP_SUMMARY
+      - name: Upload HTML report
+        if: failure() || success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: gateway-conformance.html
+          path: output.html
