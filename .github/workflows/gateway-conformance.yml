@@ -31,11 +31,7 @@ jobs:
 
       # 3. Populate the Kubo gateway with the gateway-conformance fixtures
       - name: Import fixtures
-        run: |
-            ls -l "${{ runner.temp }}"
-            ls -l "${{ runner.temp }}/fixtures"
-
-            find "${{ runner.temp }}/fixtures" -name '*.car' -exec ipfs dag import --pin-roots=false {} \;
+        run: find "${{ runner.temp }}/fixtures" -name '*.car' -exec ipfs dag import --pin-roots=false {} \;
 
       # 4. Build the L1
       - name: Checkout repository
@@ -46,8 +42,8 @@ jobs:
         with:
             context: .
             tags: saturn-node
-            cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
-            cache-to: type=inline
+            cache-from: type=gha
+            cache-to: type=gha,mode=max
             build-args: |
                 SATURN_NETWORK=local
                 ORCHESTRATOR_URL=http://localhost
