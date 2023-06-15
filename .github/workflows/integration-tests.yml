@@ -29,8 +29,8 @@ jobs:
         with:
           context: .
           tags: saturn-node
-          cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
-          cache-to: type=inline
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             SATURN_NETWORK=local
             ORCHESTRATOR_URL=http://localhost
