@@ -47,6 +47,7 @@ jobs:
             tags: saturn-node
             cache-from: type=gha
             cache-to: type=gha,mode=max
+            load: true
             build-args: |
                 SATURN_NETWORK=local
                 ORCHESTRATOR_URL=http://localhost
