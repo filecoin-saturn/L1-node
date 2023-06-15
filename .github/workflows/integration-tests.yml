@@ -17,8 +17,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  badbits:
-    name: Validate Badbits
+  integration-tests:
+    name: Integration Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
