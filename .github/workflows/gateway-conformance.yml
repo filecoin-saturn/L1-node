@@ -6,8 +6,8 @@ on:
       - main
       - gateway-conformance
     paths:
-      - ".github/workflows/integration-tests.yml"
-      - "container/nginx/**"
+      - ".github/workflows/gateway-conformance.yml"
+      - "container/**"
       - "Dockerfile"
   pull_request:
 
