@@ -8,7 +8,7 @@ on:
   pull_request:
 
 env:
-    L!_PORT: 8082
+    L1_PORT: 8082
 
 jobs:
   gateway-conformance:
@@ -19,6 +19,9 @@ jobs:
         uses: ipfs/download-ipfs-distribution-action@v1
       - name: Start Kubo gateway
         uses: ipfs/start-ipfs-daemon-action@v1
+
+      - name: Make fixtures dir
+        run: mkdir -p ${{ runner.temp }}/fixtures
 
       # 2. Download the gateway-conformance fixtures
       - name: Download gateway-conformance fixtures
@@ -31,7 +34,7 @@ jobs:
         run: |
             ls -l "${{ runner.temp }}"
             ls -l "${{ runner.temp }}/fixtures"
-            
+
             find "${{ runner.temp }}/fixtures" -name '*.car' -exec ipfs dag import --pin-roots=false {} \;
 
       # 4. Build the L1
