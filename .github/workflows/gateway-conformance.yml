@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - gateway-conformance
+    paths:
+      - ".github/workflows/integration-tests.yml"
+      - "container/nginx/**"
+      - "Dockerfile"
   pull_request:
 
 env:
