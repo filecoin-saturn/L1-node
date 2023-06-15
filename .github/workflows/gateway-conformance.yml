@@ -58,13 +58,24 @@ jobs:
         run: |
             export HTTP_PORT=${{ env.L1_PORT }}
             export ORCHESTRATOR_REGISTRATION=false
+
+            # Configure lassie to fetch only from the localhost kubo
             export LASSIE_ALLOW_PROVIDERS=$(ipfs id | jq --raw-output '.Addresses | @csv | sub("\"";"";"g") ')
 
             sh scripts/run.sh &
 
+            num_attempts=0
+            max_attempts=5
             url="http://localhost:${HTTP_PORT}"
+
             # wait for the container to be up
             until curl -s "$url" -o /dev/null; do
+                if [ ${num_attempts} -eq ${max_attempts} ];then
+                    echo "Max attempts reached"
+                    exit 1
+                fi
+
+                num_attempts=$(($num_attempts+1))
                 sleep 5;
             done
 
