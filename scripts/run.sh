@@ -9,6 +9,7 @@ set -e
 : "${HTTP_PORT:=80}"
 : "${HTTPS_PORT:=443}"
 : "${IS_CORE_L1:=false}"
+: "${LASSIE_ALLOW_PROVIDERS:-}"
 
 mkdir -p "$(pwd)/shared"
 echo "$(date -u) [host] Running Saturn node dev, with volume in $(pwd)/shared"
@@ -23,5 +24,6 @@ docker run --name saturn-node --rm $( [ "$CI" != "true" ] && printf "%s" "-it" )
           -e "SPEEDTEST_SERVER_CONFIG=$SPEEDTEST_SERVER_CONFIG" \
           -e "LASSIE_ORIGIN=$LASSIE_ORIGIN" \
           -e "IS_CORE_L1=$IS_CORE_L1" \
+          -e "LASSIE_ALLOW_PROVIDERS=$LASSIE_ALLOW_PROVIDERS" \
           -p "$HTTPS_PORT":443 -p "$HTTP_PORT":80 \
           saturn-node
