@@ -17,20 +17,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  badbits:
-    name: Validate Badbits
+  integration-tests:
+    name: Integration Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
       - name: Build local Docker image
         uses: docker/build-push-action@v3
         with:
           context: .
           tags: saturn-node
-          cache-from: type=registry,ref=ghcr.io/filecoin-saturn/l1-node:${{ env.SATURN_NETWORK }}
-          cache-to: type=inline
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          load: true
           build-args: |
             SATURN_NETWORK=local
             ORCHESTRATOR_URL=http://localhost
@@ -43,11 +47,21 @@ jobs:
           export HTTP_PORT=8080
           ORCHESTRATOR_REGISTRATION=false sh scripts/run.sh &
 
+          num_attempts=0
+          max_attempts=5
           url="http://localhost:${HTTP_PORT}"
+
           # wait for the container to be up
           until curl -s "$url" -o /dev/null; do
+              if [ ${num_attempts} -eq ${max_attempts} ];then
+                  echo "Max attempts reached"
+                  exit 1
+              fi
+
+              num_attempts=$(($num_attempts+1))
               sleep 5;
           done
+
           sh scripts/integration_tests.sh "$url"
 
       - name: Print L1 logs
