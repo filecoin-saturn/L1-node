@@ -58,5 +58,16 @@ services:
 
   prometheus:
     image: prom/prometheus
+    container_name: prometheus
+    restart: unless-stopped
     ports:
       - 9090:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  pushgateway:
+    image: prom/pushgateway
+    container_name: pushgateway
+    restart: unless-stopped
+    ports:
+      - 9091:9091
