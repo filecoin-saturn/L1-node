@@ -248,6 +248,9 @@ The current uptime requirement is as follows:
 - Nodes that join before the 21st of a given month and do not satisfy the uptime requirement will forfeit their earnings for the given month. Their forfeited earnings will be added to the network reward pool for the following month.
 - The uptime requirement must be satisfied on a monthly basis
 
+Note: Beginning July 1st, 2023, Saturn’s monthly node uptime requirement will increase from 7 days to 14 days. This means that for a node to qualify for earnings come August 1st, that node must have been online and operational for at least 14 contiguous days in July.
+
+
 ### Obtaining a Filecoin wallet address
 
 You need to own a Filecoin wallet to receive FIL payments.
