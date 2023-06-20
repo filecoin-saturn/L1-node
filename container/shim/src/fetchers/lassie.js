@@ -1,6 +1,7 @@
 import http from "node:http";
 import https from "node:https";
 import { Transform, pipeline } from "node:stream";
+import { pipeline as pipelinePromise } from "node:stream/promises";
 
 import { CarBlockIterator } from "@ipld/car";
 import LRU from "lru-cache";
@@ -9,7 +10,6 @@ import fetch from "node-fetch";
 
 import { LASSIE_ORIGIN, LASSIE_SP_ELIGIBLE_PORTION, hasNodeToken } from "../config.js";
 import { submitLassieLogs } from "../modules/log_ingestor.js";
-import { streamCAR } from "../utils/car.js";
 import { proxyResponseHeaders, toUtf8 } from "../utils/http.js";
 import { debug as Debug } from "../utils/logging.js";
 
@@ -123,7 +123,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     } else {
       const headersObj = Object.fromEntries(lassieRes.headers.entries());
       proxyResponseHeaders(headersObj, res);
-      await streamCAR(metricsStream, res);
+      await pipelinePromise(metricsStream, res);
     }
   } catch (err) {
     if (controller.signal.aborted) {
