@@ -13,7 +13,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
  speedtest \
  && rm -rf /var/lib/apt/lists/*
 
-ARG TARGETPLATFORM="linux/arm64"
+ARG TARGETPLATFORM
 ARG LASSIE_VERSION
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
   elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=arm64; \
