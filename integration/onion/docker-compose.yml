@@ -71,3 +71,12 @@ services:
     restart: unless-stopped
     ports:
       - 9091:9091
+
+  grafana:
+    image: grafana/grafana-oss
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana:/var/lib/grafana
