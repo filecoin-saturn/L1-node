@@ -1,10 +1,11 @@
 # Onion
 
-This folder sets up a docker compose file which runs 3 combinations of the different layers that comprise an L1 node:
+This folder sets up a docker compose file which runs 3 combinations of the different layers that comprise an L1 node (plus the bifrost-gateway):
 
 - Nginx+shim+lassie
 - shim+lassie
 - lassie
+- bifrost-gateway plus its own L1
 
 The goal is to be able to troubleshoot correctness issues that may lay in-between layers or that can be pinpointed to a particular layer.
 
@@ -16,7 +17,12 @@ Note: runtime-associated files will end up in `$HOME/shared` if you do not have 
 
 2. `cd integration/onion`;
 
-3. setup [mkcert](https://github.com/FiloSottile/mkcert) and run `cd $HOME/shared/onion_l1/ssl && mkcert -key-file node.key -cert-file node.crt localhost`)];
+3. generate certs for the L1s by setting up [mkcert](https://github.com/FiloSottile/mkcert);
+
+```
+cd $HOME/shared/onion_l1/ssl && mkcert -key-file node.key -cert-file node.crt localhost
+cd $HOME/shared/onion_bifrost_l1/ssl && mkcert -key-file node.key -cert-file node.crt localhost
+```
 
 4. `docker compose up --build -d`;
 
@@ -27,4 +33,4 @@ Note: runtime-associated files will end up in `$HOME/shared` if you do not have 
 To make sure you're running the latest nginx config and shim, make sure you merge main into this branch whenever there are updates.
 For this to work properly make sure you're booting the docker compose setup with `--build`.
 
-As for making sure lassie is up to date, update the `LASSIE_VERSION` env var on the `docker-compose.yml` file.
+As for making sure lassie is up to date, update the `LASSIE_VERSION` env vars on the `docker-compose.yml` file.
