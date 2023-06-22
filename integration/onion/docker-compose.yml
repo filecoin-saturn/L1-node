@@ -1,5 +1,37 @@
 version: "3.7"
 services:
+  bifrost:
+    image: ipfs/bifrost-gateway:v0.0.12
+    container_name: bifrost
+    environment:
+      GRAPH_BACKEND: true
+      GOLOG_LOG_LEVEL: debug
+      STRN_ORCHESTRATOR_URL: https://orchestrator.strn.pl
+      CABOOSE_BACKEND_OVERRIDE: bifrost-l1
+    ports:
+      - 8081:8081
+      - 8041:8041
+
+  bifrost-l1:
+    init: true
+    build:
+      context: ../..
+      args:
+        LASSIE_VERSION: v0.12.2
+    container_name: bifrost-l1
+    environment:
+      ORCHESTRATOR_REGISTRATION: false
+      IS_CORE_L1: true
+      FIL_WALLET_ADDRESS: t410f2oekwcmo2pueydmaq53eic2i62crtbeyuzx2gmy
+      NODE_OPERATOR_EMAIL: test@saturn.network
+      GOLOG_LOG_LEVEL: debug
+    ulimits:
+      nofile:
+        soft: 1000000
+        hard: 1000000
+    volumes:
+      - ${SATURN_HOME:-$HOME}/shared/onion_bifrost_l1:/usr/src/app/shared
+
   saturn-node:
     init: true
     build:
