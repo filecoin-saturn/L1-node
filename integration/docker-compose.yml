@@ -21,8 +21,7 @@ services:
       - ${SATURN_HOME:-$HOME}/shared:/usr/src/app/shared
 
   bifrost:
-    build:
-      context: ../../../ipfs/bifrost-gateway
+    image: ipfs/bifrost-gateway:v0.0.12
     container_name: bifrost
     environment:
       GRAPH_BACKEND: true
