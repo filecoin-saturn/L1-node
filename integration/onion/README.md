@@ -32,9 +32,10 @@ Note: this needs to be done before booting up docker compose or the https listen
 
 ## Updating
 
-To make sure you're running the latest nginx config and shim, make sure you merge main into this branch whenever there are updates.
-For this to work properly make sure you're booting the docker compose setup with `--build`.
+For any update to work flawlessly, it's best to `docker compose down` first.
 
-As for making sure lassie is up to date, update the `LASSIE_VERSION` env vars on the `docker-compose.yml` file.
+- To make sure you're running the latest nginx config and shim, make sure you merge main into this branch whenever there are updates. For this to work properly make sure you're booting the docker compose setup with `docker compuse up --build`.
 
-For updating Bifrost jump bump it's image version on the `docker-compose.yml` file.
+- As for making sure lassie is up to date, update the `LASSIE_VERSION` env vars on the `docker-compose.yml` file.
+
+- For updating Bifrost just bump its image version on the `docker-compose.yml` file.
