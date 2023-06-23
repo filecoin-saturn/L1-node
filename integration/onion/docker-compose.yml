@@ -1,7 +1,9 @@
 version: "3.7"
 services:
   bifrost:
-    image: ipfs/bifrost-gateway:v0.0.12
+    # image: ipfs/bifrost-gateway:v0.0.12
+    build:
+      context: ../../../../ipfs/bifrost-gateway
     container_name: bifrost
     environment:
       GRAPH_BACKEND: true
