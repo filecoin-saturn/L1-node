@@ -32,10 +32,14 @@ Note: this needs to be done before booting up docker compose or the https listen
 
 ## Updating
 
-For any update to work flawlessly, it's best to `docker compose down` first.
+For any update to work flawlessly, it's best to `docker compose down` first. Next, run `docker compuse up --build`, so any local changes are picked up.
 
-- To make sure you're running the latest nginx config and shim, make sure you merge main into this branch whenever there are updates. For this to work properly make sure you're booting the docker compose setup with `docker compuse up --build`.
+- To make sure you're running the latest L1 `nginx`/`shim`, make sure you merge main into this branch whenever there are updates.
+
+- Regarding `bifrost`:
+
+  - By default we're running a local version which assumes a relative path of `../../../../ipfs/bifrost-gateway` from this directory.
+
+  - If you want to run a pre-published bifrost-gateway image, uncomment the `image` key under the `bifrost` service and comment out the `build` and `context` keys. To update the image version just bump it on the `docker-compose.yml` file and restart. To reuse the local version just uncomment the aforementioned lines and comment out the `image` key.
 
 - As for making sure lassie is up to date, update the `LASSIE_VERSION` env vars on the `docker-compose.yml` file.
-
-- For updating Bifrost just bump its image version on the `docker-compose.yml` file.
