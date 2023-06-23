@@ -24,6 +24,8 @@ cd $HOME/shared/onion_l1/ssl && mkcert -key-file node.key -cert-file node.crt lo
 cd $HOME/shared/onion_bifrost_l1/ssl && mkcert -key-file node.key -cert-file node.crt localhost
 ```
 
+Note: this needs to be done before booting up docker compose or the https listener for the L1s will crash.
+
 4. `docker compose up --build -d`;
 
 5. check logs with: `docker compose logs <service>`. if the service param is omitted then all logs will show up.
