@@ -36,3 +36,5 @@ To make sure you're running the latest nginx config and shim, make sure you merg
 For this to work properly make sure you're booting the docker compose setup with `--build`.
 
 As for making sure lassie is up to date, update the `LASSIE_VERSION` env vars on the `docker-compose.yml` file.
+
+For updating Bifrost jump bump it's image version on the `docker-compose.yml` file.
