@@ -41,4 +41,4 @@ test_range_request "bafybeifpz6onienrgwvb3mw5rg7piq5jh63ystjn7s5wk6ttezy2gy5xwu/
 test_range_request "QmafUYju2Ab4ETi5HJG1cqjmnjs2xw9PUuBKzU7Hi3zvXU/MC_TheSource.mp4?entity-bytes=0:1048576"
 
 # range request with offset
-# test_range_request "bafybeifpz6onienrgwvb3mw5rg7piq5jh63ystjn7s5wk6ttezy2gy5xwu/Mexico.JPG?entity-bytes=1048576:2097152"
+test_range_request "bafybeifpz6onienrgwvb3mw5rg7piq5jh63ystjn7s5wk6ttezy2gy5xwu/Mexico.JPG?entity-bytes=1048576:2097152"
