@@ -1,9 +1,9 @@
 version: "3.7"
 services:
   bifrost:
-    # image: ipfs/bifrost-gateway:v0.0.11
-    build:
-      context: ../../../../ipfs/bifrost-gateway
+    image: ipfs/bifrost-gateway:v0.0.11
+    # build:
+    #  context: ../../../../ipfs/bifrost-gateway
     container_name: bifrost
     environment:
       GRAPH_BACKEND: true
@@ -20,7 +20,7 @@ services:
     build:
       context: ../..
       args:
-        LASSIE_VERSION: v0.12.2
+        LASSIE_VERSION: v0.13.0
     container_name: bifrost-l1
     environment:
       ORCHESTRATOR_REGISTRATION: false
@@ -40,7 +40,7 @@ services:
     build:
       context: ../..
       args:
-        LASSIE_VERSION: v0.12.2
+        LASSIE_VERSION: v0.13.0
     container_name: saturn-node
     environment:
       ORCHESTRATOR_REGISTRATION: false
@@ -63,7 +63,7 @@ services:
       context: ../..
       dockerfile: shim.Dockerfile
       args:
-        LASSIE_VERSION: v0.12.2
+        LASSIE_VERSION: v0.13.0
     container_name: shim
     environment:
       ORCHESTRATOR_REGISTRATION: false
@@ -81,7 +81,7 @@ services:
       context: .
       dockerfile: lassie.Dockerfile
       args:
-        LASSIE_VERSION: v0.12.2
+        LASSIE_VERSION: v0.13.0
     container_name: lassie
     environment:
       GOLOG_LOG_LEVEL: debug
