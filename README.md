@@ -250,7 +250,6 @@ The current uptime requirement is as follows:
 
 Note: Beginning July 1st, 2023, Saturn’s monthly node uptime requirement will increase from 7 days to 14 days. This means that for a node to qualify for earnings on August 1st, that node must have been online and operational for at least 14 contiguous days in July.
 
-
 ### Obtaining a Filecoin wallet address
 
 You need to own a Filecoin wallet to receive FIL payments.
