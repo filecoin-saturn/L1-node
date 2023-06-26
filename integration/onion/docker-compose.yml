@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   bifrost:
-    # image: ipfs/bifrost-gateway:v0.0.12
+    # image: ipfs/bifrost-gateway:v0.0.11
     build:
       context: ../../../../ipfs/bifrost-gateway
     container_name: bifrost
@@ -10,6 +10,7 @@ services:
       GOLOG_LOG_LEVEL: debug
       STRN_ORCHESTRATOR_URL: https://orchestrator.strn.pl
       CABOOSE_BACKEND_OVERRIDE: bifrost-l1
+      BLOCK_CACHE_SIZE: 2
     ports:
       - 8081:8081
       - 8041:8041
