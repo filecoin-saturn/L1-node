@@ -88,11 +88,12 @@ jobs:
         uses: ipfs/gateway-conformance/.github/actions/test@v0.0
         with:
           gateway-url: http://127.0.0.1:${{ env.L1_PORT }}
+          specs: trustless-block-gateway,trustless-car-gateway
           json: output.json
           xml: output.xml
           html: output.html
           markdown: output.md
-          args: -skip 'TestGatewayCar/GET_response_for_application/vnd.ipld.car/Header_Content-Length -run "TestGatewayCar|TestGatewayBlock"'
+          args: -skip 'TestGatewayCar/GET_response_for_application/vnd.ipld.car/Header_Content-Length'
 
       # 7. Upload the results
       - name: Upload Markdown summary
