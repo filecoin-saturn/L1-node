@@ -46,41 +46,41 @@ jobs:
       - name: Build local Docker image
         uses: docker/build-push-action@v3
         with:
-            context: .
-            tags: saturn-node
-            cache-from: type=gha
-            cache-to: type=gha,mode=max
-            load: true
-            build-args: |
-                SATURN_NETWORK=local
-                ORCHESTRATOR_URL=http://localhost
-                LOG_INGESTOR_URL=http://localhost
+          context: .
+          tags: saturn-node
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          load: true
+          build-args: |
+            SATURN_NETWORK=local
+            ORCHESTRATOR_URL=http://localhost
+            LOG_INGESTOR_URL=http://localhost
 
       # 5. Start the L1
       - name: Start L1
         run: |
-            export ORCHESTRATOR_REGISTRATION=false
+          export ORCHESTRATOR_REGISTRATION=false
 
-            # Configure lassie to fetch only from the localhost kubo
-            export LASSIE_ALLOW_PROVIDERS=$(ipfs id | jq --raw-output '.Addresses | @csv | sub("\"";"";"g") ')
-            export DOCKER_NETWORK=host
+          # Configure lassie to fetch only from the localhost kubo
+          export LASSIE_ALLOW_PROVIDERS=$(ipfs id | jq --raw-output '.Addresses | @csv | sub("\"";"";"g") ')
+          export DOCKER_NETWORK=host
 
-            sh scripts/run.sh &
+          sh scripts/run.sh &
 
-            num_attempts=0
-            max_attempts=5
-            url=${{ env.L1_ORIGIN }}
+          num_attempts=0
+          max_attempts=5
+          url=${{ env.L1_ORIGIN }}
 
-            # wait for the container to be up
-            until curl -s "$url" -o /dev/null; do
-                if [ ${num_attempts} -eq ${max_attempts} ];then
-                    echo "Max attempts reached"
-                    exit 1
-                fi
+          # wait for the container to be up
+          until curl -s "$url" -o /dev/null; do
+              if [ ${num_attempts} -eq ${max_attempts} ];then
+                  echo "Max attempts reached"
+                  exit 1
+              fi
 
-                num_attempts=$(($num_attempts+1))
-                sleep 5;
-            done
+              num_attempts=$(($num_attempts+1))
+              sleep 5;
+          done
 
       # 6. Run the gateway-conformance tests
       - name: Run gateway-conformance tests
