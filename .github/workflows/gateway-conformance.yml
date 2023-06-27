@@ -34,7 +34,7 @@ jobs:
       - name: Import fixtures
         run: |
           find fixtures -name '*.car' -exec ipfs dag import --pin-roots=false {} \;
-          rm -rf fixtures
+          sudo rm -rf fixtures
 
       # 4. Build the L1
       - name: Checkout repository
