@@ -10,7 +10,7 @@ ARG NGINX_COMMIT=c38588d8376b
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
 ARG NJS_VERSION=0.7.12
-ARG NGX_CAR_RANGE_VERSION="v0.5.0-rc1"
+ARG NGX_CAR_RANGE_VERSION="v0.6.0"
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -133,7 +133,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
 
 # Download lassie
 ARG TARGETPLATFORM
-ARG LASSIE_VERSION="v0.12.2"
+ARG LASSIE_VERSION="v0.13.0"
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
   elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=arm64; \
   else ARCHITECTURE=386; fi \
