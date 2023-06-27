@@ -97,10 +97,10 @@ jobs:
 
       # 7. Upload the results
       - name: Upload Markdown summary
-        if: failure() || success()
+        if: '!cancelled()'
         run: cat output.md >> $GITHUB_STEP_SUMMARY
       - name: Upload HTML report
-        if: failure() || success()
+        if: '!cancelled()'
         uses: actions/upload-artifact@v3
         with:
           name: gateway-conformance.html
