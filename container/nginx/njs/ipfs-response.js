@@ -20,8 +20,10 @@ function setHeaders(req) {
     name = `${cid}.bin`;
   }
 
-  const value = `attachment; filename="${name}"`;
-  req.headersOut["content-disposition"] = value;
+  if (name) {
+    const value = `attachment; filename="${name}"`;
+    req.headersOut["content-disposition"] = value;
+  }
 }
 
 export default { setHeaders };
