@@ -12,7 +12,7 @@ on:
   pull_request:
 
 env:
-    L1_PORT: 8082
+  L1_ORIGIN: http://127.0.0.1:80
 
 jobs:
   gateway-conformance:
@@ -24,18 +24,17 @@ jobs:
       - name: Start Kubo gateway
         uses: ipfs/start-ipfs-daemon-action@v1
 
-      - name: Make fixtures dir
-        run: mkdir -p ${{ runner.temp }}/fixtures
-
       # 2. Download the gateway-conformance fixtures
       - name: Download gateway-conformance fixtures
-        uses: ipfs/gateway-conformance/.github/actions/extract-fixtures@v0.0
+        uses: ipfs/gateway-conformance/.github/actions/extract-fixtures@43c0842a1041a2748a74a196e370b84ef02b12a5
         with:
-          output: "${{ runner.temp }}/fixtures"
+          output: fixtures
 
       # 3. Populate the Kubo gateway with the gateway-conformance fixtures
       - name: Import fixtures
-        run: find "${{ runner.temp }}/fixtures" -name '*.car' -exec ipfs dag import --pin-roots=false {} \;
+        run: |
+          find fixtures -name '*.car' -exec ipfs dag import --pin-roots=false {} \;
+          rm -rf fixtures
 
       # 4. Build the L1
       - name: Checkout repository
@@ -60,17 +59,17 @@ jobs:
       # 5. Start the L1
       - name: Start L1
         run: |
-            export HTTP_PORT=${{ env.L1_PORT }}
             export ORCHESTRATOR_REGISTRATION=false
 
             # Configure lassie to fetch only from the localhost kubo
             export LASSIE_ALLOW_PROVIDERS=$(ipfs id | jq --raw-output '.Addresses | @csv | sub("\"";"";"g") ')
+            export DOCKER_NETWORK=host
 
             sh scripts/run.sh &
 
             num_attempts=0
             max_attempts=5
-            url="http://localhost:${HTTP_PORT}"
+            url=${{ env.L1_ORIGIN }}
 
             # wait for the container to be up
             until curl -s "$url" -o /dev/null; do
@@ -85,9 +84,10 @@ jobs:
 
       # 6. Run the gateway-conformance tests
       - name: Run gateway-conformance tests
-        uses: ipfs/gateway-conformance/.github/actions/test@v0.0
+        # Wait for release that contains "trustless-block-gateway,trustless-car-gateway" specs
+        uses: ipfs/gateway-conformance/.github/actions/test@43c0842a1041a2748a74a196e370b84ef02b12a5
         with:
-          gateway-url: http://127.0.0.1:${{ env.L1_PORT }}
+          gateway-url: ${{ env.L1_ORIGIN }}
           specs: trustless-block-gateway,trustless-car-gateway
           json: output.json
           xml: output.xml

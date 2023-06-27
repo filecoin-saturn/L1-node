@@ -10,13 +10,14 @@ set -e
 : "${HTTPS_PORT:=443}"
 : "${IS_CORE_L1:=false}"
 : "${LASSIE_ALLOW_PROVIDERS:-}"
+: "${DOCKER_NETWORK:=bridge}"
 
 mkdir -p "$(pwd)/shared"
 echo "$(date -u) [host] Running Saturn node dev, with volume in $(pwd)/shared"
 
 # Start the docker image
 docker run --name saturn-node --rm $( [ "$CI" != "true" ] && printf "%s" "-it" ) \
-          --network=host \
+          --network=$DOCKER_NETWORK \
           -v "$(pwd)/shared:/usr/src/app/shared:Z" \
           -e "FIL_WALLET_ADDRESS=$FIL_WALLET_ADDRESS" \
           -e "NODE_OPERATOR_EMAIL=$NODE_OPERATOR_EMAIL" \
