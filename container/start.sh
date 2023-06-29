@@ -50,7 +50,7 @@ if [ "${NETWORK:-}" = "test" ]; then
 fi
 
 sed -i "s@\$cache_min_uses@$min_uses@g" /etc/nginx/conf.d/shared.conf
-sed -i "s@\$min_free@$min_free@g" /etc/nginx/conf.d/proxy.conf
+sed -i "s@\$cache_min_free@$min_free@g" /etc/nginx/conf.d/proxy.conf
 sed -i "s@\$node_id@$(cat /usr/src/app/shared/nodeId.txt)@g" /etc/nginx/conf.d/shared.conf
 sed -i "s@\$node_version@$VERSION@g" /etc/nginx/conf.d/shared.conf
 
