@@ -1,0 +1,107 @@
+name: Gateway Conformance
+
+on:
+  push:
+    branches:
+      - main
+      - gateway-conformance
+    paths:
+      - ".github/workflows/gateway-conformance.yml"
+      - "container/**"
+      - "Dockerfile"
+  pull_request:
+
+env:
+  L1_ORIGIN: http://127.0.0.1:80
+
+jobs:
+  gateway-conformance:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Start the Kubo gateway
+      - name: Download Kubo gateway
+        uses: ipfs/download-ipfs-distribution-action@v1
+      - name: Start Kubo gateway
+        uses: ipfs/start-ipfs-daemon-action@v1
+
+      # 2. Download the gateway-conformance fixtures
+      - name: Download gateway-conformance fixtures
+        uses: ipfs/gateway-conformance/.github/actions/extract-fixtures@v0.2.0
+        with:
+          output: fixtures
+
+      # 3. Populate the Kubo gateway with the gateway-conformance fixtures
+      - name: Import fixtures
+        run: |
+          find fixtures -name '*.car' -exec ipfs dag import --pin-roots=false {} \;
+          sudo rm -rf fixtures
+
+      # 4. Build the L1
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build local Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          tags: saturn-node
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          load: true
+          build-args: |
+            SATURN_NETWORK=local
+            ORCHESTRATOR_URL=http://localhost
+            LOG_INGESTOR_URL=http://localhost
+
+      # 5. Start the L1
+      - name: Start L1
+        run: |
+          export ORCHESTRATOR_REGISTRATION=false
+
+          # Configure lassie to fetch only from the localhost kubo
+          export LASSIE_ALLOW_PROVIDERS=$(ipfs id | jq --raw-output '.Addresses | @csv | sub("\"";"";"g") ')
+          export DOCKER_NETWORK=host
+
+          sh scripts/run.sh &
+
+          num_attempts=0
+          max_attempts=5
+          url=${{ env.L1_ORIGIN }}
+
+          # wait for the container to be up
+          until curl -s "$url" -o /dev/null; do
+              if [ ${num_attempts} -eq ${max_attempts} ];then
+                  echo "Max attempts reached"
+                  exit 1
+              fi
+
+              num_attempts=$(($num_attempts+1))
+              sleep 5;
+          done
+
+      # 6. Run the gateway-conformance tests
+      - name: Run gateway-conformance tests
+        # Wait for release that contains "trustless-block-gateway,trustless-car-gateway" specs
+        uses: ipfs/gateway-conformance/.github/actions/test@v0.2.0
+        with:
+          gateway-url: ${{ env.L1_ORIGIN }}
+          specs: trustless-block-gateway,trustless-car-gateway
+          json: output.json
+          xml: output.xml
+          html: output.html
+          markdown: output.md
+          args: -skip 'TestGatewayCar/GET_response_for_application/vnd.ipld.car/Header_Content-Length'
+
+      # 7. Upload the results
+      - name: Upload Markdown summary
+        if: "!cancelled()"
+        run: cat output.md >> $GITHUB_STEP_SUMMARY
+      - name: Upload HTML report
+        if: "!cancelled()"
+        uses: actions/upload-artifact@v3
+        with:
+          name: gateway-conformance.html
+          path: output.html

@@ -80,7 +80,7 @@ export LASSIE_EVENT_RECORDER_URL="https://lassie-event-recorder.dev.cid.contact/
 mkdir -p $LASSIE_TEMP_DIRECTORY
 
 # Clean up leftover files in lassie dir.
-find $LASSIE_TEMP_DIRECTORY -name "lassie_carstorage*" -exec rm {} +
+find $LASSIE_TEMP_DIRECTORY -name "lassie_car*" -exec rm {} +
 
 if [ "${LASSIE_ORIGIN:-}" != "" ]; then
   if [ "${NETWORK:-}" = "main" ]; then

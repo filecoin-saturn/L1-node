@@ -246,6 +246,9 @@ function sendBlockResponse(res, block, cidObj, filename) {
   res.set("content-type", "application/vnd.ipld.raw");
   res.set("content-disposition", `attachment; filename="${filename}"`);
   res.set("etag", `"${cidObj.toString()}.raw"`);
+  res.set("x-ipfs-path", `/ipfs/${cidObj.toString()}`);
+  res.set("x-ipfs-roots", cidObj.toString());
+  res.set("x-content-type-options", "nosniff");
   res.end(block);
 }
 
