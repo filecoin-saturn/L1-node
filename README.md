@@ -243,12 +243,12 @@ Having an uptime requirement has the following benefits:
 
 The current uptime requirement is as follows:
 
-- For a node operator to qualify for earnings at the end of the month, their node must be online for at least 7 days during the month. It is important to note that earnings for nodes STILL get calculated before the node satisfies the uptime requirement.
-- If a node is registered after the 21st day of a given month, the uptime requirement will be postponed to the following month. Its earnings will remain pending until it has satisfied the uptime requirement.
-- Nodes that join before the 21st of a given month and do not satisfy the uptime requirement will forfeit their earnings for the given month. Their forfeited earnings will be added to the network reward pool for the following month.
+- For a node operator to qualify for earnings at the end of the month, their node must be online for at least 14 days during the month. It is important to note that earnings for nodes STILL get calculated before the node satisfies the uptime requirement.
+- If a node registers after the 14th day of a given month, the uptime requirement will be postponed to the following month. Its earnings will continue to accumulate but remain pending until it has satisfied the uptime requirement the following month.
+- Nodes that join before the 14th of a given month and do not satisfy the uptime requirement will forfeit their earnings for the given month. Their forfeited earnings will be added to the total network's reward pool for the following month.
 - The uptime requirement must be satisfied on a monthly basis.
 
-Note: Beginning July 1st, 2023, Saturn’s monthly node uptime requirement will increase from 7 days to 14 days. This means that for a node to qualify for earnings on August 1st, that node must have been online and operational for at least 14 contiguous days in July.
+Note: Beginning July 1st, 2023, Saturn’s monthly node uptime requirement increased from 7 days to 14 days. This means that for a node to qualify for earnings on August 1st, 2023, that node must have been online and operational for at least 14 contiguous days in July.
 
 ### Obtaining a Filecoin wallet address
 
