@@ -1,6 +1,6 @@
 ---
-name: fix incorrect node IP geolocation
-about: Template to request an IP geolocation override
+name: Fix incorrect node IP geolocation
+about: Template to fix an incorrect node IP geolocation lookup
 title: Geolocation fix
 labels: ''
 assignees: ''
