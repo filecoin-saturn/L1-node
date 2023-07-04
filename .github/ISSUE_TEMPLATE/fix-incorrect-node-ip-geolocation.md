@@ -1,10 +1,9 @@
 ---
 name: Fix incorrect node IP geolocation
-about: Template to fix an incorrect node IP geolocation lookup
+about: Use this template to fix an incorrect node IP geolocation
 title: Geolocation fix
-labels: ''
-assignees: ''
-
+labels: ""
+assignees: ""
 ---
 
 IP:
