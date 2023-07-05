@@ -78,7 +78,9 @@ function parseSingleLine(line) {
     return acc;
   }, {});
 
-  if (vars.clientAddress === "127.0.0.1") return null;
+  if (vars.clientAddress === "127.0.0.1" && vars.url.hostname !== "handoff.strn.localhost") {
+    return null;
+  }
 
   const isIPFS = vars.url.pathname.startsWith("/ipfs/");
   const isIPNS = vars.url.pathname.startsWith("/ipns/");
