@@ -171,6 +171,11 @@ async function checkCertValidity(certBuffer, registerOptions) {
     valid = false;
   }
 
+  if (NETWORK === "test" && cert.subjectAltName && !cert.subjectAltName.includes("l1s.saturn-test.ms")) {
+    debug("Certificate is missing l1s.saturn-test.ms SAN, getting a new one...");
+    valid = false;
+  }
+
   if (!valid) {
     try {
       await getNewTLSCert(registerOptions);
