@@ -1,6 +1,6 @@
 import { readFile } from "fs/promises";
 
-const NODE_ID_FILE_PATH = "./shared/nodeId.txt";
+export const NODE_ID_FILE_PATH = "./shared/nodeId.txt";
 
 export const DEV_VERSION = "0_dev";
 export const PORT = 10361;
