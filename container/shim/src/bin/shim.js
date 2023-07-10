@@ -1,3 +1,4 @@
+import fs from "node:fs/promises";
 import http from "node:http";
 import { validateAddressString } from "@glif/filecoin-address";
 
@@ -16,8 +17,6 @@ import {
 import { trapServer } from "../utils/trap.js";
 import { debug } from "../utils/logging.js";
 import startLogIngestor from "../modules/log_ingestor.js";
-import { refreshLocalNodes } from "../modules/local_nodes.js";
-import fs from "node:fs/promises";
 
 // verify that node id is a valid uuidv4
 if (!NODE_ID.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)) {
@@ -52,7 +51,7 @@ setTimeout(async function () {
   // run log ingestor process in background (starts immediately and keeps running periodically)
   startLogIngestor();
 
-  refreshLocalNodes();
+  // refreshLocalNodes();
 }, 500);
 
 const server = http.createServer(app);
