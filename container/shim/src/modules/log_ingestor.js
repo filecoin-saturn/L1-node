@@ -45,6 +45,7 @@ const NGINX_LOG_KEYS_MAP = {
     const parsed = parseFloat(values.urt);
     return isNaN(parsed) ? values.urt : parsed;
   },
+  traceParent: (values) => values.tp,
 };
 
 const LOG_FILE = "/usr/src/app/shared/nginx_log/node-access.log";
@@ -108,6 +109,7 @@ function parseSingleLine(line) {
     // the "http3" key can be removed.
     httpProtocol: vars.http3 || vars.httpProtocol,
     url: vars.url,
+    traceParent: vars.traceParent,
   };
 }
 
