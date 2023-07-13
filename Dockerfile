@@ -121,7 +121,6 @@ COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_static_module.so /
 COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_js_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/ngx_car_range/target/release/libnginx_car_range.so /usr/lib/nginx/modules/ngx_http_car_range_module.so
 
-# RUN curl -fsSL https://install.speedtest.net/app/cli/install.deb.sh | bash -
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
  && curl -fsSL https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash - \
  && apt-get install --no-install-recommends -y \
