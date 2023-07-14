@@ -26,7 +26,7 @@ mkdir -p /usr/src/app/shared/ssl
 mkdir -p /usr/src/app/shared/nginx_log
 
 # Clean up old cached CAR files with 10% chance and if not already cleaned up
-if [ "$RANDOM" -lt 3277 && ! -f "/usr/src/app/shared/cleaned_cache" ]; then
+if [ "$RANDOM" -lt 3277 ] && [ ! -f "/usr/src/app/shared/cleaned_cache" ]; then
   echo "$(date -u) [container] Cleaning up old cached CAR files"
   grep -rl '/usr/src/app/shared/nginx_cache' -e 'carentity' -e 'carall' | xargs rm -f
   touch /usr/src/app/shared/cleaned_cache
