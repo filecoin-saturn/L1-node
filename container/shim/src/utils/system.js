@@ -4,7 +4,7 @@ import { debug as Debug } from "./logging.js";
 import { promisify } from "node:util";
 import { exec as CpExec } from "node:child_process";
 import prettyBytes from "pretty-bytes";
-import { SPEEDTEST_SERVER_CONFIG } from "../config.js";
+import { NETWORK, SPEEDTEST_SERVER_CONFIG } from "../config.js";
 
 const exec = promisify(CpExec);
 
@@ -48,8 +48,8 @@ export async function getDiskStats() {
   const usedDiskMB = valuesMB[2];
   const availableDiskMB = valuesMB[3];
   debug(`Disk Total: ${totalDiskMB / 1000} GB Used: ${usedDiskMB / 1000} GB Available: ${availableDiskMB / 1000} GB`);
-  if (availableDiskMB <= 50 * 1000) {
-    // 50 GB
+  if (availableDiskMB <= (NETWORK === "test" ? 10 : 50) * 1000) {
+    // 50 GB for mainnet, 10 GB for testnet
     debug(
       `WARNING: Full disk. Cache will be rotated and affect performance severely. Please consider upgrading your L1 node disk space.`
     );
