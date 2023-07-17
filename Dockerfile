@@ -1,7 +1,8 @@
-FROM docker.io/library/debian:bullseye AS build
-
 ARG NGINX_VERSION="1.24.0"
 ARG NGINX_NAME="nginx-${NGINX_VERSION}"
+
+FROM docker.io/library/debian:bullseye AS build
+
 # https://hg.nginx.org/nginx
 ARG NGINX_BRANCH=default
 ARG NGINX_COMMIT=c38588d8376b
