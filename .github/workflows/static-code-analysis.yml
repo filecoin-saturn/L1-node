@@ -34,9 +34,7 @@ jobs:
       security-events: write
 
     strategy:
-      fail-fast: false
-      matrix:
-        language: [ "javascript" ]
+      fail-fast: true
 
     steps:
       - name: Checkout repository
@@ -46,7 +44,7 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
-          languages: ${{ matrix.language }}
+          languages: javascript
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
