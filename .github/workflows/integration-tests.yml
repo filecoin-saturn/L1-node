@@ -32,8 +32,8 @@ jobs:
         with:
           context: .
           tags: saturn-node
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=l1
+          cache-to: type=gha,mode=max,scope=l1
           load: true
           build-args: |
             SATURN_NETWORK=local
