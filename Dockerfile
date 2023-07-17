@@ -1,15 +1,13 @@
-ARG NGINX_VERSION="1.24.0"
-ARG NGINX_NAME="nginx-${NGINX_VERSION}"
-
 FROM docker.io/library/debian:bullseye AS build
 
-ARG NGINX_VERSION
+ARG NGINX_VERSION="1.24.0"
+ARG NGINX_NAME="nginx-${NGINX_VERSION}"
 # https://hg.nginx.org/nginx
 ARG NGINX_BRANCH=default
 ARG NGINX_COMMIT=c38588d8376b
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
-ARG NJS_VERSION=0.7.12
+ARG NJS_VERSION=0.8.0
 ARG NGX_CAR_RANGE_VERSION="v0.6.0"
 
 # Install dependencies
