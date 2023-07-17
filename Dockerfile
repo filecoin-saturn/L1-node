@@ -3,6 +3,7 @@ ARG NGINX_NAME="nginx-${NGINX_VERSION}"
 
 FROM docker.io/library/debian:bullseye AS build
 
+ARG NGINX_VERSION
 # https://hg.nginx.org/nginx
 ARG NGINX_BRANCH=default
 ARG NGINX_COMMIT=c38588d8376b
