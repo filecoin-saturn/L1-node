@@ -45,6 +45,10 @@ export async function register(initial = false) {
 
   verifyHWRequirements(requirements, stats);
 
+  if (initial) {
+    await sendPreRegisterRequest(postOptions({ nodeId: NODE_ID }));
+  }
+
   if (VERSION !== DEV_VERSION && initial) {
     let speedtest;
     try {
@@ -218,7 +222,6 @@ async function sendRegisterRequest(initial, registerOptions) {
     );
 
     if (!success) {
-      debug(error);
       throw new Error(error);
     }
 
@@ -235,11 +238,29 @@ async function sendRegisterRequest(initial, registerOptions) {
 
     if (initial) prefillCache();
   } catch (err) {
-    debug("Failed registration %s", err.message);
+    debug("Failed registration: %s", err.message);
     if (initial) {
       // we don't try again if we fail the initial registration
       process.exit(0);
     }
+  }
+}
+
+async function sendPreRegisterRequest(postOptions) {
+  debug("Pre-registering with orchestrator");
+
+  try {
+    const res = await fetch(`${ORCHESTRATOR_URL}/pre-register`, postOptions);
+
+    if (!res.ok) {
+      throw new Error(await res.text());
+    }
+
+    debug("Successful pre-registration");
+  } catch (err) {
+    debug("Failed pre-registration: %s", err.message);
+    // we don't try again if we fail the pre-registration
+    process.exit(0);
   }
 }
 

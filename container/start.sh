@@ -25,13 +25,6 @@ echo "$(date -u) [container] Disk: $(df -h /usr/src/app/shared | awk '(NR>1)')"
 mkdir -p /usr/src/app/shared/ssl
 mkdir -p /usr/src/app/shared/nginx_log
 
-# Clean up old cached CAR files if not already cleaned up
-if [ ! -f "/usr/src/app/shared/cleaned_cache" ]; then
-  echo "$(date -u) [container] Cleaning up old cached CAR files"
-  grep -rl '/usr/src/app/shared/nginx_cache' -e 'carentity' -e 'carall' | xargs rm -f
-  touch /usr/src/app/shared/cleaned_cache
-fi
-
 L1_CONF_FILE=/etc/nginx/conf.d/L1.conf
 
 # If we have a cert, start nginx with TLS, else without (but always start the shim)
