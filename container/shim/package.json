@@ -9,25 +9,25 @@
   },
   "dependencies": {
     "@glif/filecoin-address": "^2.0.43",
-    "@ipld/car": "^5.0.3",
+    "@ipld/car": "^5.2.0",
     "asn1.js-rfc2560": "^5.0.1",
     "asn1.js-rfc5280": "^3.0.0",
     "debug": "^4.3.4",
     "express": "^4.18.2",
     "express-async-handler": "^1.2.0",
-    "fast-glob": "^3.2.12",
+    "fast-glob": "^3.3.0",
     "logfmt": "^1.3.2",
-    "lru-cache": "^7.14.1",
+    "lru-cache": "^10.0.0",
     "mime-types": "^2.1.35",
-    "multiformats": "^11.0.2",
+    "multiformats": "^12.0.1",
     "node-fetch": "^3.3.1",
     "p-limit": "^4.0.0",
-    "pretty-bytes": "^6.0.0",
+    "pretty-bytes": "^6.1.1",
     "server-timing": "^3.3.3"
   },
   "devDependencies": {
-    "nock": "^13.3.1",
-    "test": "^3.2.1"
+    "nock": "^13.3.2",
+    "test": "^3.3.0"
   },
   "eslintConfig": {
     "extends": "ipfs",
