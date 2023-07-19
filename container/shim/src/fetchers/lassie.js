@@ -4,7 +4,7 @@ import { Transform, pipeline } from "node:stream";
 import { pipeline as pipelinePromise } from "node:stream/promises";
 
 import { CarBlockIterator } from "@ipld/car";
-import LRU from "lru-cache";
+import { LRUCache } from "lru-cache";
 import { base64 } from "multiformats/bases/base64";
 import fetch from "node-fetch";
 
@@ -24,7 +24,7 @@ const httpsAgent = new https.Agent(agentOpts);
 const httpAgent = new http.Agent(agentOpts);
 
 const ONE_GB = 1024 ** 3;
-const blockCache = new LRU({
+const blockCache = new LRUCache({
   maxSize: ONE_GB * 3,
   sizeCalculation: (block) => Buffer.byteLength(block),
   allowStale: true,
