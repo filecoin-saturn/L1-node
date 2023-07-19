@@ -45,11 +45,12 @@ export async function register(initial = false) {
 
   verifyHWRequirements(requirements, stats);
 
+  let preregisterResponse;
   if (initial) {
-    await sendPreRegisterRequest(postOptions({ nodeId: NODE_ID }));
+    preregisterResponse = await sendPreRegisterRequest(postOptions({ nodeId: NODE_ID }));
   }
 
-  if (VERSION !== DEV_VERSION && initial) {
+  if (VERSION !== DEV_VERSION && initial && preregisterResponse?.speedtestRequired !== false) {
     let speedtest;
     try {
       speedtest = await getSpeedtest();
@@ -257,6 +258,8 @@ async function sendPreRegisterRequest(postOptions) {
     }
 
     debug("Successful pre-registration");
+
+    return await res.json();
   } catch (err) {
     debug("Failed pre-registration: %s", err.message);
     // we don't try again if we fail the pre-registration
