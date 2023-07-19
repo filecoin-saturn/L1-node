@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: "Check linting and formatting"
+  lint-format:
+    name: Check linting and formatting
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -25,9 +25,10 @@ jobs:
       - run: npm run check:eslint
       - run: npm run check:prettier
 
-  codeql:
-    name: CodeQL
+  codeql-analysis:
+    name: CodeQL Analysis
     runs-on: ubuntu-latest
+
     permissions:
       actions: read
       contents: read
