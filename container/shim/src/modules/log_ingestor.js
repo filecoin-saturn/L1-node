@@ -24,6 +24,7 @@ const NGINX_LOG_KEYS_MAP = {
   referrer: (values) => values.ref,
   requestId: (values) => values.id,
   requestDurationSec: (values) => parseFloat(values.rt),
+  method: (values) => values.method,
   status: (values) => parseInt(values.status, 10),
   httpProtocol: (values) => values.sp,
   userAgent: (values) => values.ua,
@@ -78,6 +79,8 @@ function parseSingleLine(line) {
     acc[key] = getter(parsed);
     return acc;
   }, {});
+
+  if (vars.method !== "GET") return null;
 
   if (vars.clientAddress === "127.0.0.1" && vars.url.hostname !== "handoff.strn.localhost") {
     return null;
