@@ -159,7 +159,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
       httpStatusCode: lassieRes?.status ?? null,
       requestErr,
       format,
-      traceparent: req.headers["x-bfid"],
+      traceparent: req.headers.traceparent,
       serverTiming: lassieRes?.headers.get("server-timing"),
     });
   }
