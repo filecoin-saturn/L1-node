@@ -113,6 +113,9 @@ FROM docker.io/library/nginx:${NGINX_VERSION}
 
 SHELL ["/bin/bash", "-c"]
 
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s \
+  CMD (curl -f http://localhost/ipfs/QmXjYBY478Cno4jzdCcPy4NcJYFrwHZ51xaCP8vUwN9MGm/) || exit 1
+
 ARG NGINX_NAME
 
 COPY --from=build /usr/sbin/nginx /usr/sbin/
