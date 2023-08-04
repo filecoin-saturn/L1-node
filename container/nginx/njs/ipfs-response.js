@@ -21,8 +21,7 @@ function setHeaders(req) {
   }
 
   if (name) {
-    const value = `attachment; filename="${name}"`;
-    req.headersOut["content-disposition"] = value;
+    req.headersOut["content-disposition"] = `attachment; filename="${name}"`;
   }
 }
 
