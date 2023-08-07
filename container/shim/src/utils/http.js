@@ -9,7 +9,13 @@ const PROXY_REQUEST_HEADERS = [
   // to the origin. The fix is to pass a custom header.
   "x-if-none-match",
 ];
-const PROXY_RESPONSE_HEADERS = [
+
+const ALL_PROXY_RESPONSE_HEADERS = {
+  server: "x-lassie-version",
+  "server-timing": "server-timing",
+};
+
+const CAR_PROXY_RESPONSE_HEADERS = [
   "content-disposition",
   "content-type",
   "content-length",
@@ -17,7 +23,6 @@ const PROXY_RESPONSE_HEADERS = [
   "etag",
   "last-modified",
   "location",
-  "server-timing",
   "x-ipfs-path",
   "x-ipfs-roots",
   "x-ipfs-datasize",
@@ -48,9 +53,17 @@ export function proxyRequestHeaders(reqHeaders) {
   return headers;
 }
 
+export function proxyAllResponseHeaders(headersObj, nodeRes) {
+  for (const [key, newKey] of Object.entries(ALL_PROXY_RESPONSE_HEADERS)) {
+    if (key in headersObj) {
+      nodeRes.set(newKey, headersObj[key]);
+    }
+  }
+}
+
 // https://github.com/ipfs/specs/blob/main/http-gateways/PATH_GATEWAY.md#response-headers
-export function proxyResponseHeaders(headersObj, nodeRes) {
-  for (const key of PROXY_RESPONSE_HEADERS) {
+export function proxyCARResponseHeaders(headersObj, nodeRes) {
+  for (const key of CAR_PROXY_RESPONSE_HEADERS) {
     if (key in headersObj) {
       nodeRes.set(key, headersObj[key]);
     }

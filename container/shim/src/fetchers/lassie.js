@@ -10,7 +10,7 @@ import fetch from "node-fetch";
 
 import { LASSIE_ORIGIN, LASSIE_SP_ELIGIBLE_PORTION, hasNodeToken } from "../config.js";
 import { submitLassieLogs } from "../modules/log_ingestor.js";
-import { proxyResponseHeaders, toUtf8 } from "../utils/http.js";
+import { proxyAllResponseHeaders, proxyCARResponseHeaders, toUtf8 } from "../utils/http.js";
 import { debug as Debug } from "../utils/logging.js";
 
 const debug = Debug.extend("lassie");
@@ -115,14 +115,16 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
     res.status(status);
     res.set("Cache-Control", "public, max-age=29030400, immutable");
 
+    const headersObj = Object.fromEntries(lassieRes.headers.entries());
+    proxyAllResponseHeaders(headersObj, res);
+
     // Stream errors will be propagated to the catch block.
     pipeline(lassieRes.body, metricsStream, () => {});
 
     if (isRawFormat) {
       await getRequestedBlockFromCar(metricsStream, res, cidObj, blockFilename);
     } else {
-      const headersObj = Object.fromEntries(lassieRes.headers.entries());
-      proxyResponseHeaders(headersObj, res);
+      proxyCARResponseHeaders(headersObj, res);
       await pipelinePromise(metricsStream, res);
     }
   } catch (err) {
