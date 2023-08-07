@@ -45,7 +45,12 @@ export async function register(initial = false) {
 
   verifyHWRequirements(requirements, stats);
 
-  if (VERSION !== DEV_VERSION && initial) {
+  let preregisterResponse;
+  if (initial) {
+    preregisterResponse = await sendPreRegisterRequest(postOptions({ nodeId: NODE_ID }));
+  }
+
+  if (VERSION !== DEV_VERSION && initial && preregisterResponse?.speedtestRequired !== false) {
     let speedtest;
     try {
       speedtest = await getSpeedtest();
@@ -171,6 +176,11 @@ async function checkCertValidity(certBuffer, registerOptions) {
     valid = false;
   }
 
+  if (NETWORK === "test" && cert.subjectAltName && !cert.subjectAltName.includes("l1s.saturn-test.ms")) {
+    debug("Certificate is missing l1s.saturn-test.ms SAN, getting a new one...");
+    valid = false;
+  }
+
   if (!valid) {
     try {
       await getNewTLSCert(registerOptions);
@@ -213,7 +223,6 @@ async function sendRegisterRequest(initial, registerOptions) {
     );
 
     if (!success) {
-      debug(error);
       throw new Error(error);
     }
 
@@ -230,11 +239,31 @@ async function sendRegisterRequest(initial, registerOptions) {
 
     if (initial) prefillCache();
   } catch (err) {
-    debug("Failed registration %s", err.message);
+    debug("Failed registration: %s", err.message);
     if (initial) {
       // we don't try again if we fail the initial registration
       process.exit(0);
     }
+  }
+}
+
+async function sendPreRegisterRequest(postOptions) {
+  debug("Pre-registering with orchestrator");
+
+  try {
+    const res = await fetch(`${ORCHESTRATOR_URL}/pre-register`, postOptions);
+
+    if (!res.ok) {
+      throw new Error(await res.text());
+    }
+
+    debug("Successful pre-registration");
+
+    return await res.json();
+  } catch (err) {
+    debug("Failed pre-registration: %s", err.message);
+    // we don't try again if we fail the pre-registration
+    process.exit(0);
   }
 }
 

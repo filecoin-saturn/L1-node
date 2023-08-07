@@ -24,6 +24,7 @@ const NGINX_LOG_KEYS_MAP = {
   referrer: (values) => values.ref,
   requestId: (values) => values.id,
   requestDurationSec: (values) => parseFloat(values.rt),
+  method: (values) => values.method,
   status: (values) => parseInt(values.status, 10),
   httpProtocol: (values) => values.sp,
   userAgent: (values) => values.ua,
@@ -45,6 +46,7 @@ const NGINX_LOG_KEYS_MAP = {
     const parsed = parseFloat(values.urt);
     return isNaN(parsed) ? values.urt : parsed;
   },
+  traceparent: (values) => values.tp,
 };
 
 const LOG_FILE = "/usr/src/app/shared/nginx_log/node-access.log";
@@ -78,7 +80,11 @@ function parseSingleLine(line) {
     return acc;
   }, {});
 
-  if (vars.clientAddress === "127.0.0.1") return null;
+  if (vars.method !== "GET") return null;
+
+  if (vars.clientAddress === "127.0.0.1" && vars.url.hostname !== "handoff.strn.localhost") {
+    return null;
+  }
 
   const isIPFS = vars.url.pathname.startsWith("/ipfs/");
   const isIPNS = vars.url.pathname.startsWith("/ipns/");
@@ -106,6 +112,7 @@ function parseSingleLine(line) {
     // the "http3" key can be removed.
     httpProtocol: vars.http3 || vars.httpProtocol,
     url: vars.url,
+    traceparent: vars.traceparent,
   };
 }
 

@@ -36,6 +36,21 @@ else
   cp /etc/nginx/confs/non_tls_proxy.conf $L1_CONF_FILE;
 fi
 
+min_uses=1
+min_free="50G"
+
+# If disk is full, set min_uses to 2
+if [ $(df -h /usr/src/app/shared | awk '(NR>1) { printf "%d", $5}') -ge 99 ]; then
+  min_uses=2;
+fi
+
+# If network is test, set min_free to 10G
+if [ "${NETWORK:-}" = "test" ]; then
+  min_free="10G"
+fi
+
+sed -i "s@\$cache_min_uses@$min_uses@g" /etc/nginx/conf.d/shared.conf
+sed -i "s@\$cache_min_free@$min_free@g" /etc/nginx/conf.d/proxy.conf
 sed -i "s@\$node_id@$(cat /usr/src/app/shared/nodeId.txt)@g" /etc/nginx/conf.d/shared.conf
 sed -i "s@\$node_version@$VERSION@g" /etc/nginx/conf.d/shared.conf
 
@@ -65,7 +80,7 @@ export LASSIE_EVENT_RECORDER_URL="https://lassie-event-recorder.dev.cid.contact/
 mkdir -p $LASSIE_TEMP_DIRECTORY
 
 # Clean up leftover files in lassie dir.
-find $LASSIE_TEMP_DIRECTORY -name "lassie_carstorage*" -exec rm {} +
+find $LASSIE_TEMP_DIRECTORY -name "lassie_car*" -exec rm {} +
 
 if [ "${LASSIE_ORIGIN:-}" != "" ]; then
   if [ "${NETWORK:-}" = "main" ]; then

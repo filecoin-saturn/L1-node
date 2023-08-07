@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Filecoin Saturn Slack Channel
+    url: https://filecoinproject.slack.com/archives/C03DH0BL02E
+    about: Please ask any questions here
+  - name: Security Issue
+    url: "mailto:saturn@protocol.ai"
+    about: Please report security vulnerabilities here.

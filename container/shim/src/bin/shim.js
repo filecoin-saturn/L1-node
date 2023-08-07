@@ -1,3 +1,4 @@
+import fs from "node:fs/promises";
 import http from "node:http";
 import { validateAddressString } from "@glif/filecoin-address";
 
@@ -5,17 +6,24 @@ import app from "../index.js";
 import { register } from "../modules/registration.js";
 import {
   FIL_WALLET_ADDRESS,
-  NODE_OPERATOR_EMAIL,
-  VERSION,
-  NODE_ID,
-  PORT,
-  ORCHESTRATOR_REGISTRATION,
   NETWORK,
+  NODE_ID,
+  NODE_ID_FILE_PATH,
+  NODE_OPERATOR_EMAIL,
+  ORCHESTRATOR_REGISTRATION,
+  PORT,
+  VERSION,
 } from "../config.js";
 import { trapServer } from "../utils/trap.js";
 import { debug } from "../utils/logging.js";
 import startLogIngestor from "../modules/log_ingestor.js";
-import { refreshLocalNodes } from "../modules/local_nodes.js";
+
+// verify that node id is a valid uuidv4
+if (!NODE_ID.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)) {
+  debug("Invalid node ID, deleting node ID file");
+  await fs.unlink(NODE_ID_FILE_PATH);
+  throw new Error("Invalid node ID");
+}
 
 debug("Saturn L1 Node");
 debug.extend("id")(NODE_ID);
@@ -43,7 +51,7 @@ setTimeout(async function () {
   // run log ingestor process in background (starts immediately and keeps running periodically)
   startLogIngestor();
 
-  refreshLocalNodes();
+  // refreshLocalNodes();
 }, 500);
 
 const server = http.createServer(app);
