@@ -22,6 +22,7 @@ import { parseVersionNumber } from "../utils/version.js";
 import { orchestratorAgent } from "../utils/http.js";
 import { prefillCache } from "../utils/prefill.js";
 import { check } from "../lib/ocsp/check.js";
+import { purgeCacheFile } from "../utils/purger.js";
 
 const debug = Debug.extend("registration");
 
@@ -48,6 +49,13 @@ export async function register(initial = false) {
   let preregisterResponse;
   if (initial) {
     preregisterResponse = await sendPreRegisterRequest(postOptions({ nodeId: NODE_ID }));
+  }
+
+  if (preregisterResponse.filesToPurge) {
+    debug("Purging %d files", preregisterResponse.filesToPurge.length);
+    for (const file of preregisterResponse.filesToPurge) {
+      await purgeCacheFile(file);
+    }
   }
 
   if (VERSION !== DEV_VERSION && initial && preregisterResponse?.speedtestRequired !== false) {
@@ -247,6 +255,16 @@ async function sendRegisterRequest(initial, registerOptions) {
   }
 }
 
+/**
+ * Sends a pre-registration request to the orchestrator.
+ *
+ * @typedef {object} PreRegisterResponse
+ * @property {boolean} speedtestRequired
+ * @property {string[]} filesToPurge
+ *
+ * @param {object} postOptions
+ * @returns {Promise<PreRegisterResponse>}
+ */
 async function sendPreRegisterRequest(postOptions) {
   debug("Pre-registering with orchestrator");
 
