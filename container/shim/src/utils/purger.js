@@ -8,7 +8,9 @@ const CACHE_DIR = "/usr/src/app/shared/nginx_cache";
 export async function purgeCacheFile(key) {
   debug("Purging cache file for key %s", key);
   const cacheFilePath = keyToCacheFilePath(key);
-  await fs.unlink(path.join(CACHE_DIR, cacheFilePath));
+  await fs
+    .unlink(path.join(CACHE_DIR, cacheFilePath))
+    .catch((err) => debug("Failed to purge cache file: %s", err.message));
 }
 
 function keyToCacheFilePath(path) {
