@@ -51,7 +51,7 @@ export async function register(initial = false) {
     preregisterResponse = await sendPreRegisterRequest(postOptions({ nodeId: NODE_ID }));
   }
 
-  if (preregisterResponse.filesToPurge) {
+  if (preregisterResponse?.filesToPurge) {
     debug("Purging %d files", preregisterResponse.filesToPurge.length);
     for (const file of preregisterResponse.filesToPurge) {
       await purgeCacheFile(file);
