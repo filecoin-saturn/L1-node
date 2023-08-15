@@ -73,7 +73,7 @@ To avoid this, make sure you're running [Watchtower](https://containrrr.dev/watc
 
 If you've fallen too far behind and can't register, make sure to run `docker pull ghcr.io/filecoin-saturn/l1-node:main`.
 
-**You should update your node to the latest version within 8 hours of the last release.**
+**You should update your node to the latest version within 4 hours of the last release.**
 
 ### Can I run multiple nodes?
 
