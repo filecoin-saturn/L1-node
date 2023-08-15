@@ -5,11 +5,12 @@ import fetch from "node-fetch";
 import {
   DEV_VERSION,
   FIL_WALLET_ADDRESS,
-  NODE_VERSION_HASH,
   NETWORK,
+  NETWORK_LEVEL,
   NODE_ID,
   NODE_OPERATOR_EMAIL,
   NODE_UA,
+  NODE_VERSION_HASH,
   ORCHESTRATOR_REGISTRATION,
   ORCHESTRATOR_URL,
   updateNodeToken,
@@ -48,7 +49,9 @@ export async function register(initial = false) {
 
   let preregisterResponse;
   if (initial) {
-    preregisterResponse = await sendPreRegisterRequest(postOptions({ nodeId: NODE_ID }));
+    preregisterResponse = await sendPreRegisterRequest(
+      postOptions({ nodeId: NODE_ID, level: NETWORK_LEVEL, version: VERSION })
+    );
   }
 
   if (preregisterResponse?.filesToPurge) {
@@ -75,7 +78,7 @@ export async function register(initial = false) {
   const body = {
     nodeId: NODE_ID,
     nodeVersionHash: NODE_VERSION_HASH,
-    level: 1,
+    level: NETWORK_LEVEL,
     version: VERSION,
     filWalletAddress: FIL_WALLET_ADDRESS,
     operatorEmail: NODE_OPERATOR_EMAIL,

@@ -7,6 +7,7 @@ export const PORT = 10361;
 export const TESTING_CID = "QmXjYBY478Cno4jzdCcPy4NcJYFrwHZ51xaCP8vUwN9MGm";
 
 // Node and network info
+export const NETWORK_LEVEL = 1;
 export const NODE_ID = (await readFile(NODE_ID_FILE_PATH, "utf8")).trim();
 export const NETWORK = process.env.NETWORK?.trim().toLowerCase() || "local";
 export const VERSION = pVersion(process.env.VERSION || DEV_VERSION);
