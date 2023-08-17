@@ -26,7 +26,7 @@
     "server-timing": "^3.3.3"
   },
   "devDependencies": {
-    "nock": "^13.3.2",
+    "nock": "^13.3.3",
     "test": "^3.3.0"
   },
   "eslintConfig": {

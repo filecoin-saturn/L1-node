@@ -34,9 +34,9 @@ RUN apt-get update && apt-get install -y \
   clang \
  && rm -rf /var/lib/apt/lists/* \
  && curl https://sh.rustup.rs -sSf | bash -s -- -y \
- && curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v22.1/protoc-22.1-linux-x86_64.zip \
- && unzip protoc-22.1-linux-x86_64.zip -d /usr/local \
- && rm protoc-22.1-linux-x86_64.zip
+ && curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v22.5/protoc-22.5-linux-x86_64.zip \
+ && unzip protoc-22.5-linux-x86_64.zip -d /usr/local \
+ && rm protoc-22.5-linux-x86_64.zip
 
 ENV PATH="/root/.cargo/bin:${PATH}"
 
@@ -166,9 +166,7 @@ ARG VERSION_HASH="b0a8b2780294b01b0221d0f6f37f97498cc4aac1e73808a472e11d2a191903
 ARG ORCHESTRATOR_URL
 
 ARG LASSIE_EVENT_RECORDER_AUTH
-
-# Use random peerId until this is fixed https://github.com/filecoin-project/lassie/issues/191
-ARG LASSIE_EXCLUDE_PROVIDERS="QmcCtpf7ERQWyvDT8RMYWCMjzE74b7HscB3F8gDp5d5yS6"
+ARG LASSIE_EXCLUDE_PROVIDERS
 
 # need nginx to find the openssl libs
 ENV LD_LIBRARY_PATH=/usr/lib/nginx/modules
