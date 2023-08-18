@@ -34,9 +34,9 @@ RUN apt-get update && apt-get install -y \
   clang \
  && rm -rf /var/lib/apt/lists/* \
  && curl https://sh.rustup.rs -sSf | bash -s -- -y \
- && curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v22.5/protoc-22.5-linux-x86_64.zip \
- && unzip protoc-22.5-linux-x86_64.zip -d /usr/local \
- && rm protoc-22.5-linux-x86_64.zip
+ && curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v24.0/protoc-24.0-linux-x86_64.zip \
+ && unzip protoc-24.0-linux-x86_64.zip -d /usr/local \
+ && rm protoc-24.0-linux-x86_64.zip
 
 ENV PATH="/root/.cargo/bin:${PATH}"
 
