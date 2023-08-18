@@ -110,7 +110,7 @@ export async function register(initial = false) {
 
   await sendRegisterRequest(initial, registerOptions);
 
-  setTimeout(register, (NETWORK === "local" ? 1 : Math.random() * 5 + 5) * 60 * 1000);
+  setTimeout(register, Math.ceil((NETWORK === "local" ? 1 : Math.random() * 4 + 6) * 60 * 1000));
 }
 
 async function fetchRequirements() {
