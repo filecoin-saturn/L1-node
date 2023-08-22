@@ -9,6 +9,7 @@ ARG NGINX_BRANCH=default
 ARG NGINX_COMMIT=c38588d8376b
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
+# https://nginx.org/en/docs/njs/changes.html
 ARG NJS_VERSION=0.8.0
 ARG NGX_CAR_RANGE_VERSION="v0.6.0"
 
@@ -34,9 +35,9 @@ RUN apt-get update && apt-get install -y \
   clang \
  && rm -rf /var/lib/apt/lists/* \
  && curl https://sh.rustup.rs -sSf | bash -s -- -y \
- && curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v24.0/protoc-24.0-linux-x86_64.zip \
- && unzip protoc-24.0-linux-x86_64.zip -d /usr/local \
- && rm protoc-24.0-linux-x86_64.zip
+ && curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v24.1/protoc-24.1-linux-x86_64.zip \
+ && unzip protoc-24.1-linux-x86_64.zip -d /usr/local \
+ && rm protoc-24.1-linux-x86_64.zip
 
 ENV PATH="/root/.cargo/bin:${PATH}"
 
