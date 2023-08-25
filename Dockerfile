@@ -1,12 +1,8 @@
 ARG NGINX_VERSION="1.24.0"
-ARG NGINX_NAME="nginx-${NGINX_VERSION}"
 
 FROM docker.io/library/debian:bullseye AS build
 
 ARG NGINX_VERSION
-# https://hg.nginx.org/nginx
-ARG NGINX_BRANCH=default
-ARG NGINX_COMMIT=c38588d8376b
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
 # https://nginx.org/en/docs/njs/changes.html
@@ -15,50 +11,50 @@ ARG NGX_CAR_RANGE_VERSION="v0.6.0"
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
-  dpkg-dev \
-  build-essential \
-  mercurial \
-  gnupg2 \
-  git \
-  gcc \
-  cmake \
-  libpcre3 libpcre3-dev \
-  zlib1g zlib1g-dev \
-  openssl \
-  libssl-dev \
-  curl \
-  unzip \
-  wget \
-  libxslt-dev \
-  llvm-dev \
-  libclang-dev \
-  clang \
- && rm -rf /var/lib/apt/lists/* \
- && curl https://sh.rustup.rs -sSf | bash -s -- -y \
- && curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v24.1/protoc-24.1-linux-x86_64.zip \
- && unzip protoc-24.1-linux-x86_64.zip -d /usr/local \
- && rm protoc-24.1-linux-x86_64.zip
+    dpkg-dev \
+    build-essential \
+    mercurial \
+    gnupg2 \
+    git \
+    gcc \
+    cmake \
+    libpcre3 libpcre3-dev \
+    zlib1g zlib1g-dev \
+    openssl \
+    libssl-dev \
+    curl \
+    unzip \
+    wget \
+    libxslt-dev \
+    llvm-dev \
+    libclang-dev \
+    clang \
+  && rm -rf /var/lib/apt/lists/* \
+  && curl https://sh.rustup.rs -sSf | bash -s -- -y \
+  && curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v24.1/protoc-24.1-linux-x86_64.zip \
+  && unzip protoc-24.1-linux-x86_64.zip -d /usr/local \
+  && rm protoc-24.1-linux-x86_64.zip
 
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /usr/src
 
 RUN echo "Cloning brotli $NGX_BROTLI_COMMIT" \
- && mkdir /usr/src/ngx_brotli \
- && cd /usr/src/ngx_brotli \
- && git init \
- && git remote add origin https://github.com/google/ngx_brotli.git \
- && git fetch --depth 1 origin $NGX_BROTLI_COMMIT \
- && git checkout --recurse-submodules -q FETCH_HEAD \
- && git submodule update --init --depth 1
+  && mkdir /usr/src/ngx_brotli \
+  && cd /usr/src/ngx_brotli \
+  && git init \
+  && git remote add origin https://github.com/google/ngx_brotli.git \
+  && git fetch --depth 1 origin $NGX_BROTLI_COMMIT \
+  && git checkout --recurse-submodules -q FETCH_HEAD \
+  && git submodule update --init --depth 1
 
 RUN echo "Cloning njs $NJS_VERSION" \
- && mkdir /usr/src/njs \
- && cd /usr/src \
- && hg clone --rev $NJS_VERSION http://hg.nginx.org/njs /usr/src/njs \
- && cd /usr/src/njs \
- && ./configure \
- && make
+  && mkdir /usr/src/njs \
+  && cd /usr/src \
+  && hg clone --rev $NJS_VERSION http://hg.nginx.org/njs /usr/src/njs \
+  && cd /usr/src/njs \
+  && ./configure \
+  && make
 
 ARG CONFIG="--prefix=/etc/nginx \
  --sbin-path=/usr/sbin/nginx \
@@ -94,18 +90,18 @@ ARG CONFIG="--prefix=/etc/nginx \
  --add-dynamic-module=/usr/src/ngx_brotli \
  --add-dynamic-module=/usr/src/njs/nginx"
 
-RUN echo "Cloning nginx and building $NGINX_VERSION (rev $NGINX_COMMIT from '$NGINX_BRANCH' branch)" \
- && hg clone https://hg.nginx.org/nginx /usr/src/nginx-$NGINX_VERSION \
- && cd /usr/src/nginx-$NGINX_VERSION \
- && hg up release-$NGINX_VERSION \
- && ./auto/configure $CONFIG \
- && make \
- && make install
+RUN echo "Downloading and extracting nginx $NGINX_VERSION" \
+  && mkdir /usr/src/nginx \
+  && curl -fsSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz | tar -zx --strip-components=1 -C /usr/src/nginx
 
-ENV NGINX_DIR=/usr/src/nginx-$NGINX_VERSION
+RUN echo "Configuring, building, and installing nginx $NGINX_VERSION" \
+  && cd nginx \
+  && ./configure $CONFIG \
+  && make \
+  && make install
 
-RUN echo "Cloning car_range $NGX_CAR_RANGE_VERSION, nginx dir: $NGINX_DIR" \
-  && mv $NGINX_DIR/src/http/v2/* $NGINX_DIR/src/http/ \
+RUN echo "Cloning car_range $NGX_CAR_RANGE_VERSION" \
+  && mv /usr/src/nginx/src/http/v2/* /usr/src/nginx/src/http/ \
   && git clone -b $NGX_CAR_RANGE_VERSION --depth 1 https://github.com/filecoin-saturn/nginx-car-range.git /usr/src/ngx_car_range \
   && cd /usr/src/ngx_car_range \
   && cargo build --release -v --config net.git-fetch-with-cli=true
@@ -114,26 +110,24 @@ FROM docker.io/library/nginx:${NGINX_VERSION}
 
 SHELL ["/bin/bash", "-c"]
 
-ARG NGINX_NAME
-
 COPY --from=build /usr/sbin/nginx /usr/sbin/
-COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
-COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_brotli_static_module.so /usr/lib/nginx/modules/
-COPY --from=build /usr/src/${NGINX_NAME}/objs/ngx_http_js_module.so /usr/lib/nginx/modules/
+COPY --from=build /usr/src/nginx/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
+COPY --from=build /usr/src/nginx/objs/ngx_http_brotli_static_module.so /usr/lib/nginx/modules/
+COPY --from=build /usr/src/nginx/objs/ngx_http_js_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/ngx_car_range/target/release/libnginx_car_range.so /usr/lib/nginx/modules/ngx_http_car_range_module.so
 
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
- && curl -fsSL https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash - \
- && apt-get install --no-install-recommends -y \
- nodejs \
- speedtest \
- logrotate \
- jq \
- && rm -rf /var/lib/apt/lists/*
+  && curl -fsSL https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash - \
+  && apt-get install --no-install-recommends -y \
+    nodejs \
+    speedtest \
+    logrotate \
+    jq \
+  && rm -rf /var/lib/apt/lists/*
 
 # Download lassie
 ARG TARGETPLATFORM
-ARG LASSIE_VERSION="v0.15.0"
+ARG LASSIE_VERSION="v0.16.1"
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
   elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=arm64; \
   else ARCHITECTURE=386; fi \
@@ -156,7 +150,8 @@ COPY container/logrotate/* /etc/logrotate.d/
 COPY container/cron/* /etc/cron.d/
 
 # Load CIDs ban lists
-RUN rm /etc/nginx/conf.d/default.conf && curl -s https://badbits.dwebops.pub/denylist.json | jq 'map({(.anchor): true}) | add' > /etc/nginx/denylist.json
+RUN rm /etc/nginx/conf.d/default.conf  \
+  && curl -s https://badbits.dwebops.pub/denylist.json | jq 'map({(.anchor): true}) | add' > /etc/nginx/denylist.json
 
 # Add logrotate cronjob
 RUN chmod 0644 /etc/cron.d/* && { crontab -l; cat /etc/cron.d/logrotate; } | crontab -
