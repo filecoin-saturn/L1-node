@@ -72,6 +72,9 @@ Here are more details about each kind of penalty, with information what could ca
   - Fix this by resolving the root cause of the node unavailability.
   - Note the [deregister my node](#how-can-i-manually-deregister-my-node) section.
 
+- Old Version is caused by the container image version not having been upgraded after a new release
+  - This penalty is cleared immediately when registered with the current version.
+
 ## Registration
 
 ### My Node fails to register with error ETIMEDOUT/EHOSTUNREACH
