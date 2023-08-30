@@ -40,7 +40,7 @@ min_uses=1
 min_free="50G"
 
 # If disk is full, set min_uses to 2
-if [ $(df -h /usr/src/app/shared | awk '(NR>1) { printf "%d", $5}') -ge 99 ]; then
+if [ $(df -h /usr/src/app/shared | awk '(NR>1) { printf "%d", $5}') -ge 98 ]; then
   min_uses=2;
 fi
 
