@@ -177,7 +177,7 @@ ansible-galaxy collection install community.docker
 ansible -vvv -i <path_to_your_inventory> <host_label> -m ping
 ```
 
-5. Replace the environment varariable values where appropriate and export them.
+5. Replace the environment variable values where appropriate and export them.
 
 - If **Main network:** Set `SATURN_NETWORK` to `main`
 - If you are switching networks check [Switching networks](#switching-networks) and rerun step 4 and 5.
@@ -259,7 +259,7 @@ You need to own a Filecoin wallet to receive FIL payments.
 - [Official Filecoin wallet documentation](https://docs.filecoin.io/get-started/overview/#wallets)
 
 - If you have an account on a Centralized Exchange (Coinbase, Binance, etc.) that supports Filecoin,
-  go through the steps to deposit Filecoin and you'll be given an wallet address. This is recommended
+  go through the steps to deposit Filecoin and you'll be given a wallet address. This is recommended
   if you don't want to manage your wallet's seed phrase.
 
 - Web wallets
