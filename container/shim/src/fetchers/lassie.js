@@ -170,7 +170,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
 function createLassieURL(req, isRawFormat) {
   const lassieUrl = new URL(LASSIE_ORIGIN + toUtf8(req.path));
   for (const [key, val] of Object.entries(req.query)) {
-    if (key === "filename") {
+    if (key === "filename" || key === 'entity-bytes') {
       continue;
     }
 
