@@ -1,15 +1,20 @@
+# https://nginx.org/
 ARG NGINX_VERSION="1.24.0"
+# https://nginx.org/en/docs/njs/changes.html
+ARG NJS_VERSION=0.8.0
+# https://github.com/google/ngx_brotli
+ARG NGX_BROTLI_COMMIT=63ca02abdcf79c9e788d2eedcc388d2335902e52
+ARG NGX_CAR_RANGE_VERSION="v0.6.0"
+# https://nodejs.org/en
 ARG NODEJS_MAJOR_VERSION="18"
 ARG LASSIE_VERSION="v0.17.0"
 
 FROM docker.io/library/debian:bullseye AS build
 
 ARG NGINX_VERSION
-# https://github.com/google/ngx_brotli
-ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
-# https://nginx.org/en/docs/njs/changes.html
-ARG NJS_VERSION=0.8.0
-ARG NGX_CAR_RANGE_VERSION="v0.6.0"
+ARG NGX_BROTLI_COMMIT
+ARG NJS_VERSION
+ARG NGX_CAR_RANGE_VERSION
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \
