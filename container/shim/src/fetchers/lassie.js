@@ -157,6 +157,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
       endTime,
       numBytesDownloaded,
       requestId,
+      bifrostRequestId: req.headers["x-request-id"],
       url: req.protocol + "://" + req.get("host") + req.originalUrl,
       httpStatusCode: lassieRes?.status ?? null,
       requestErr,

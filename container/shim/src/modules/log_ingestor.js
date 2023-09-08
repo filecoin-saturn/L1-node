@@ -47,6 +47,7 @@ const NGINX_LOG_KEYS_MAP = {
     return isNaN(parsed) ? values.urt : parsed;
   },
   traceparent: (values) => values.tp,
+  bifrostRequestId: (values) => values.bfid,
 };
 
 const LOG_FILE = "/usr/src/app/shared/nginx_log/node-access.log";
@@ -113,6 +114,7 @@ function parseSingleLine(line) {
     httpProtocol: vars.http3 || vars.httpProtocol,
     url: vars.url,
     traceparent: vars.traceparent,
+    bifrostRequestId: vars.bifrostRequestId,
   };
 }
 
