@@ -1,4 +1,6 @@
 ARG NGINX_VERSION="1.24.0"
+ARG NODEJS_MAJOR_VERSION="18"
+ARG LASSIE_VERSION="v0.17.0"
 
 FROM docker.io/library/debian:bullseye AS build
 
@@ -10,9 +12,10 @@ ARG NJS_VERSION=0.8.0
 ARG NGX_CAR_RANGE_VERSION="v0.6.0"
 
 # Install dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \
     dpkg-dev \
     build-essential \
+    ca-certificates \
     mercurial \
     gnupg2 \
     git \
@@ -108,6 +111,8 @@ RUN echo "Cloning car_range $NGX_CAR_RANGE_VERSION" \
 
 FROM docker.io/library/nginx:${NGINX_VERSION}
 
+ARG NODEJS_MAJOR_VERSION
+
 SHELL ["/bin/bash", "-c"]
 
 COPY --from=build /usr/sbin/nginx /usr/sbin/
@@ -116,18 +121,21 @@ COPY --from=build /usr/src/nginx/objs/ngx_http_brotli_static_module.so /usr/lib/
 COPY --from=build /usr/src/nginx/objs/ngx_http_js_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/ngx_car_range/target/release/libnginx_car_range.so /usr/lib/nginx/modules/ngx_http_car_range_module.so
 
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-  && curl -fsSL https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash - \
-  && apt-get install --no-install-recommends -y \
-    nodejs \
-    speedtest \
-    logrotate \
-    jq \
+# Prepare
+RUN apt-get update \
+  && apt-get install --no-install-recommends --no-install-suggests -y ca-certificates curl gnupg \
+  && mkdir -p /etc/apt/keyrings \
+  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODEJS_MAJOR_VERSION.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+  && curl -fsSL https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash -
+
+RUN apt-get update \
+  && apt-get install --no-install-recommends -y nodejs speedtest logrotate jq \
   && rm -rf /var/lib/apt/lists/*
 
 # Download lassie
 ARG TARGETPLATFORM
-ARG LASSIE_VERSION="v0.17.0"
+ARG LASSIE_VERSION
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
   elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=arm64; \
   else ARCHITECTURE=386; fi \
@@ -149,9 +157,11 @@ COPY container/nginx /etc/nginx/
 COPY container/logrotate/* /etc/logrotate.d/
 COPY container/cron/* /etc/cron.d/
 
+# clean up default nginx config
+RUN rm /etc/nginx/conf.d/default.conf
+
 # Load CIDs ban lists
-RUN rm /etc/nginx/conf.d/default.conf  \
-  && curl -s https://badbits.dwebops.pub/denylist.json | jq 'map({(.anchor): true}) | add' > /etc/nginx/denylist.json
+RUN curl -s https://badbits.dwebops.pub/denylist.json | jq 'map({(.anchor): true}) | add' > /etc/nginx/denylist.json
 
 # Add logrotate cronjob
 RUN chmod 0644 /etc/cron.d/* && { crontab -l; cat /etc/cron.d/logrotate; } | crontab -
