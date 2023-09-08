@@ -9,7 +9,6 @@ const ipfsRegex = /^\/ipfs\/(\w+)(\/?.*)/;
 function filterCID(req) {
   const matches = req.uri.match(ipfsRegex);
   if (!matches) {
-    ngx.log(ngx.INFO, "No matching");
     return req.internalRedirect("/");
   }
 
@@ -21,7 +20,6 @@ function filterCID(req) {
     .digest("hex");
 
   if (denylist[hashedCID]) {
-    ngx.log(ngx.INFO, "Returning 410");
     return req.return(410);
   }
 
