@@ -129,6 +129,7 @@ RUN apt-get update \
   && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODEJS_MAJOR_VERSION.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
   && curl -fsSL https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash -
 
+# Install dependencies
 RUN apt-get update \
   && apt-get install --no-install-recommends -y nodejs speedtest logrotate jq \
   && rm -rf /var/lib/apt/lists/*
@@ -142,14 +143,15 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; \
   && curl -sS -L -o lassie.tar.gz "https://github.com/filecoin-project/lassie/releases/download/${LASSIE_VERSION}/lassie_${LASSIE_VERSION:1}_linux_${ARCHITECTURE}.tar.gz" \
   && tar -C /usr/bin -xzf lassie.tar.gz
 
-# create the directory inside the container
+# Create the directory inside the container
 WORKDIR /usr/src/app
-# copy the package.json files from local machine to the workdir in container
+
+# Copy the package.json files from local machine to the workdir in container
 COPY container/shim/package*.json ./
-# run npm install to install all the dependencies for the shim
+# Run npm install to install all the dependencies for the shim
 RUN npm ci --production --ignore-scripts
 
-# copy the generated modules and all other files to the container
+# Copy the generated modules and all other files to the container
 COPY --chmod=0744 container/start.sh ./
 COPY --chmod=0744 container/reload.sh ./
 COPY container/shim ./
@@ -157,7 +159,7 @@ COPY container/nginx /etc/nginx/
 COPY container/logrotate/* /etc/logrotate.d/
 COPY container/cron/* /etc/cron.d/
 
-# clean up default nginx config
+# Clean up default nginx config
 RUN rm /etc/nginx/conf.d/default.conf
 
 # Load CIDs ban lists
@@ -174,10 +176,10 @@ ARG ORCHESTRATOR_URL
 ARG LASSIE_EVENT_RECORDER_AUTH
 ARG LASSIE_EXCLUDE_PROVIDERS
 
-# need nginx to find the openssl libs
+# Need nginx to find the openssl libs
 ENV LD_LIBRARY_PATH=/usr/lib/nginx/modules
 
-# for the watchtower container update
+# Watchtower container update max wait time
 ENV PRE_UPDATE_WAIT_DIVISOR=3600
 
 ENV NETWORK=$NETWORK
@@ -190,5 +192,4 @@ ENV LASSIE_EXCLUDE_PROVIDERS=$LASSIE_EXCLUDE_PROVIDERS
 
 ENV DEBUG node*
 
-# the command that starts our app
 CMD ["./start.sh"]
