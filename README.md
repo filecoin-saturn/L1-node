@@ -4,10 +4,8 @@ Saturn L1 nodes are CDN edge caches in the outermost layer of the
 [Filecoin Saturn](https://saturn.tech/) network. L1 nodes serve [CAR
 files](https://ipld.io/specs/transport/car/) to retrieval clients as
 requested by their [CID](https://docs.filebase.com/ipfs/ipfs-cids)s.
-Cache misses are currently served by the [IPFS
-Gateway](https://docs.ipfs.tech/concepts/ipfs-gateway/). In the future,
-cache misses will be served by the [IPFS Network](https://ipfs.tech/)
-and Filecoin [Storage Providers](https://sp.filecoin.io/).
+Cache misses are served by the [IPFS Network](https://ipfs.tech/) and
+Filecoin [Storage Providers](https://sp.filecoin.io/).
 
 Saturn is live. Do you have a server that meets the minimum [hardware
 requirements](#node-hardware-requirements)? If so, follow the [setup
