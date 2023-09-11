@@ -9,7 +9,7 @@ const ipfsRegex = /^\/ipfs\/(\w+)(\/?.*)/;
 function filterCID(req) {
   const matches = req.uri.match(ipfsRegex);
   if (!matches) {
-    return req.internalRedirect("/");
+    return req.internalRedirect("@node_backend");
   }
 
   const cid = matches[1];
