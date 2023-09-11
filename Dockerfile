@@ -1,14 +1,23 @@
+###########################
+# Top-level Dockerfile ARGs
+###########################
+
 # https://nginx.org/
 ARG NGINX_VERSION="1.24.0"
 # https://nginx.org/en/docs/njs/changes.html
 ARG NJS_VERSION=0.8.0
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
+# https://github.com/filecoin-saturn/nginx-car-range/releases
 ARG NGX_CAR_RANGE_VERSION="v0.6.0"
 # https://nodejs.org/en
 ARG NODEJS_MAJOR_VERSION="18"
+# https://github.com/filecoin-project/lassie/releases
 ARG LASSIE_VERSION="v0.17.0"
 
+#############
+# nginx build
+#############
 FROM docker.io/library/debian:bullseye AS build
 
 ARG NGINX_VERSION
@@ -104,6 +113,9 @@ RUN echo "Cloning car_range $NGX_CAR_RANGE_VERSION" \
   && cd /usr/src/ngx_car_range \
   && cargo build --release -v --config net.git-fetch-with-cli=true
 
+###############
+# nginx runtime
+###############
 FROM docker.io/library/nginx:${NGINX_VERSION}
 
 ARG NODEJS_MAJOR_VERSION
