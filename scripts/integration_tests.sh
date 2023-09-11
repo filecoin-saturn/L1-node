@@ -21,7 +21,7 @@ test_range_request () {
 
 # we're good this this response code, as going further means a Lassie fetch
 not_blocked=501
-blocked=403
+blocked=410
 
 # negative test case
 test_cid "Qmbfrc4cF2X4KXbHuqD593SLnR2xj6hULYTnrj65wKWaKm" "$not_blocked"
