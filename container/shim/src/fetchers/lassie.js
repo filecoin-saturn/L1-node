@@ -96,6 +96,9 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
         "User-Agent": req.headers["user-agent"],
       },
     };
+    if ("traceparent" in req.headers) {
+      fetchOpts.headers.traceparent = req.headers.traceparent;
+    }
     res.startTime("shim_lassie_headers");
     lassieRes = await fetch(lassieUrl, fetchOpts);
     res.startTime("shim_lassie_body");
