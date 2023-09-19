@@ -52,7 +52,7 @@ If a node commits fraud -- e.g. falsely reporting speed tests, node stats, logs,
 
 These are the current penalties that affect both DNS weight and earned FIL:
 
-- Slow time fo first byte (TTFB)
+- Slow time for first byte (TTFB)
 - Slow uploads
 - Failing health checks
 - High error rate

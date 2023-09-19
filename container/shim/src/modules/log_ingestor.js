@@ -151,7 +151,7 @@ async function submitBandwidthLogs(logs) {
   const body = JSON.stringify({ nodeId: NODE_ID, filAddress: FIL_WALLET_ADDRESS, bandwidthLogs: logs });
   await submitLogs(body);
 
-  debug(`Retrievals submitted succesfully to wallet ${FIL_WALLET_ADDRESS} in ${Date.now() - submitTime}ms`);
+  debug(`Retrievals submitted successfully to wallet ${FIL_WALLET_ADDRESS} in ${Date.now() - submitTime}ms`);
 }
 
 export async function submitLassieLogs(lassieLogs) {
