@@ -13,7 +13,7 @@ ARG NGX_CAR_RANGE_VERSION="v0.6.0"
 # https://nodejs.org/en
 ARG NODEJS_MAJOR_VERSION="18"
 # https://github.com/filecoin-project/lassie/releases
-ARG LASSIE_VERSION="v0.17.0"
+ARG LASSIE_VERSION="v0.19.1"
 
 #############
 # nginx build
