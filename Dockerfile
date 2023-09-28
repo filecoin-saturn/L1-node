@@ -8,12 +8,10 @@ ARG NGINX_VERSION="1.24.0"
 ARG NJS_VERSION=0.8.0
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
-# https://github.com/filecoin-saturn/nginx-car-range/releases
-ARG NGX_CAR_RANGE_VERSION="v0.6.0"
 # https://nodejs.org/en
 ARG NODEJS_MAJOR_VERSION="18"
 # https://github.com/filecoin-project/lassie/releases
-ARG LASSIE_VERSION="v0.17.0"
+ARG LASSIE_VERSION="v0.19.2"
 
 #############
 # nginx build
@@ -23,7 +21,6 @@ FROM docker.io/library/debian:bullseye AS build
 ARG NGINX_VERSION
 ARG NGX_BROTLI_COMMIT
 ARG NJS_VERSION
-ARG NGX_CAR_RANGE_VERSION
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \
@@ -46,13 +43,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
     llvm-dev \
     libclang-dev \
     clang \
-  && rm -rf /var/lib/apt/lists/* \
-  && curl https://sh.rustup.rs -sSf | bash -s -- -y \
-  && curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v24.1/protoc-24.1-linux-x86_64.zip \
-  && unzip protoc-24.1-linux-x86_64.zip -d /usr/local \
-  && rm protoc-24.1-linux-x86_64.zip
-
-ENV PATH="/root/.cargo/bin:${PATH}"
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src
 
@@ -107,12 +98,6 @@ RUN echo "Configuring, building, and installing nginx $NGINX_VERSION" \
   && make \
   && make install
 
-RUN echo "Cloning car_range $NGX_CAR_RANGE_VERSION" \
-  && mv /usr/src/nginx/src/http/v2/* /usr/src/nginx/src/http/ \
-  && git clone -b $NGX_CAR_RANGE_VERSION --depth 1 https://github.com/filecoin-saturn/nginx-car-range.git /usr/src/ngx_car_range \
-  && cd /usr/src/ngx_car_range \
-  && cargo build --release -v --config net.git-fetch-with-cli=true
-
 ###############
 # nginx runtime
 ###############
@@ -126,7 +111,6 @@ COPY --from=build /usr/sbin/nginx /usr/sbin/
 COPY --from=build /usr/src/nginx/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/nginx/objs/ngx_http_brotli_static_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/nginx/objs/ngx_http_js_module.so /usr/lib/nginx/modules/
-COPY --from=build /usr/src/ngx_car_range/target/release/libnginx_car_range.so /usr/lib/nginx/modules/ngx_http_car_range_module.so
 
 # Prepare
 RUN apt-get update \
