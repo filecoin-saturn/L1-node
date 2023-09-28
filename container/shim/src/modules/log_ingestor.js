@@ -48,6 +48,7 @@ const NGINX_LOG_KEYS_MAP = {
   },
   traceparent: (values) => values.tp,
   bifrostRequestId: (values) => values.bfid,
+  jwt: (values) => values.auth?.split(' ')[1], // strip Bearer prefix
 };
 
 const LOG_FILE = "/usr/src/app/shared/nginx_log/node-access.log";
@@ -115,6 +116,7 @@ function parseSingleLine(line) {
     url: vars.url,
     traceparent: vars.traceparent,
     bifrostRequestId: vars.bifrostRequestId,
+    jwt: vars.jwt,
   };
 }
 
