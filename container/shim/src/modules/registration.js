@@ -30,6 +30,7 @@ const debug = Debug.extend("registration");
 const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
 
 let requirements;
+let lastInitialRegistration = 0;
 export async function register(initial = false) {
   debug("Initiating registration (initial=%s)", initial);
   if (!requirements) {
@@ -98,7 +99,8 @@ export async function register(initial = false) {
 
   const certBuffer = await fsPromises.readFile(CERT_PATH);
 
-  if (initial) {
+  // Check cert validity on initial registration and at least once daily
+  if (initial || lastInitialRegistration < Date.now() - 24 * 60 * 60 * 1000) {
     await checkCertValidity(certBuffer, registerOptions);
   }
 
@@ -109,6 +111,10 @@ export async function register(initial = false) {
   debug("Registering with orchestrator...");
 
   await sendRegisterRequest(initial, registerOptions);
+
+  if (initial) {
+    lastInitialRegistration = Date.now();
+  }
 
   setTimeout(register, Math.ceil((NETWORK === "local" ? 1 : Math.random() * 4 + 6) * 60 * 1000));
 }
