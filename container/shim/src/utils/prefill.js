@@ -1,10 +1,9 @@
+import { Agent } from "https";
 import { setTimeout as setTimeoutPromise } from "node:timers/promises";
 import fetch from "node-fetch";
-import { Agent } from "https";
-
 import { NODE_UA, ORCHESTRATOR_URL } from "../config.js";
-import { debug as Debug } from "./logging.js";
 import { orchestratorAgent } from "./http.js";
+import { debug as Debug } from "./logging.js";
 
 const debug = Debug.extend("cache-prefill");
 

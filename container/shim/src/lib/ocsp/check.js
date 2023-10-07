@@ -1,6 +1,5 @@
 import { promisify } from "node:util";
 import rfc2560 from "asn1.js-rfc2560";
-
 import { generate } from "./request.js";
 import { getAuthorityInfo, getResponse } from "./utils.js";
 import { verify } from "./verify.js";

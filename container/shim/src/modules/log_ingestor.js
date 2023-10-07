@@ -1,14 +1,13 @@
 import fs from "node:fs/promises";
 import https from "node:https";
+import glob from "fast-glob";
+import logfmt from "logfmt";
 import fetch from "node-fetch";
 import pLimit from "p-limit";
 import prettyBytes from "pretty-bytes";
-import logfmt from "logfmt";
-import glob from "fast-glob";
-import readLines from "../utils/readlines.js";
-
 import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, NODE_UA, NODE_ID, nodeToken, TESTING_CID } from "../config.js";
 import { debug as Debug } from "../utils/logging.js";
+import readLines from "../utils/readlines.js";
 
 const debug = Debug.extend("log-ingestor");
 const limitConcurrency = pLimit(1); // setup concurrency limit to execute one at a time

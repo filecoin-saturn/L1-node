@@ -1,7 +1,6 @@
 import crypto from "node:crypto";
 import rfc2560 from "asn1.js-rfc2560";
 import rfc5280 from "asn1.js-rfc5280";
-
 import { toDER } from "./utils.js";
 
 const sha1 = (data) => crypto.createHash("sha1").update(data).digest();
