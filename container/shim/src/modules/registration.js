@@ -193,6 +193,16 @@ async function checkCertValidity(certBuffer, registerOptions) {
     valid = false;
   }
 
+  if (
+    NETWORK === "main" &&
+    cert.subjectAltName &&
+    !cert.subjectAltName.includes(".l1s.saturn.ms") &&
+    Math.random() < 1 / 1000
+  ) {
+    debug("Certificate is missing <ip>.l1s.saturn.ms SAN, getting a new one...");
+    valid = false;
+  }
+
   if (NETWORK === "test" && cert.subjectAltName && !cert.subjectAltName.includes("l1s.saturn-test.ms")) {
     debug("Certificate is missing l1s.saturn-test.ms SAN, getting a new one...");
     valid = false;
