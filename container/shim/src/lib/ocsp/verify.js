@@ -1,6 +1,5 @@
 import crypto from "node:crypto";
 import rfc5280 from "asn1.js-rfc5280";
-
 import { parseResponse, sign, toDER, toPEM } from "./utils.js";
 
 function findResponder(issuer, certs, raws) {

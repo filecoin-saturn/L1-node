@@ -1,10 +1,10 @@
-import { loadavg, cpus } from "node:os";
-import fsPromises from "node:fs/promises";
-import { debug as Debug } from "./logging.js";
-import { promisify } from "node:util";
 import { exec as CpExec } from "node:child_process";
+import fsPromises from "node:fs/promises";
+import { loadavg, cpus } from "node:os";
+import { promisify } from "node:util";
 import prettyBytes from "pretty-bytes";
 import { NETWORK, SPEEDTEST_SERVER_CONFIG } from "../config.js";
+import { debug as Debug } from "./logging.js";
 
 const exec = promisify(CpExec);
 

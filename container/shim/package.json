@@ -26,6 +26,10 @@
     "server-timing": "^3.3.3"
   },
   "devDependencies": {
+    "eslint": "^8.51.0",
+    "eslint-config-ipfs": "^6.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "husky": "^8.0.3",
     "nock": "^13.3.3",
     "test": "^3.3.0"
   },

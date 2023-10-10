@@ -1,9 +1,6 @@
 import fs from "node:fs/promises";
 import http from "node:http";
 import { validateAddressString } from "@glif/filecoin-address";
-
-import app from "../index.js";
-import { register } from "../modules/registration.js";
 import {
   FIL_WALLET_ADDRESS,
   NETWORK,
@@ -14,9 +11,11 @@ import {
   PORT,
   VERSION,
 } from "../config.js";
-import { trapServer } from "../utils/trap.js";
-import { debug } from "../utils/logging.js";
+import app from "../index.js";
 import startLogIngestor from "../modules/log_ingestor.js";
+import { register } from "../modules/registration.js";
+import { debug } from "../utils/logging.js";
+import { trapServer } from "../utils/trap.js";
 
 // verify that node id is a valid uuidv4
 if (!NODE_ID.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)) {

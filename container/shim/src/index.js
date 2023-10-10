@@ -2,13 +2,13 @@ import fsPromises from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import express from "express";
-import mimeTypes from "mime-types";
 import asyncHandler from "express-async-handler";
+import mimeTypes from "mime-types";
 import { CID } from "multiformats";
 import serverTiming from "server-timing";
+import { IS_CORE_L1, TESTING_CID } from "./config.js";
 import { respondFromLassie } from "./fetchers/lassie.js";
 import { addRegisterCheckRoute } from "./modules/registration.js";
-import { IS_CORE_L1, TESTING_CID } from "./config.js";
 import { getResponseFormat } from "./utils/http.js";
 import { debug } from "./utils/logging.js";
 

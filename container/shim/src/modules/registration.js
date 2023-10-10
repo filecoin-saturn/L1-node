@@ -1,7 +1,6 @@
 import { X509Certificate } from "node:crypto";
 import fsPromises from "node:fs/promises";
 import fetch from "node-fetch";
-
 import {
   DEV_VERSION,
   FIL_WALLET_ADDRESS,
@@ -16,14 +15,14 @@ import {
   updateNodeToken,
   VERSION,
 } from "../config.js";
-import { debug as Debug } from "../utils/logging.js";
-import { getBootId, getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from "../utils/system.js";
-import { backupCertExists, CERT_PATH, certExists, getNewTLSCert, SSL_PATH, swapCerts } from "./tls.js";
-import { parseVersionNumber } from "../utils/version.js";
-import { orchestratorAgent } from "../utils/http.js";
-import { prefillCache } from "../utils/prefill.js";
 import { check } from "../lib/ocsp/check.js";
+import { orchestratorAgent } from "../utils/http.js";
+import { debug as Debug } from "../utils/logging.js";
+import { prefillCache } from "../utils/prefill.js";
 import { purgeCacheFile } from "../utils/purger.js";
+import { getBootId, getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from "../utils/system.js";
+import { parseVersionNumber } from "../utils/version.js";
+import { backupCertExists, CERT_PATH, certExists, getNewTLSCert, SSL_PATH, swapCerts } from "./tls.js";
 
 const debug = Debug.extend("registration");
 

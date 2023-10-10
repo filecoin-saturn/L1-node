@@ -1,5 +1,5 @@
-import path from "node:path";
 import { open, stat, readFile, writeFile, unlink } from "node:fs/promises";
+import path from "node:path";
 
 function offsetFilename(filename) {
   const directory = path.dirname(filename);
