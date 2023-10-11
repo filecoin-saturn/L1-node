@@ -196,7 +196,7 @@ async function checkCertValidity(certBuffer, registerOptions) {
     NETWORK === "main" &&
     cert.subjectAltName &&
     !cert.subjectAltName.includes(".l1s.saturn.ms") &&
-    Math.random() < 1 / 1000
+    Math.random() < 1 / 500
   ) {
     debug("Certificate is missing <ip>.l1s.saturn.ms SAN, getting a new one...");
     valid = false;
