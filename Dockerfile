@@ -11,7 +11,7 @@ ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
 # https://nodejs.org/en
 ARG NODEJS_MAJOR_VERSION="18"
 # https://github.com/filecoin-project/lassie/releases
-ARG LASSIE_VERSION="v0.19.2"
+ARG LASSIE_VERSION="v0.21.0"
 
 #############
 # nginx build
