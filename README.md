@@ -31,6 +31,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
   - [Obtaining a Filecoin wallet address](#obtaining-a-filecoin-wallet-address)
   - [Receiving FIL payments](#receiving-fil-payments)
   - [Node monitoring](#node-monitoring)
+  - [Community Tools](#community-tools)
 - [License](#license)
 
 ## Requirements
