@@ -8,7 +8,7 @@
 
 Saturn is a Content Delivery Network (CDN) that serves thousands of clients. With the increasing bandwidth of fixed home connections, some which exceed 1 Gbps, we want to avoid scenarios of slow downloads to clients. Keys points on this decision:
 
-- We want to avoid escenarios where a handful of clients saturate a single L1 node.
+- We want to avoid scenarios where a handful of clients saturate a single L1 node.
 - We started with a higher requirement and decrease it as we measure things and improve user-to-node routing. Better to allow more operators in the future when requirement is lowered, than to kick "slow" ones if it were to increase.
 
 We are continuously looking at the requirements and multiple factors, such as geolocation, we'll be taking into consideration soon to allow emerging markets, where 10 Gbps is not common, to join Saturn.
@@ -52,7 +52,7 @@ If a node commits fraud -- e.g. falsely reporting speed tests, node stats, logs,
 
 These are the current penalties that affect both DNS weight and earned FIL:
 
-- Slow time fo first byte (TTFB)
+- Slow time for first byte (TTFB)
 - Slow uploads
 - Failing health checks
 - High error rate
@@ -81,7 +81,7 @@ Yes, multiple nodes can be ran pointing to the same wallet and email address, ju
 
 ⚠️ We do **NOT** allow multiple nodes on the same host. Each node should run on its own hardware. ⚠️
 
-We don't recommended running multiple nodes in the same region (country) as cache will be fragmented, increasing the TTFB and error rate.
+We don't recommend running multiple nodes in the same region (country) as cache will be fragmented, increasing the TTFB and error rate.
 Also for the same region (country) the DNS weight will just compete with each other.
 
 ### How can I manually deregister my node?
@@ -98,7 +98,7 @@ Send an HTTP POST to https://orchestrator.strn.pl/deregister with the `Content-T
 
 ### What happens if I change my wallet address and restart?
 
-Retrievals that have already been submitted will be to paid to the configured wallet address at the end of every month.
+Retrievals that have already been submitted will be paid to the configured wallet address at the end of every month.
 
 ### How can I change my wallet address?
 

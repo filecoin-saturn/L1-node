@@ -1,14 +1,13 @@
 import fs from "node:fs/promises";
 import https from "node:https";
+import glob from "fast-glob";
+import logfmt from "logfmt";
 import fetch from "node-fetch";
 import pLimit from "p-limit";
 import prettyBytes from "pretty-bytes";
-import logfmt from "logfmt";
-import glob from "fast-glob";
-import readLines from "../utils/readlines.js";
-
 import { FIL_WALLET_ADDRESS, LOG_INGESTOR_URL, NODE_UA, NODE_ID, nodeToken, TESTING_CID } from "../config.js";
 import { debug as Debug } from "../utils/logging.js";
+import readLines from "../utils/readlines.js";
 
 const debug = Debug.extend("log-ingestor");
 const limitConcurrency = pLimit(1); // setup concurrency limit to execute one at a time
@@ -47,6 +46,8 @@ const NGINX_LOG_KEYS_MAP = {
     return isNaN(parsed) ? values.urt : parsed;
   },
   traceparent: (values) => values.tp,
+  bifrostRequestId: (values) => values.bfid,
+  jwt: (values) => values.auth?.split(" ")[1], // strip Bearer prefix
 };
 
 const LOG_FILE = "/usr/src/app/shared/nginx_log/node-access.log";
@@ -113,6 +114,8 @@ function parseSingleLine(line) {
     httpProtocol: vars.http3 || vars.httpProtocol,
     url: vars.url,
     traceparent: vars.traceparent,
+    bifrostRequestId: vars.bifrostRequestId,
+    jwt: vars.jwt,
   };
 }
 
@@ -149,7 +152,7 @@ async function submitBandwidthLogs(logs) {
   const body = JSON.stringify({ nodeId: NODE_ID, filAddress: FIL_WALLET_ADDRESS, bandwidthLogs: logs });
   await submitLogs(body);
 
-  debug(`Retrievals submitted succesfully to wallet ${FIL_WALLET_ADDRESS} in ${Date.now() - submitTime}ms`);
+  debug(`Retrievals submitted successfully to wallet ${FIL_WALLET_ADDRESS} in ${Date.now() - submitTime}ms`);
 }
 
 export async function submitLassieLogs(lassieLogs) {

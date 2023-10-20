@@ -2,12 +2,10 @@ import http from "node:http";
 import https from "node:https";
 import { Transform, pipeline } from "node:stream";
 import { pipeline as pipelinePromise } from "node:stream/promises";
-
 import { CarBlockIterator } from "@ipld/car";
 import { LRUCache } from "lru-cache";
 import { base64 } from "multiformats/bases/base64";
 import fetch from "node-fetch";
-
 import { LASSIE_ORIGIN, LASSIE_SP_ELIGIBLE_PORTION, hasNodeToken } from "../config.js";
 import { submitLassieLogs } from "../modules/log_ingestor.js";
 import { proxyAllResponseHeaders, proxyCARResponseHeaders, toUtf8 } from "../utils/http.js";
@@ -96,6 +94,9 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
         "User-Agent": req.headers["user-agent"],
       },
     };
+    if ("traceparent" in req.headers) {
+      fetchOpts.headers.traceparent = req.headers.traceparent;
+    }
     res.startTime("shim_lassie_headers");
     lassieRes = await fetch(lassieUrl, fetchOpts);
     res.startTime("shim_lassie_body");
@@ -157,6 +158,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
       endTime,
       numBytesDownloaded,
       requestId,
+      bifrostRequestId: req.headers["x-request-id"],
       url: req.protocol + "://" + req.get("host") + req.originalUrl,
       httpStatusCode: lassieRes?.status ?? null,
       requestErr,

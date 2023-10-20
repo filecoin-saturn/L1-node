@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-
 import { getResponseFormat } from "#src/utils/http.js";
 
 describe("http utils", () => {

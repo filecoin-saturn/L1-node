@@ -1,7 +1,6 @@
 import { X509Certificate } from "node:crypto";
 import fsPromises from "node:fs/promises";
 import fetch from "node-fetch";
-
 import {
   DEV_VERSION,
   FIL_WALLET_ADDRESS,
@@ -16,20 +15,21 @@ import {
   updateNodeToken,
   VERSION,
 } from "../config.js";
-import { debug as Debug } from "../utils/logging.js";
-import { getBootId, getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from "../utils/system.js";
-import { backupCertExists, CERT_PATH, certExists, getNewTLSCert, SSL_PATH, swapCerts } from "./tls.js";
-import { parseVersionNumber } from "../utils/version.js";
-import { orchestratorAgent } from "../utils/http.js";
-import { prefillCache } from "../utils/prefill.js";
 import { check } from "../lib/ocsp/check.js";
+import { orchestratorAgent } from "../utils/http.js";
+import { debug as Debug } from "../utils/logging.js";
+import { prefillCache } from "../utils/prefill.js";
 import { purgeCacheFile } from "../utils/purger.js";
+import { getBootId, getCPUStats, getDiskStats, getMemoryStats, getNICStats, getSpeedtest } from "../utils/system.js";
+import { parseVersionNumber } from "../utils/version.js";
+import { backupCertExists, CERT_PATH, certExists, getNewTLSCert, SSL_PATH, swapCerts } from "./tls.js";
 
 const debug = Debug.extend("registration");
 
 const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
 
 let requirements;
+let lastInitialRegistration = 0;
 export async function register(initial = false) {
   debug("Initiating registration (initial=%s)", initial);
   if (!requirements) {
@@ -98,8 +98,9 @@ export async function register(initial = false) {
 
   const certBuffer = await fsPromises.readFile(CERT_PATH);
 
-  if (initial) {
-    await checkCertValidity(certBuffer, registerOptions);
+  // Check cert validity on initial registration and at least twice daily
+  if (initial || lastInitialRegistration < Date.now() - 12 * 60 * 60 * 1000) {
+    await checkCertValidity(certBuffer, registerOptions, preregisterResponse);
   }
 
   if (backupCertExists) {
@@ -109,6 +110,10 @@ export async function register(initial = false) {
   debug("Registering with orchestrator...");
 
   await sendRegisterRequest(initial, registerOptions);
+
+  if (initial) {
+    lastInitialRegistration = Date.now();
+  }
 
   setTimeout(register, Math.ceil((NETWORK === "local" ? 1 : Math.random() * 4 + 6) * 60 * 1000));
 }
@@ -165,7 +170,7 @@ async function handleMissingCert(registerOptions) {
   }
 }
 
-async function checkCertValidity(certBuffer, registerOptions) {
+async function checkCertValidity(certBuffer, registerOptions, preregisterResponse) {
   const cert = new X509Certificate(certBuffer);
   const validTo = Date.parse(cert.validTo);
   let valid = true;
@@ -185,6 +190,16 @@ async function checkCertValidity(certBuffer, registerOptions) {
   if (NETWORK === "main" && cert.subjectAltName && !cert.subjectAltName.includes("l1s.saturn.ms")) {
     debug("Certificate is missing l1s.saturn.ms SAN, getting a new one...");
     valid = false;
+  }
+
+  if (NETWORK === "main" && cert.subjectAltName && Math.random() < 5 / 100) {
+    const subdomain = preregisterResponse?.ip?.replace(/\./g, "-");
+    const targetSAN = subdomain ? `${subdomain}.l1s.saturn.ms` : ".l1s.saturn.ms";
+
+    if (!cert.subjectAltName.includes(targetSAN)) {
+      debug(`Certificate is missing ${targetSAN} unique SAN, getting a new one...`);
+      valid = false;
+    }
   }
 
   if (NETWORK === "test" && cert.subjectAltName && !cert.subjectAltName.includes("l1s.saturn-test.ms")) {

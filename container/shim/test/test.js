@@ -1,14 +1,14 @@
-import test from "test";
 import assert from "node:assert";
-import app from "../src/index.js";
-import fetch, { Headers } from "node-fetch";
-import http from "node:http";
-import { promisify } from "node:util";
-import { DEV_VERSION, IPFS_GATEWAY_ORIGIN, NODE_ID, TESTING_CID } from "../src/config.js";
 import fsPromises from "node:fs/promises";
+import http from "node:http";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
 import nock from "nock";
+import fetch, { Headers } from "node-fetch";
+import test from "test";
+import { DEV_VERSION, IPFS_GATEWAY_ORIGIN, NODE_ID, TESTING_CID } from "../src/config.js";
+import app from "../src/index.js";
 
 const testCAR = await fsPromises.readFile(
   join(dirname(fileURLToPath(import.meta.url)), "..", "public", `${TESTING_CID}.car`)

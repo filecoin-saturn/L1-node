@@ -3,11 +3,9 @@
 Saturn L1 nodes are CDN edge caches in the outermost layer of the
 [Filecoin Saturn](https://saturn.tech/) network. L1 nodes serve [CAR
 files](https://ipld.io/specs/transport/car/) to retrieval clients as
-requested by their [CID](https://docs.filebase.com/ipfs/ipfs-cids)s.
-Cache misses are currently served by the [IPFS
-Gateway](https://docs.ipfs.tech/concepts/ipfs-gateway/). In the future,
-cache misses will be served by the [IPFS Network](https://ipfs.tech/)
-and Filecoin [Storage Providers](https://sp.filecoin.io/).
+requested by their [CID](https://docs.filebase.com/ipfs/about-ipfs/ipfs-cids)s.
+Cache misses are served by the [IPFS Network](https://ipfs.tech/) and
+Filecoin [Storage Providers](https://sp.filecoin.io/).
 
 Saturn is live. Do you have a server that meets the minimum [hardware
 requirements](#node-hardware-requirements)? If so, follow the [setup
@@ -44,7 +42,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 
 ### Node hardware requirements
 
-- Linux server with a static public IPv4 address
+- Linux server with a static public IPv4 address in a unique /24 CIDR block
 - Root access / passwordless sudo user ([How to](https://askubuntu.com/questions/147241/execute-sudo-without-password))
 - Ports 80 and 443 free and public to the internet
 - [Docker](https://www.docker.com/) installed ([Instructions here](https://docs.docker.com/engine/install/#server)) with [Docker Compose v2](https://www.docker.com/blog/announcing-compose-v2-general-availability/)
@@ -177,7 +175,7 @@ ansible-galaxy collection install community.docker
 ansible -vvv -i <path_to_your_inventory> <host_label> -m ping
 ```
 
-5. Replace the environment varariable values where appropriate and export them.
+5. Replace the environment variable values where appropriate and export them.
 
 - If **Main network:** Set `SATURN_NETWORK` to `main`
 - If you are switching networks check [Switching networks](#switching-networks) and rerun step 4 and 5.
@@ -259,7 +257,7 @@ You need to own a Filecoin wallet to receive FIL payments.
 - [Official Filecoin wallet documentation](https://docs.filecoin.io/get-started/overview/#wallets)
 
 - If you have an account on a Centralized Exchange (Coinbase, Binance, etc.) that supports Filecoin,
-  go through the steps to deposit Filecoin and you'll be given an wallet address. This is recommended
+  go through the steps to deposit Filecoin and you'll be given a wallet address. This is recommended
   if you don't want to manage your wallet's seed phrase.
 
 - Web wallets

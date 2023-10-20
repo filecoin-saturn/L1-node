@@ -1,8 +1,7 @@
 import fsPromises from "node:fs/promises";
 import fetch from "node-fetch";
-
-import { debug as Debug } from "../utils/logging.js";
 import { ORCHESTRATOR_URL } from "../config.js";
+import { debug as Debug } from "../utils/logging.js";
 
 const debug = Debug.extend("tls");
 
