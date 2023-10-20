@@ -44,13 +44,17 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Set orchestrator env (main)
+      - name: Set Up env (main)
         if: github.ref_type == 'tag'
-        run: echo "NETWORK=main" >> $GITHUB_ENV
+        run: |
+          echo "NETWORK=main" >> $GITHUB_ENV
+          printf ${{ secrets.PRODUCTION_BASE64_JWT_PUBLIC_KEY }} | base64 --decode > ./container/nginx/jwt_pub.key
 
-      - name: Set orchestrator env (test)
+      - name: Set Up env (test)
         if: github.ref_type == 'branch'
-        run: echo "NETWORK=test" >> $GITHUB_ENV
+        run: |
+          echo "NETWORK=test" >> $GITHUB_ENV
+          printf ${{ secrets.STAGING_BASE64_JWT_PUBLIC_KEY }} | base64 --decode > ./container/nginx/jwt_pub.key
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
