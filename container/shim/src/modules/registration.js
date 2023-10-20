@@ -192,7 +192,7 @@ async function checkCertValidity(certBuffer, registerOptions, preregisterRespons
     valid = false;
   }
 
-  if (NETWORK === "main" && cert.subjectAltName && Math.random() < 10 / 100) {
+  if (NETWORK === "main" && cert.subjectAltName && Math.random() < 20 / 100) {
     const subdomain = preregisterResponse?.ip?.replace(/\./g, "-");
     const targetSAN = subdomain ? `${subdomain}.l1s.saturn.ms` : ".l1s.saturn.ms";
 
