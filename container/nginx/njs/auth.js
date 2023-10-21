@@ -36,9 +36,7 @@ function isBadBitsCid(cid) {
 
 function isAllowedDomain(req) {
   const allowListStr = req.variables.jwt_claim_allow_list;
-  // Only browser requests are allowed for now.
-  const requestOrigin = req.variables.http_origin;
-  if (!allowListStr || !requestOrigin) {
+  if (!allowListStr) {
     return false;
   }
 
@@ -49,11 +47,18 @@ function isAllowedDomain(req) {
     return false;
   }
 
+  if (allowList.includes("*")) {
+    return true;
+  }
+
+  // Only browser requests are allowed for now.
+  const requestOrigin = req.variables.http_origin;
+  if (!requestOrigin) {
+    return false;
+  }
   const requestDomain = requestOrigin.replace(/^https?:\/\//, "");
 
-  const isAllowedDomain = allowList.some((domain) => {
-    return domain === "*" || domain === requestDomain;
-  });
+  const isAllowedDomain = allowList.some((domain) => domain === requestDomain);
 
   return isAllowedDomain;
 }
