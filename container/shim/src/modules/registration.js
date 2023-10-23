@@ -187,12 +187,12 @@ async function checkCertValidity(certBuffer, registerOptions, preregisterRespons
     debug(`Certificate is valid until ${cert.validTo}`);
   }
 
-  if (NETWORK === "main" && cert.subjectAltName && !cert.subjectAltName.includes("l1s.saturn.ms")) {
-    debug("Certificate is missing l1s.saturn.ms SAN, getting a new one...");
-    valid = false;
-  }
+  if (NETWORK === "main" && cert.subjectAltName) {
+    if (!cert.subjectAltName.includes("l1s.saturn.ms")) {
+      debug("Certificate is missing l1s.saturn.ms SAN, getting a new one...");
+      valid = false;
+    }
 
-  if (NETWORK === "main" && cert.subjectAltName && Math.random() < 20 / 100) {
     const subdomain = preregisterResponse?.ip?.replace(/\./g, "-");
     const targetSAN = subdomain ? `${subdomain}.l1s.saturn.ms` : ".l1s.saturn.ms";
 
