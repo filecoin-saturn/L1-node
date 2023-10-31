@@ -90,7 +90,7 @@ export async function register(initial = false) {
   const registerOptions = postOptions(body);
 
   // If cert is not yet in the volume, register
-  if (!certExists || (!backupCertExists && NETWORK === "main")) {
+  if (!certExists) {
     debug("First time registering or missing cert");
     await handleMissingCert(registerOptions);
     return;
