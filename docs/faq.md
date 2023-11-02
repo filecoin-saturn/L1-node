@@ -88,11 +88,19 @@ Also for the same region (country) the DNS weight will just compete with each ot
 
 If your node didn't gracefully shutdown and you need to manually deregister the node, from the host (same IP as the node):
 
-Send an HTTP POST to https://orchestrator.strn.pl/deregister with the `Content-Type` header set to `application/json` and the following body
+Send an HTTP POST to https://orchestrator.strn.pl/deregister with the `Content-Type` header set to `application/json` and the following body:
 
 ```json
 { "nodeId": "<NODE ID>" }
 ```
+
+If this returns `{"error":"Unable to deregister"}` then you may have used the "short" (8 character) instead of "long" (36 character) Node ID.
+Note that the _Failed registration: Node ... cannot register with newer version 1044_4292ce7 without deregistering first. Please make sure to set up graceful version upgrades._
+start-up error, which is what typically triggers having to do this, prints the short instead of the long Node ID.
+
+If this returns `{"error":"Invalid nodeId"}` then the syntax is wrong for another reason. 
+
+Using [`curl`](https://curl.se) this can be done with `curl -X POST https://orchestrator.strn.pl/deregister -H 'Content-Type: application/json' -d '{ "nodeId": "12345678-a3fa-3a10-a123-987e6b543c21" }'`.
 
 ## Wallet
 
