@@ -65,30 +65,30 @@ authorization_err=403 # jwt doesn't allow request origin
 cid="bafybeifpz6onienrgwvb3mw5rg7piq5jh63ystjn7s5wk6ttezy2gy5xwu/Mexico.JPG"
 url="${base_url}/ipfs/${cid}?format=car"
 
-# Requests fail without a jwt
+echo Requests succeed without a jwt
 code="$(curl -sw "%{http_code}\n" -o /dev/null "${url}")"
-test "$code" -eq "$authentication_err" || exit 1
+test "$code" -eq 200 || exit 1
 
-# Requests fail with explicit allow_list but without an origin header
+echo Requests fail with explicit allow_list but without an origin header
 code="$(curl -sw "%{http_code}\n" -o /dev/null "${url}&jwt=${jwtAllowExplicit}")"
 test "$code" -eq "$authorization_err" || exit 1
 
-# Requests fail with explicit allow_list but not allowed origin
+echo Requests fail with explicit allow_list but not allowed origin
 code="$(curl -sw "%{http_code}\n" -o /dev/null -H "Origin: https://abc.com" "${url}&jwt=${jwtAllowExplicit}")"
 test "$code" -eq "$authorization_err" || exit 1
 
-# Requests succeed with a jwt query param
+echo Requests succeed with a jwt query param
 code="$(curl -sw "%{http_code}\n" -o /dev/null -H "Origin: https://abc.com" "${url}&jwt=${jwtAllowAll}")"
 test "$code" -eq 200 || exit 1
 
-# Requests succeed with a jwt auth header
+echo Requests succeed with a jwt auth header
 code="$(curl -sw "%{http_code}\n" -o /dev/null -H "Origin: https://abc.com" -H "Authorization: Bearer ${jwtAllowAll}" "${url}")"
 test "$code" -eq 200 || exit 1
 
-# Requests succeed with explicit allow_list and allowed origin
+echo Requests succeed with explicit allow_list and allowed origin
 code="$(curl -sw "%{http_code}\n" -o /dev/null -H "Origin: https://google.com" "${url}&jwt=${jwtAllowExplicit}")"
 test "$code" -eq 200 || exit 1
 
-# Requests succeed with allow_list == [*] and without an origin header
+echo Requests succeed with allow_list == [*] and without an origin header
 code="$(curl -sw "%{http_code}\n" -o /dev/null "${url}&jwt=${jwtAllowAll}")"
 test "$code" -eq 200 || exit 1
