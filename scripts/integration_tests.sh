@@ -67,7 +67,7 @@ url="${base_url}/ipfs/${cid}?format=car"
 
 echo Requests succeed without a jwt
 code="$(curl -sw "%{http_code}\n" -o /dev/null "${url}")"
-test "$code" -eq "$authentication_err" || exit 1
+test "$code" -eq 200 || exit 1
 
 echo Requests fail with explicit allow_list but without an origin header
 code="$(curl -sw "%{http_code}\n" -o /dev/null "${url}&jwt=${jwtAllowExplicit}")"
