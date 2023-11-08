@@ -65,7 +65,7 @@ authorization_err=403 # jwt doesn't allow request origin
 cid="bafybeifpz6onienrgwvb3mw5rg7piq5jh63ystjn7s5wk6ttezy2gy5xwu/Mexico.JPG"
 url="${base_url}/ipfs/${cid}?format=car"
 
-# Requests fail without a jwt
+# Requests succeed without a jwt
 code="$(curl -sw "%{http_code}\n" -o /dev/null "${url}")"
 test "$code" -eq "$authentication_err" || exit 1
 

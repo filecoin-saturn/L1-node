@@ -2,6 +2,16 @@ import crypto from "crypto";
 
 const ipfsRegex = /^\/ipfs\/(\w+)(\/?.*)/;
 
+function routeRequest(req) {
+  const jwt = findJWT(req);
+  if (jwt) {
+    req.variables.jwt = jwt;
+    return req.internalRedirect("@auth_node_backend");
+  } else {
+    return req.internalRedirect("@node_backend");
+  }
+}
+
 function isAllowedRequest(req) {
   const matches = req.uri.match(ipfsRegex);
   if (!matches) {
@@ -75,4 +85,4 @@ function findJWT(req) {
   return jwtQuery || jwtHeader;
 }
 
-export default { isAllowedRequest, findJWT };
+export default { routeRequest, isAllowedRequest, findJWT };
