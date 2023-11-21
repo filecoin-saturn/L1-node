@@ -202,9 +202,19 @@ async function checkCertValidity(certBuffer, registerOptions, preregisterRespons
     }
   }
 
-  if (NETWORK === "test" && cert.subjectAltName && !cert.subjectAltName.includes("l1s.saturn-test.ms")) {
-    debug("Certificate is missing l1s.saturn-test.ms SAN, getting a new one...");
-    valid = false;
+  if (NETWORK === "test" && cert.subjectAltName) {
+    if (!cert.subjectAltName.includes("l1s.saturn-test.ms")) {
+      debug("Certificate is missing l1s.saturn-test.ms SAN, getting a new one...");
+      valid = false;
+    }
+
+    const subdomain = preregisterResponse?.ip?.replace(/\./g, "-");
+    const targetSAN = subdomain ? `${subdomain}.l1s.saturn-test.ms` : ".l1s.saturn-test.ms";
+
+    if (!cert.subjectAltName.includes(targetSAN)) {
+      debug(`Certificate is missing ${targetSAN} unique SAN, getting a new one...`);
+      valid = false;
+    }
   }
 
   if (!valid) {
