@@ -12,6 +12,10 @@ ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
 ARG NODEJS_MAJOR_VERSION="18"
 # https://github.com/filecoin-project/lassie/releases
 ARG LASSIE_VERSION="v0.19.2"
+# https://github.com/max-lt/nginx-jwt-module
+ARG NGINX_JWT_VERSION="v3.2.2"
+ARG LIBJWT_VERSION=1.15.3
+
 
 #############
 # nginx build
@@ -21,6 +25,8 @@ FROM docker.io/library/debian:bullseye AS build
 ARG NGINX_VERSION
 ARG NGX_BROTLI_COMMIT
 ARG NJS_VERSION
+ARG NGINX_JWT_VERSION
+ARG LIBJWT_VERSION
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \
@@ -45,6 +51,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
     clang \
   && rm -rf /var/lib/apt/lists/*
 
+
+# Install jwt dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \
+    libjansson-dev \
+    autoconf \
+    automake \
+    libtool \
+    pkg-config \
+    check \
+  && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /usr/src
 
 RUN echo "Cloning brotli $NGX_BROTLI_COMMIT" \
@@ -63,6 +80,20 @@ RUN echo "Cloning njs $NJS_VERSION" \
   && cd /usr/src/njs \
   && ./configure \
   && make
+
+RUN echo "Cloning nginx-jwt-module $NGINX_JWT_VERSION" \
+  && git clone --depth 1 --branch $NGINX_JWT_VERSION https://github.com/max-lt/nginx-jwt-module.git
+
+RUN echo "Installing libjwt $LIBJWT_VERSION" \
+  && mkdir libjwt \
+  && curl -sL https://github.com/benmcollins/libjwt/archive/v${LIBJWT_VERSION}.tar.gz \
+   | tar -zx -C libjwt/ --strip-components=1 \
+  && cd libjwt \
+  && autoreconf -i \
+  && ./configure \
+  && make all \
+  && make check \
+  && make install
 
 ARG CONFIG="--prefix=/etc/nginx \
  --sbin-path=/usr/sbin/nginx \
@@ -86,7 +117,8 @@ ARG CONFIG="--prefix=/etc/nginx \
  --with-http_sub_module \
  --with-http_v2_module \
  --add-dynamic-module=/usr/src/ngx_brotli \
- --add-dynamic-module=/usr/src/njs/nginx"
+ --add-dynamic-module=/usr/src/njs/nginx \
+ --add-dynamic-module=/usr/src/nginx-jwt-module"
 
 RUN echo "Downloading and extracting nginx $NGINX_VERSION" \
   && mkdir /usr/src/nginx \
@@ -111,6 +143,9 @@ COPY --from=build /usr/sbin/nginx /usr/sbin/
 COPY --from=build /usr/src/nginx/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/nginx/objs/ngx_http_brotli_static_module.so /usr/lib/nginx/modules/
 COPY --from=build /usr/src/nginx/objs/ngx_http_js_module.so /usr/lib/nginx/modules/
+COPY --from=build /usr/lib/nginx/modules/ngx_http_auth_jwt_module.so /usr/lib/nginx/modules/
+COPY --from=build /usr/local/lib/libjwt.so /lib
+
 
 # Prepare
 RUN apt-get update \
@@ -122,7 +157,7 @@ RUN apt-get update \
 
 # Install dependencies
 RUN apt-get update \
-  && apt-get install --no-install-recommends -y nodejs speedtest logrotate jq \
+  && apt-get install --no-install-recommends -y nodejs speedtest logrotate jq libjansson-dev \
   && rm -rf /var/lib/apt/lists/*
 
 # Download lassie
