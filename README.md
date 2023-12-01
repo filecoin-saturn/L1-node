@@ -31,6 +31,7 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
   - [Obtaining a Filecoin wallet address](#obtaining-a-filecoin-wallet-address)
   - [Receiving FIL payments](#receiving-fil-payments)
   - [Node monitoring](#node-monitoring)
+  - [Community Tools](#community-tools)
 - [License](#license)
 
 ## Requirements
@@ -279,8 +280,15 @@ When payments are scheduled to be sent out, your Filecoin wallet will receive a 
 
 ### Node monitoring
 
-- https://dashboard.saturn.tech - View historical data on your bandwidth contributions, FIL earnings, and more.
-- https://orchestrator.strn.pl/stats - View detailed, real-time stats on every Saturn node.
+- https://dashboard.saturn.tech - View detailed, real-time stats on every Saturn node.
+- https://dashboard.saturn.tech/address - View historical data on your bandwidth contributions, FIL earnings, and more.
+- https://explorer.saturn.tech - View a 3D geospatial visualization of the Saturn network, along with nodes and network statistics.
+
+### Community Tools
+
+These Saturn tools are maintained by community members outside the Saturn core team.
+
+- https://github.com/31z4/saturn-moonlet - Self-hosted Saturn monitoring using Prometheus and Grafana. View detailed, real-time and historical data on your nodes and earnings, setup alerts, and more.
 
 ## License
 
