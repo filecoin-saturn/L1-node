@@ -230,7 +230,7 @@ If you want to switch your node from Saturn's test network (aka `test`) to Satur
 
 ## Node operator guide
 
-For answers to common questions about operating a node, like about receiving your filecoin payouts, see the L1 node [FAQ](docs/faq.md) page.
+For answers to common questions about operating a node, see the L1 node [FAQ](docs/faq.md) page.
 
 ### Network Uptime Requirement
 
@@ -276,7 +276,7 @@ Slack.
 
 ### Claiming your earnings
 
-Each month, your node's earnings are calculated based on various factors such as the amount of bandwidth it served, the number of requests it handled, its performance metrics like TTFB and upload speed, and its availaility and uptime. These earnings are then sent to a payout FVM smart contract by the 7th day of the following month. For example, earnings for December 2022 would be transferred to a payout smart contract by January 7th, 2023.
+Each month, your node's earnings, in FIL, are calculated by the network based on various factors such as the amount of bandwidth it served, the number of requests it handled, its performance metrics like TTFB and upload speed, and its availaility and uptime. These earnings are then sent to a payout FVM smart contract by the 7th day of the following month. For example, earnings for December 2022 would be transferred to a payout smart contract by January 7th, 2023.
 
 After your node's earnings are in the payout FVM smart contract, you can claim them on [payouts.saturn.tech](https://payouts.saturn.tech). Claiming your earnings moves the Filecoin your node(s) earned from the smart contract to your personal Filecoin wallet.
 
