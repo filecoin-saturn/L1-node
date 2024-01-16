@@ -23,16 +23,20 @@ jobs:
   build-and-push-image:
     runs-on: larger
 
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64]
+
     permissions:
       contents: read
       packages: write
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -40,7 +44,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
@@ -57,12 +61,12 @@ jobs:
           printf ${{ secrets.STAGING_BASE64_JWT_PUBLIC_KEY }} | base64 --decode > ./container/nginx/jwt_pub.key
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: "arm64"
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Set the git short sha
         id: git
@@ -95,7 +99,7 @@ jobs:
           echo "version_docker_tags=$repo:${{ github.run_number}}_${{ steps.git.outputs.sha_short }}"
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
@@ -103,7 +107,7 @@ jobs:
             ${{ steps.tags.outputs.version_docker_tags }}
             ${{ steps.tags.outputs.mutable_docker_tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ matrix.platform }}
           cache-from: type=gha,scope=l1
           cache-to: type=gha,mode=max,scope=l1
           build-args: |
