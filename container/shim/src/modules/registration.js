@@ -90,7 +90,7 @@ export async function register(initial = false) {
   const registerOptions = postOptions(body);
 
   // If cert is not yet in the volume, register
-  if (!certExists || (!backupCertExists && NETWORK === "main")) {
+  if (!certExists) {
     debug("First time registering or missing cert");
     await handleMissingCert(registerOptions);
     return;
@@ -98,9 +98,9 @@ export async function register(initial = false) {
 
   const certBuffer = await fsPromises.readFile(CERT_PATH);
 
-  // Check cert validity on initial registration and at least once daily
-  if (initial || lastInitialRegistration < Date.now() - 24 * 60 * 60 * 1000) {
-    await checkCertValidity(certBuffer, registerOptions);
+  // Check cert validity on initial registration and at least twice daily
+  if (initial || lastInitialRegistration < Date.now() - 12 * 60 * 60 * 1000) {
+    await checkCertValidity(certBuffer, registerOptions, preregisterResponse);
   }
 
   if (backupCertExists) {
@@ -170,7 +170,7 @@ async function handleMissingCert(registerOptions) {
   }
 }
 
-async function checkCertValidity(certBuffer, registerOptions) {
+async function checkCertValidity(certBuffer, registerOptions, preregisterResponse) {
   const cert = new X509Certificate(certBuffer);
   const validTo = Date.parse(cert.validTo);
   let valid = true;
@@ -187,24 +187,34 @@ async function checkCertValidity(certBuffer, registerOptions) {
     debug(`Certificate is valid until ${cert.validTo}`);
   }
 
-  if (NETWORK === "main" && cert.subjectAltName && !cert.subjectAltName.includes("l1s.saturn.ms")) {
-    debug("Certificate is missing l1s.saturn.ms SAN, getting a new one...");
-    valid = false;
+  if (NETWORK === "main" && cert.subjectAltName) {
+    if (!cert.subjectAltName.includes("l1s.saturn.ms")) {
+      debug("Certificate is missing l1s.saturn.ms SAN, getting a new one...");
+      valid = false;
+    }
+
+    const subdomain = preregisterResponse?.ip?.replace(/\./g, "-");
+    const targetSAN = subdomain ? `${subdomain}.l1s.saturn.ms` : ".l1s.saturn.ms";
+
+    if (!cert.subjectAltName.includes(targetSAN)) {
+      debug(`Certificate is missing ${targetSAN} unique SAN, getting a new one...`);
+      valid = false;
+    }
   }
 
-  if (
-    NETWORK === "main" &&
-    cert.subjectAltName &&
-    !cert.subjectAltName.includes(".l1s.saturn.ms") &&
-    Math.random() < 1 / 100
-  ) {
-    debug("Certificate is missing <ip>.l1s.saturn.ms SAN, getting a new one...");
-    valid = false;
-  }
+  if (NETWORK === "test" && cert.subjectAltName) {
+    if (!cert.subjectAltName.includes("l1s.saturn-test.ms")) {
+      debug("Certificate is missing l1s.saturn-test.ms SAN, getting a new one...");
+      valid = false;
+    }
 
-  if (NETWORK === "test" && cert.subjectAltName && !cert.subjectAltName.includes("l1s.saturn-test.ms")) {
-    debug("Certificate is missing l1s.saturn-test.ms SAN, getting a new one...");
-    valid = false;
+    const subdomain = preregisterResponse?.ip?.replace(/\./g, "-");
+    const targetSAN = subdomain ? `${subdomain}.l1s.saturn-test.ms` : ".l1s.saturn-test.ms";
+
+    if (!cert.subjectAltName.includes(targetSAN)) {
+      debug(`Certificate is missing ${targetSAN} unique SAN, getting a new one...`);
+      valid = false;
+    }
   }
 
   if (!valid) {

@@ -57,7 +57,7 @@ function networkToOrchestrator() {
 function networkToIngestor() {
   switch (NETWORK) {
     case "main": {
-      return "https://twb3qukm2i654i3tnvx36char40aymqq.lambda-url.us-west-2.on.aws/";
+      return "https://25y6y3tobkpa3thvn5wvu6kgsa0wzhdk.lambda-url.us-west-2.on.aws/";
     }
     case "test": {
       return "https://p6wofrb2zgwrf26mcxjpprivie0lshfx.lambda-url.us-west-2.on.aws/";

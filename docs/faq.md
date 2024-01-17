@@ -15,15 +15,15 @@ We are continuously looking at the requirements and multiple factors, such as ge
 
 ## Payouts
 
-### When do I receive my FIL payouts?
+### When can I claim my FIL earnings?
 
-Node earnings, in FIL, are finalized at the end of every month and payouts are made shortly thereafter -- within the following few days. So you can expect to receive your FIL payout -- for prior month's earnings -- within the first week of every calendar month.
+Each month, your node's earnings, in FIL, are calculated by the network based on various factors such as the amount of bandwidth it served, the number of requests it handled, its performance metrics like TTFB and upload speed, and its availaility and uptime. These earnings are then sent to a payout FVM smart contract by the 7th day of the following month, after which they can be claimed. For example, earnings for December 2022 would be transferred to a payout smart contract by January 7th, 2023. Once transferred to the payout smart contract, they can be claimed on [payouts.saturn.tech](https://payouts.saturn.tech).
 
-### How do I receive my FIL payout?
+### How do I claim my payout?
 
-Your FIL payout will be sent in filecoin the filecoin wallet address set in your node's `FIL_WALLET_ADDRESS` environment variable.
+Once your earnings have been transferred to the monthly payout smart contract, which happens by the 7th day of the following month, they can be claimed on [payouts.saturn.tech](https://payouts.saturn.tech).
 
-Triple check that the wallet address in `FIL_WALLET_ADDRESS` is correct; filecoin sent to the wrong address can't be undone or re-sent.
+Triple check that the wallet address in `FIL_WALLET_ADDRESS` is correct; earnings earmarked under the wrong address in the payout smart contract can't be changed to be claimed by a different wallet address.
 
 ### I'm already a Filecoin storage provider, how does it work with my existing nodes, wallets, etc.?
 
@@ -88,11 +88,19 @@ Also for the same region (country) the DNS weight will just compete with each ot
 
 If your node didn't gracefully shutdown and you need to manually deregister the node, from the host (same IP as the node):
 
-Send an HTTP POST to https://orchestrator.strn.pl/deregister with the `Content-Type` header set to `application/json` and the following body
+Send an HTTP POST to https://orchestrator.strn.pl/deregister with the `Content-Type` header set to `application/json` and the following body:
 
 ```json
 { "nodeId": "<NODE ID>" }
 ```
+
+If this returns `{"error":"Unable to deregister"}` then you may have used the "short" (8 character) instead of "long" (36 character) Node ID.
+Note that the _Failed registration: Node ... cannot register with newer version 1044_4292ce7 without deregistering first. Please make sure to set up graceful version upgrades._
+start-up error, which is what typically triggers having to do this, prints the short instead of the long Node ID.
+
+If this returns `{"error":"Invalid nodeId"}` then the syntax is wrong for another reason.
+
+Using [`curl`](https://curl.se) this can be done with `curl -X POST https://orchestrator.strn.pl/deregister -H 'Content-Type: application/json' -d '{ "nodeId": "12345678-a3fa-3a10-a123-987e6b543c21" }'`.
 
 ## Wallet
 

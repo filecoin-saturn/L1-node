@@ -29,8 +29,9 @@ on [Filecoin Slack](https://filecoinproject.slack.com/)! 👋
 - [Switch networks between test net and main net](#switch-networks-between-test-net-and-main-net)
 - [Node operator guide](#node-operator-guide)
   - [Obtaining a Filecoin wallet address](#obtaining-a-filecoin-wallet-address)
-  - [Receiving FIL payments](#receiving-fil-payments)
+  - [Claiming your node's earnings](#claiming-your-earnings)
   - [Node monitoring](#node-monitoring)
+  - [Community Tools](#community-tools)
 - [License](#license)
 
 ## Requirements
@@ -229,7 +230,7 @@ If you want to switch your node from Saturn's test network (aka `test`) to Satur
 
 ## Node operator guide
 
-For answers to common questions about operating a node, like about receiving your filecoin payouts, see the L1 node [FAQ](docs/faq.md) page.
+For answers to common questions about operating a node, see the L1 node [FAQ](docs/faq.md) page.
 
 ### Network Uptime Requirement
 
@@ -252,7 +253,7 @@ Read more about Saturn's node uptime requirement in the docs, [here](https://doc
 
 ### Obtaining a Filecoin wallet address
 
-You need to own a Filecoin wallet to receive FIL payments.
+You need to own a Filecoin wallet to receive FIL payouts.
 
 - [Official Filecoin wallet documentation](https://docs.filecoin.io/get-started/overview/#wallets)
 
@@ -273,14 +274,23 @@ The Saturn team will **never** DM you or ask you to verify/validate/upgrade your
 please ask in public channels such as the [#filecoin-saturn](https://filecoinproject.slack.com/archives/C03DH0BL02E)
 Slack.
 
-### Receiving FIL payments
+### Claiming your earnings
 
-When payments are scheduled to be sent out, your Filecoin wallet will receive a FIL payment.
+Each month, your node's earnings, in FIL, are calculated by the network based on various factors such as the amount of bandwidth it served, the number of requests it handled, its performance metrics like TTFB and upload speed, and its availaility and uptime. These earnings are then sent to a payout FVM smart contract by the 7th day of the following month. For example, earnings for December 2022 would be transferred to a payout smart contract by January 7th, 2023.
+
+After your node's earnings are in the payout FVM smart contract, you can claim them on [payouts.saturn.tech](https://payouts.saturn.tech). Claiming your earnings moves the Filecoin your node(s) earned from the smart contract to your personal Filecoin wallet.
 
 ### Node monitoring
 
-- https://dashboard.saturn.tech - View historical data on your bandwidth contributions, FIL earnings, and more.
-- https://orchestrator.strn.pl/stats - View detailed, real-time stats on every Saturn node.
+- https://dashboard.saturn.tech - View detailed, real-time stats on every Saturn node.
+- https://dashboard.saturn.tech/address - View historical data on your bandwidth contributions, FIL earnings, and more.
+- https://explorer.saturn.tech - View a 3D geospatial visualization of the Saturn network, along with nodes and network statistics.
+
+### Community Tools
+
+These Saturn tools are maintained by community members outside the Saturn core team.
+
+- https://github.com/31z4/saturn-moonlet - Self-hosted Saturn monitoring using Prometheus and Grafana. View detailed, real-time and historical data on your nodes and earnings, setup alerts, and more.
 
 ## License
 
