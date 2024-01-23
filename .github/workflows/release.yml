@@ -23,10 +23,6 @@ jobs:
   build-and-push-image:
     runs-on: larger
 
-    strategy:
-      matrix:
-        platform: [linux/amd64, linux/arm64]
-
     permissions:
       contents: read
       packages: write
@@ -107,7 +103,7 @@ jobs:
             ${{ steps.tags.outputs.version_docker_tags }}
             ${{ steps.tags.outputs.mutable_docker_tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: ${{ matrix.platform }}
+          platforms: linux/amd64,linux/arm64
           cache-from: type=gha,scope=l1
           cache-to: type=gha,mode=max,scope=l1
           build-args: |
