@@ -1,12 +1,13 @@
 import fsPromises from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import * as Sentry from "@sentry/node";
 import express from "express";
 import asyncHandler from "express-async-handler";
 import mimeTypes from "mime-types";
 import { CID } from "multiformats";
 import serverTiming from "server-timing";
-import { IS_CORE_L1, TESTING_CID } from "./config.js";
+import { IS_CORE_L1, NETWORK, NODE_ID, ORCHESTRATOR_REGISTRATION, TESTING_CID } from "./config.js";
 import { respondFromLassie } from "./fetchers/lassie.js";
 import { addRegisterCheckRoute } from "./modules/registration.js";
 import { getResponseFormat } from "./utils/http.js";
@@ -15,6 +16,18 @@ import { debug } from "./utils/logging.js";
 const rootCidRegex = /^\/ip[fn]s\/[^/]+$/;
 
 const app = express();
+
+Sentry.init({
+  enabled: ["main", "test"].includes(NETWORK) && ORCHESTRATOR_REGISTRATION,
+  integrations: [
+    new Sentry.Integrations.Http(),
+    new Sentry.Integrations.Express({ app }),
+    new Sentry.Integrations.OnUncaughtException(),
+    new Sentry.Integrations.OnUnhandledRejection(),
+  ],
+  environment: NETWORK,
+  serverName: NODE_ID,
+});
 
 const testCAR = await fsPromises.readFile(
   join(dirname(fileURLToPath(import.meta.url)), "..", "public", `${TESTING_CID}.car`)

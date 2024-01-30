@@ -10,6 +10,7 @@
   "dependencies": {
     "@glif/filecoin-address": "^3.0.0",
     "@ipld/car": "^5.2.6",
+    "@sentry/node": "^7.98.0",
     "asn1.js-rfc2560": "^5.0.1",
     "asn1.js-rfc5280": "^3.0.0",
     "debug": "^4.3.4",
