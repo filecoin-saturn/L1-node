@@ -9,7 +9,7 @@ ARG NJS_VERSION=0.8.2
 # https://github.com/google/ngx_brotli
 ARG NGX_BROTLI_COMMIT=6e975bcb015f62e1f303054897783355e2a877dc
 # https://nodejs.org/en
-ARG NODEJS_MAJOR_VERSION="21"
+ARG NODEJS_MAJOR_VERSION="20"
 # https://github.com/filecoin-project/lassie/releases
 ARG LASSIE_VERSION="v0.21.0"
 # https://github.com/max-lt/nginx-jwt-module
