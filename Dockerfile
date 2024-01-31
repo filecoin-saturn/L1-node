@@ -48,11 +48,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
     llvm-dev \
     libclang-dev \
     clang \
-  && rm -rf /var/lib/apt/lists/*
-
-
-# Install jwt dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \
     libjansson-dev \
     autoconf \
     automake \
