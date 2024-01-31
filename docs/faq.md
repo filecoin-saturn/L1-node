@@ -117,3 +117,10 @@ Retrievals that have already been submitted will be paid to the configured walle
 ### When can I change my wallet address?
 
 You can change your wallet address anytime before the end of the month, as payouts are processed next day (1st of next month)
+
+## Logs submission
+
+### What can I do if the logs submission fails without a reason?
+
+1. Disable IPv6 con the host
+2. Restart docker container `docker restart -t 0 saturn-node`
