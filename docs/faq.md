@@ -118,9 +118,13 @@ Retrievals that have already been submitted will be paid to the configured walle
 
 You can change your wallet address anytime before the end of the month, as payouts are processed next day (1st of next month)
 
-## Logs submission
+## Errors and warnings
 
 ### What can I do if the logs submission fails without a reason?
 
 1. Disable IPv6 con the host
 2. Restart docker container `docker restart -t 0 saturn-node`
+
+### What can I do if lassie errors?
+
+These errors are only information and not an issue in the node, these errors can be safely ignored.
