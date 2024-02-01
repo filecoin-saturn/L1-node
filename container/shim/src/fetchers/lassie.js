@@ -9,6 +9,7 @@ import fetch from "node-fetch";
 import { LASSIE_ORIGIN, LASSIE_SP_ELIGIBLE_PORTION, hasNodeToken } from "../config.js";
 import { submitLassieLogs } from "../modules/log_ingestor.js";
 import { proxyAllResponseHeaders, proxyCARResponseHeaders, toUtf8 } from "../utils/http.js";
+import { getKnownPeers } from "../utils/jwt.js";
 import { debug as Debug } from "../utils/logging.js";
 
 const debug = Debug.extend("lassie");
@@ -171,6 +172,7 @@ export async function respondFromLassie(req, res, { cidObj, format }) {
 
 function createLassieURL(req, isRawFormat) {
   const lassieUrl = new URL(LASSIE_ORIGIN + toUtf8(req.path));
+
   for (const [key, val] of Object.entries(req.query)) {
     if (key === "filename") {
       continue;
@@ -223,6 +225,14 @@ function createLassieURL(req, isRawFormat) {
       lassieUrl.searchParams.set("protocols", "bitswap,http");
     }
   }
+
+  const knownPeers = getKnownPeers(req);
+  const knownPeersLassieUrl = generatePeersLassieUrl(knownPeers)
+
+  if (knownPeersLassieUrl) {
+    lassieUrl.searchParams.set("providers", knownPeersLassieUrl)
+  }
+
   return lassieUrl;
 }
 
@@ -295,6 +305,28 @@ async function getRequestedBlockFromCar(streamIn, streamOut, cidObj, filename) {
     }
     count++;
   }
+}
+
+function generatePeersLassieUrl(knownPeers) {
+
+  const peerUrls = []
+  if (knownPeers) {
+    const knownPeerList = []
+    Object.values(knownPeers).forEach((peerList) => {
+      knownPeerList.push(...peerList)
+    })
+
+    knownPeerList.forEach((peer, idx) => {
+      const { peerID, multiaddr, protocol } = peer
+      if (!peerID || !multiaddr || !protocol) {
+        return
+      }
+      const peerUrl = multiaddr.startsWith('http') ? multiaddr :  `${multiaddr}/p2p/${peerID}+${protocol}`
+      peerUrls.push(peerUrl)
+    })
+  }
+  const urlString = peerUrls.join(',')
+  return urlString
 }
 
 async function queueMetricsReport(newMetric) {
