@@ -21,16 +21,20 @@ import { trapServer } from "../utils/trap.js";
 if (!NODE_ID.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)) {
   debug("Invalid node ID, deleting node ID file");
   await fs.unlink(NODE_ID_FILE_PATH);
-  throw new Error("Invalid node ID");
+  process.exit(1);
 }
 
 debug("Saturn L1 Node");
 debug.extend("id")(NODE_ID);
 debug.extend("version")(VERSION);
 
-if (!validateAddressString(FIL_WALLET_ADDRESS)) throw new Error("Invalid wallet address");
+if (!validateAddressString(FIL_WALLET_ADDRESS)) {
+  debug("Invalid wallet address, please update FIL_WALLET_ADDRESS environment variable");
+  process.exit(1);
+}
 if (!FIL_WALLET_ADDRESS.startsWith("f") && NETWORK === "main") {
-  throw new Error("Invalid testnet wallet address for Saturn Main Network");
+  debug("Invalid testnet wallet address for Saturn Main Network");
+  process.exit(1);
 }
 
 debug.extend("important")("===== IMPORTANT =====");
@@ -43,7 +47,7 @@ setTimeout(async function () {
     await register(true).catch((err) => {
       debug(`Failed to register ${err.name} ${err.message}`);
       // we don't try again if we fail the initial registration
-      process.exit(0);
+      process.exit(1);
     });
   }
 
