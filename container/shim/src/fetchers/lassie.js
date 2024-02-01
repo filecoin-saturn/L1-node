@@ -227,10 +227,10 @@ function createLassieURL(req, isRawFormat) {
   }
 
   const knownPeers = getKnownPeers(req);
-  const knownPeersLassieUrl = generatePeersLassieUrl(knownPeers)
+  const knownPeersLassieUrl = generatePeersLassieUrl(knownPeers);
 
   if (knownPeersLassieUrl) {
-    lassieUrl.searchParams.set("providers", knownPeersLassieUrl)
+    lassieUrl.searchParams.set("providers", knownPeersLassieUrl);
   }
 
   return lassieUrl;
@@ -308,25 +308,24 @@ async function getRequestedBlockFromCar(streamIn, streamOut, cidObj, filename) {
 }
 
 function generatePeersLassieUrl(knownPeers) {
-
-  const peerUrls = []
+  const peerUrls = [];
   if (knownPeers) {
-    const knownPeerList = []
+    const knownPeerList = [];
     Object.values(knownPeers).forEach((peerList) => {
-      knownPeerList.push(...peerList)
-    })
+      knownPeerList.push(...peerList);
+    });
 
     knownPeerList.forEach((peer, idx) => {
-      const { peerID, multiaddr, protocol } = peer
+      const { peerID, multiaddr, protocol } = peer;
       if (!peerID || !multiaddr || !protocol) {
-        return
+        return;
       }
-      const peerUrl = multiaddr.startsWith('http') ? multiaddr :  `${multiaddr}/p2p/${peerID}+${protocol}`
-      peerUrls.push(peerUrl)
-    })
+      const peerUrl = multiaddr.startsWith("http") ? multiaddr : `${multiaddr}/p2p/${peerID}+${protocol}`;
+      peerUrls.push(peerUrl);
+    });
   }
-  const urlString = peerUrls.join(',')
-  return urlString
+  const urlString = peerUrls.join(",");
+  return urlString;
 }
 
 async function queueMetricsReport(newMetric) {
