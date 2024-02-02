@@ -1,11 +1,11 @@
 import jwt from "jsonwebtoken";
 
-export function findJWT(req) {
-  const jwtQuery = req.variables.arg_jwt;
+function findJWT(req) {
+  const jwtQuery = req.query.jwt;
 
   let jwtHeader = "";
-  const authHeader = req.variables.http_authorization;
-  if (authHeader) {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
     jwtHeader = authHeader.replace("Bearer ", "");
   }
 
