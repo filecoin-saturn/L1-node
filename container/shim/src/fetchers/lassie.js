@@ -317,11 +317,15 @@ function generatePeersLassieUrl(knownPeers) {
 
     knownPeerList.forEach((peer, idx) => {
       const { peerID, multiaddr, protocol } = peer;
-      if (!peerID || !multiaddr || !protocol) {
+
+      if (multiaddr && multiaddr.startsWith("http")) {
+        peerUrls.push(multiaddr);
         return;
       }
-      const peerUrl = multiaddr.startsWith("http") ? multiaddr : `${multiaddr}/p2p/${peerID}+${protocol}`;
-      peerUrls.push(peerUrl);
+      if (multiaddr && peerID && protocol) {
+        const peerUrl = `${multiaddr}/p2p/${peerID}+${protocol}`;
+        peerUrls.push(peerUrl);
+      }
     });
   }
   const urlString = peerUrls.join(",");
