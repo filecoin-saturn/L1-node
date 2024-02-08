@@ -247,6 +247,8 @@ function getSemanticErrorStatus(status, body) {
  * @param {string} filename
  */
 function sendBlockResponse(res, block, cidObj, filename) {
+  if (res.writableEnded) return;
+
   res.status(200);
   res.set("content-length", Buffer.byteLength(block));
   res.set("content-type", "application/vnd.ipld.raw");

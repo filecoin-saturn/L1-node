@@ -206,7 +206,13 @@ async function executeLogIngestor() {
     if (!(await isFileAccessible(logFile))) continue;
 
     // stream the log file and parse the lines
-    const read = await readLines(logFile);
+    let read;
+    try {
+      read = await readLines(logFile);
+    } catch (err) {
+      if (err.code === "ENOENT") continue;
+      throw err;
+    }
 
     const logs = [];
     for (let i = 0; i < read.lines.length; i++) {
