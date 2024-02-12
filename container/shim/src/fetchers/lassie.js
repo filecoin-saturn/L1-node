@@ -310,10 +310,7 @@ async function getRequestedBlockFromCar(streamIn, streamOut, cidObj, filename) {
 function generatePeersLassieUrl(knownPeers) {
   const peerUrls = [];
   if (knownPeers) {
-    const knownPeerList = [];
-    Object.values(knownPeers).forEach((peerList) => {
-      knownPeerList.push(...peerList);
-    });
+    const knownPeerList = Object.values(knownPeers).flat()
 
     knownPeerList.forEach((peer, idx) => {
       const { peerID, multiaddr, protocol } = peer;
