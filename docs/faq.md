@@ -60,6 +60,21 @@ These are the current penalties that affect both DNS weight and earned FIL:
 - Fraudulent logging (e.g. self-dealing)
 - Multi-noding (Running multiple nodes on the same host)
 
+These are visible e.g. by hovering over the _Weight_ of a Node on https://dashboard.saturn.tech.
+
+Here are more details about each kind of penalty, with information what could cause it, and how to remedy if your Node encounters them:
+
+- Error ratio is caused by network errors connecting to the node and HTTP 5xx errors
+  - Node refusing to connect with a client multiple times.
+- Duplicate Cache Miss Ratio is caused when the same CID & file path is cached missed to upstream providers. This shouldn't happen if the node has enough disk and the right file permissions.
+- Health Check Failures are caused by an unexpectedly (not deregistered) unreachable node. This isn't necessarily the node's fault, but could also be a connectivity issue anywhere in the internet path from the orchestrator to the node.
+  - This penalty starts with each health check failure event, and then gradually decreases over ~6h.
+  - Fix this by resolving the root cause of the node unavailability.
+  - Note the [deregister my node](#how-can-i-manually-deregister-my-node) section.
+
+- Old Version is caused by the container image version not having been upgraded after a new release
+  - This penalty is cleared immediately when registered with the current version.
+
 ## Registration
 
 ### My Node fails to register with error ETIMEDOUT/EHOSTUNREACH
