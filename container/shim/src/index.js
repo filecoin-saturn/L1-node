@@ -43,7 +43,6 @@ app.get("/favicon.ico", (req, res) => {
 
 const handleCID = asyncHandler(async (req, res) => {
   // Prevent Service Worker registration on namespace roots
-  // https://github.com/ipfs/kubo/issues/4025
   const isRootCid = rootCidRegex.test(req.path);
   if (req.headers["service-worker"] === "script" && isRootCid) {
     const msg = "navigator.serviceWorker: registration is not allowed for this scope";
@@ -73,9 +72,13 @@ const handleCID = asyncHandler(async (req, res) => {
   res.set("Content-Type", mimeTypes.lookup(req.path) || "application/octet-stream");
 
   if (req.headers.range && cid === TESTING_CID) {
-    let [start, end] = req.headers.range.split("=")[1].split("-");
-    start = parseInt(start, 10);
-    end = parseInt(end, 10);
+    const range = req.headers.range.split("=")[1].split("-");
+    let start = parseInt(range[0], 10);
+    let end = parseInt(range[1], 10);
+
+    if (isNaN(start) || isNaN(end) || start < 0 || end < start) {
+      return res.status(400).end("Invalid range values");
+    }
 
     res.set({
       "Accept-Ranges": "bytes",
